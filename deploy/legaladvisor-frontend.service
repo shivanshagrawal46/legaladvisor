@@ -1,0 +1,21 @@
+[Unit]
+Description=Legal Advisor React Frontend (serve static on :5015)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mango_tree/legaladvisor/frontend
+# deploy.sh rewrites this ExecStart to point at the local serve binary inside
+# this project's node_modules/.bin/ — so there's no dependency on a global
+# `npx` or `serve` command.
+ExecStart=/usr/bin/env serve -s dist -l 5015
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

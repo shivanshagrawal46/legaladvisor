@@ -1,0 +1,16 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+logs/
+*.log
+*.pst
+data/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,33 @@
+name: Deploy to DigitalOcean
+
+# Auto-runs on every push to `main`. You can also run it manually from the
+# GitHub UI (Actions tab → "Deploy to DigitalOcean" → Run workflow).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into server and run deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            DEPLOY_DIR="/root/mango_tree/legaladvisor"
+
+            # Pull latest code (uses repo's SSH or HTTPS — whichever was cloned)
+            cd "$DEPLOY_DIR"
+            git fetch --all
+            git reset --hard origin/main
+
+            # Run the deploy script
+            chmod +x deploy.sh
+            bash deploy.sh

@@ -1,0 +1,21 @@
+[Unit]
+Description=Legal Advisor RAG Backend (FastAPI + Uvicorn on :5115)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mango_tree/legaladvisor
+EnvironmentFile=/root/mango_tree/legaladvisor/.env
+# NOTE: deploy.sh patches this line to use the venv's uvicorn binary
+ExecStart=/usr/bin/python3 -m uvicorn server:app --host 0.0.0.0 --port 5115 --workers 1
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Resource limits — keep this service from starving other projects on the box
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

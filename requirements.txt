@@ -1,0 +1,64 @@
+# PST parsing
+libratom==0.7.1
+
+# MongoDB
+pymongo[srv]>=4.6,<5.0
+
+# Configuration
+python-dotenv>=1.0
+
+# Cleaning / text processing
+# Note: pinned to 4.11.x to satisfy libratom==0.7.1 which requires
+# beautifulsoup4==4.11.1. Our HTML cleaner only uses APIs available in
+# 4.x so this is safe.
+beautifulsoup4>=4.11,<4.12
+lxml>=5.0
+html2text>=2024.2.26
+ftfy>=6.2
+chardet>=5.2
+
+# Date handling
+python-dateutil>=2.9
+
+# Logging & UX
+loguru>=0.7
+# tqdm pinned by libratom (==4.64.1); we don't strictly need a newer version.
+tqdm>=4.64
+
+# Excel export
+openpyxl>=3.1
+
+# Utility
+tldextract>=5.1
+
+# =====================================================================
+# Phase 2 — RAG (text extraction + embeddings + Claude)
+# =====================================================================
+
+# PDF text + layout extraction (born-digital PDFs)
+PyMuPDF>=1.24
+
+# Word .docx extraction
+python-docx>=1.1
+
+# OCR for scanned PDFs / images (PaddleOCR + its DL engine)
+paddleocr>=2.8
+paddlepaddle>=2.6
+pillow>=10.2
+
+# Embeddings + reranker (Voyage AI)
+# Pinned to 0.2.x — the 0.3.x line pulls in langchain dependencies that
+# are not Python-3.9 compatible.
+voyageai>=0.2.3,<0.3
+
+# LLM (Claude Sonnet 4.5)
+anthropic>=0.39
+
+# aiohttp pinned for Python 3.9 compatibility (voyageai dependency)
+aiohttp>=3.10,<3.12
+
+# Token counting (used for chunk-size budgeting)
+tiktoken>=0.7
+
+# Retry / backoff for API calls
+tenacity>=8.3

@@ -1,0 +1,41 @@
+# =============================================================================
+# Server runtime requirements (slim).
+# Only what the FastAPI chat backend needs at runtime.
+# EXCLUDES: libratom (PST parsing), paddleocr/paddlepaddle (OCR), openpyxl
+#           (Excel export) — those were used in the data prep phase, the
+#           server only reads from MongoDB.
+#
+# This makes deploy ~10× faster and ~1.5GB lighter than full requirements.txt
+# =============================================================================
+
+# Web server
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+
+# Auth (JWT)
+python-jose[cryptography]>=3.3
+passlib[bcrypt]>=1.7
+bcrypt==4.0.1
+
+# MongoDB
+pymongo[srv]>=4.6,<5.0
+
+# Configuration
+python-dotenv>=1.0
+
+# Voyage AI (embeddings + reranker)
+voyageai>=0.2.3,<0.3
+aiohttp>=3.10,<3.12
+
+# Claude (Anthropic)
+anthropic>=0.39
+
+# Token counting (used by chunker, retriever calls it)
+tiktoken>=0.7
+
+# Retry / backoff
+tenacity>=8.3
+
+# Logging
+loguru>=0.7
