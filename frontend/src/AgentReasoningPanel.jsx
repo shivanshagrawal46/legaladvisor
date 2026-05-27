@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Collapse, Tag, Tooltip, Progress, Typography, Button } from "antd";
 import {
   RobotOutlined,
@@ -188,7 +188,32 @@ export default function AgentReasoningPanel({
     ?? trace?.budget?.tool_calls_used
     ?? steps.filter(s => s.type === "tool_call").length;
   const maxCalls = budget?.max_tool_calls || 8;
-  const elapsedMs = done?.elapsed_ms ?? trace?.budget?.elapsed_s * 1000 ?? null;
+
+  // Live wall-clock timer for the running agent (ticks every 1s). The
+  // backend only emits cumulative `elapsed_s` AFTER a step completes,
+  // so a slow Opus call between steps would otherwise leave the timer
+  // frozen for minutes. We anchor on the first time we see the panel
+  // and tick locally until the agent reports its own elapsed.
+  const [liveElapsedMs, setLiveElapsedMs] = useState(0);
+  const [liveStartedAt] = useState(() => Date.now());
+  useEffect(() => {
+    if (!isStreaming || done) return;
+    const id = setInterval(() => {
+      setLiveElapsedMs(Date.now() - liveStartedAt);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [isStreaming, done, liveStartedAt]);
+
+  // Order of preference: final done payload → backend cumulative → local
+  // live tick. Each layer is NaN-guarded so we never render `NaNs`.
+  const _backendElapsedMs =
+    typeof trace?.budget?.elapsed_s === "number"
+      ? trace.budget.elapsed_s * 1000
+      : null;
+  const elapsedMs =
+    (typeof done?.elapsed_ms === "number" ? done.elapsed_ms : null)
+    ?? _backendElapsedMs
+    ?? (isStreaming ? liveElapsedMs : null);
 
   const headerColor = done?.outcome === "VERIFIED_FIRST_PASS" ? "#3c7e1a"
                     : done?.outcome === "VERIFIED_AFTER_RETRY" ? "#3a6cb0"
@@ -247,7 +272,7 @@ export default function AgentReasoningPanel({
               <Text style={styles.meterLabel}>{toolCallsUsed}/{maxCalls}</Text>
             </div>
           </Tooltip>
-          {elapsedMs != null && (
+          {elapsedMs != null && Number.isFinite(elapsedMs) && (
             <Text style={styles.elapsedText}>
               <ClockCircleOutlined style={{ marginRight: 3 }} />
               {(elapsedMs / 1000).toFixed(1)}s

@@ -155,6 +155,20 @@ class AgentRunner:
             }
             for ts in tool_specs.values()
         ]
+        # ── Prompt caching ──────────────────────────────────────────────
+        # The tool definitions are the same on every Opus call in this
+        # query's loop. Marking the LAST tool as a cache breakpoint tells
+        # Anthropic to cache every tool spec up to and including this one.
+        # Subsequent calls in the same conversation read the cache at
+        # ~0.1× the input price AND ~10× faster (the bottleneck is
+        # tokenisation, not network). This is the single biggest latency
+        # win for the agent loop — without it, a 150K-token context is
+        # re-shipped every round-trip and Opus takes 4–5 min per step.
+        if tool_descriptions:
+            tool_descriptions[-1] = {
+                **tool_descriptions[-1],
+                "cache_control": {"type": "ephemeral"},
+            }
 
         # Stream a high-level plan event so the UI knows the agent started
         pad.emit("agent_plan", {
@@ -183,27 +197,47 @@ class AgentRunner:
                 logger.warning(f"agent seed retrieval failed (non-fatal): {exc}")
 
         # ----- conversation state for the planner ---------------------
-        system_prompt = build_agent_system_prompt(
+        system_prompt_text = build_agent_system_prompt(
             today=datetime.now(timezone.utc),
             max_calls=budget.max_tool_calls,
         )
+        # The system prompt never changes during the loop. Send it as a
+        # cacheable block so Anthropic reuses it across every Opus call.
+        system_prompt: List[Dict[str, Any]] = [
+            {
+                "type": "text",
+                "text": system_prompt_text,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ]
 
         # The conversation is a synthetic dialogue between the agent
         # (assistant turns containing tool_use blocks) and us (user
         # turns containing tool_result blocks). We seed it with the
         # initial user question + a textual summary of the seed chunks.
+        # The seed summary is the HEAVIEST part of the prompt (80 chunks
+        # × ~500-char snippets) and never changes during the loop —
+        # mark it as a cache breakpoint so the bulk of the input tokens
+        # only get processed once and are reused on subsequent turns.
         seed_summary = self._render_seed_chunks(pad)
+        seed_text = (
+            f"USER QUESTION:\n{query}\n\n"
+            f"INITIAL SEED ({pad.n_chunks} chunks already in your "
+            f"scratchpad, indexed [#1]..[#{pad.n_chunks}]):\n"
+            f"{seed_summary}\n\n"
+            "Plan your next step. Call a tool, or call "
+            "submit_final_answer when ready."
+        )
         messages: List[Dict[str, Any]] = [
             {
                 "role": "user",
-                "content": (
-                    f"USER QUESTION:\n{query}\n\n"
-                    f"INITIAL SEED ({pad.n_chunks} chunks already in your "
-                    f"scratchpad, indexed [#1]..[#{pad.n_chunks}]):\n"
-                    f"{seed_summary}\n\n"
-                    "Plan your next step. Call a tool, or call "
-                    "submit_final_answer when ready."
-                ),
+                "content": [
+                    {
+                        "type": "text",
+                        "text": seed_text,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
             }
         ]
 
@@ -488,7 +522,7 @@ class AgentRunner:
         *,
         pad: AgentScratchpad,
         messages: List[Dict[str, Any]],
-        system_prompt: str,
+        system_prompt: Any,  # list[dict] of cached blocks (or legacy str)
         tool_descriptions: List[Dict[str, Any]],
         tool_specs: Dict[str, Any],
         reason: str,
