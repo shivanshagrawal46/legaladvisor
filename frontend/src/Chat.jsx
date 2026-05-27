@@ -13,6 +13,11 @@ import { useWebSocket } from "./useWebSocket";
 import Sources from "./Sources";
 import Sidebar from "./Sidebar";
 import { getSessions, createSession, getSession } from "./api";
+import { EvidenceProvider } from "./EvidenceContext";
+import { renderWithCitations } from "./CitationChip";
+import EvidenceDrawer from "./EvidenceDrawer";
+import VerificationBanner from "./VerificationBanner";
+import AgentReasoningPanel from "./AgentReasoningPanel";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -30,8 +35,32 @@ const EMPTY_SESSION = {
   streaming: false,
   buffer: "",
   sources: null,
+  verification: null,
+  // Sprint-4: live agent reasoning state. Populated from agent_plan /
+  // agent_step / agent_done WS frames. On `done` this is merged into
+  // the saved assistant message so history replay still shows it.
+  agent: null,             // { plan, steps[], done, trace } | null
   mode: "normal",
   loaded: false,
+};
+
+// ReactMarkdown component overrides: intercept text-bearing elements
+// and rewrite "[#N]" tokens into clickable <CitationChip/> elements.
+// We override paragraph, list-item, table-cell, blockquote, headings,
+// and emphasis — i.e. every place Markdown emits a text node — so chips
+// render no matter where the LLM placed them.
+const MD_COMPONENTS = {
+  p:          ({ node, children, ...p }) => <p {...p}>{renderWithCitations(children)}</p>,
+  li:         ({ node, children, ...p }) => <li {...p}>{renderWithCitations(children)}</li>,
+  td:         ({ node, children, ...p }) => <td {...p}>{renderWithCitations(children)}</td>,
+  th:         ({ node, children, ...p }) => <th {...p}>{renderWithCitations(children)}</th>,
+  blockquote: ({ node, children, ...p }) => <blockquote {...p}>{renderWithCitations(children)}</blockquote>,
+  strong:     ({ node, children, ...p }) => <strong {...p}>{renderWithCitations(children)}</strong>,
+  em:         ({ node, children, ...p }) => <em {...p}>{renderWithCitations(children)}</em>,
+  h1:         ({ node, children, ...p }) => <h1 {...p}>{renderWithCitations(children)}</h1>,
+  h2:         ({ node, children, ...p }) => <h2 {...p}>{renderWithCitations(children)}</h2>,
+  h3:         ({ node, children, ...p }) => <h3 {...p}>{renderWithCitations(children)}</h3>,
+  h4:         ({ node, children, ...p }) => <h4 {...p}>{renderWithCitations(children)}</h4>,
 };
 
 function TypingDots() {
@@ -48,27 +77,46 @@ function TypingDots() {
   );
 }
 
-function AIMessage({ msg, isStreaming }) {
+function AIMessage({ msg, isStreaming, onInterrupt }) {
   return (
-    <div style={styles.aiRow}>
-      <div style={styles.aiAvatar}>⚖️</div>
-      <div style={styles.aiBubble}>
-        {msg.mode === "timeline" && (
-          <Tag icon={<ClockCircleOutlined />} style={styles.timelineTag}>
-            Timeline mode
-          </Tag>
-        )}
-        {msg.content ? (
-          <div className="md-content">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
-            {isStreaming && <span className="typing-cursor" />}
-          </div>
-        ) : (
-          <TypingDots />
-        )}
-        {msg.sources && <Sources items={msg.sources} />}
+    <EvidenceProvider sources={msg.sources} verification={msg.verification}>
+      <div style={styles.aiRow}>
+        <div style={styles.aiAvatar}>⚖️</div>
+        <div style={styles.aiBubble}>
+          {msg.mode === "timeline" && (
+            <Tag icon={<ClockCircleOutlined />} style={styles.timelineTag}>
+              Timeline mode
+            </Tag>
+          )}
+          {/* Sprint-4: agent reasoning panel above the answer */}
+          {msg.agent && (
+            <AgentReasoningPanel
+              agent={msg.agent}
+              isStreaming={isStreaming}
+              onInterrupt={isStreaming ? onInterrupt : null}
+            />
+          )}
+          {/* Sprint-3-finish: show verification summary above the answer. */}
+          {msg.verification && !isStreaming && <VerificationBanner />}
+
+          {msg.content ? (
+            <div className="md-content">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                {msg.content}
+              </ReactMarkdown>
+              {isStreaming && <span className="typing-cursor" />}
+            </div>
+          ) : (
+            (msg.agent && isStreaming) ? null : <TypingDots />
+          )}
+          {msg.sources && <Sources items={msg.sources} />}
+        </div>
       </div>
-    </div>
+      {/* Drawer is mounted inside the provider so it gets the right
+          message-scoped sources + verification. AntD `Drawer` portals
+          itself out to <body>, so this won't break layout. */}
+      <EvidenceDrawer />
+    </EvidenceProvider>
   );
 }
 
@@ -122,7 +170,52 @@ export default function Chat({ user }) {
     } else if (data.type === "start") {
       const sid = data.session_id;
       streamingSidRef.current = sid;
-      patchSession(sid, { streaming: true, buffer: "", sources: null, mode: data.mode || "normal" });
+      patchSession(sid, {
+        streaming: true,
+        buffer: "",
+        sources: null,
+        verification: null,
+        // Sprint-4: if the backend tells us the agent is engaged, seed
+        // an empty agent panel so the UI shows the "Investigating…"
+        // header BEFORE the first agent_plan frame arrives.
+        agent: data.agent_enabled ? { plan: null, steps: [], done: null, trace: null } : null,
+        mode: data.mode || "normal",
+      });
+    } else if (data.type === "agent_plan") {
+      const sid = streamingSidRef.current;
+      if (!sid) return;
+      const { type: _t, ...plan } = data;
+      patchSession(sid, cur => ({
+        ...cur,
+        agent: { ...(cur.agent || { steps: [], done: null, trace: null }), plan },
+      }));
+    } else if (data.type === "agent_step") {
+      const sid = streamingSidRef.current;
+      if (!sid) return;
+      const { type: _t, ...step } = data;
+      patchSession(sid, cur => {
+        const agent = cur.agent || { plan: null, steps: [], done: null, trace: null };
+        return { ...cur, agent: { ...agent, steps: [...(agent.steps || []), step] } };
+      });
+    } else if (data.type === "agent_forced_finalize") {
+      // Informational — we already show the "investigation closed
+      // under budget pressure" status when the done frame arrives.
+      // No state mutation needed.
+    } else if (data.type === "agent_done") {
+      const sid = streamingSidRef.current;
+      if (!sid) return;
+      const { type: _t, ...done } = data;
+      patchSession(sid, cur => ({
+        ...cur,
+        agent: { ...(cur.agent || { plan: null, steps: [], trace: null }), done },
+      }));
+    } else if (data.type === "agent_trace") {
+      const sid = streamingSidRef.current;
+      if (!sid) return;
+      patchSession(sid, cur => ({
+        ...cur,
+        agent: { ...(cur.agent || { plan: null, steps: [], done: null }), trace: data.trace },
+      }));
     } else if (data.type === "token") {
       const sid = streamingSidRef.current;
       if (!sid) return;
@@ -131,6 +224,13 @@ export default function Chat({ user }) {
       const sid = streamingSidRef.current;
       if (!sid) return;
       patchSession(sid, { sources: data.items });
+    } else if (data.type === "verification") {
+      // Sprint-3-finish: capture the verifier outcome so the bubble can
+      // render the green/amber banner + citation chips with verdicts.
+      const sid = streamingSidRef.current;
+      if (!sid) return;
+      const { type: _ignore, ...payload } = data;
+      patchSession(sid, { verification: payload });
     } else if (data.type === "done") {
       const sid = data.session_id;
       patchSession(sid, cur => ({
@@ -138,10 +238,22 @@ export default function Chat({ user }) {
         streaming: false,
         buffer: "",
         sources: null,
+        verification: null,
+        agent: null,
         mode: "normal",
         messages: [
           ...cur.messages,
-          { role: "assistant", content: cur.buffer, sources: cur.sources, mode: cur.mode },
+          {
+            role: "assistant",
+            content: cur.buffer,
+            sources: cur.sources,
+            verification: cur.verification,
+            // Sprint-4: persist the agent panel state with the message
+            // so opening the bubble in a future session replay still
+            // shows the reasoning trace.
+            agent: cur.agent,
+            mode: cur.mode,
+          },
         ],
       }));
       streamingSidRef.current = null;
@@ -203,10 +315,28 @@ export default function Chat({ user }) {
 
     try {
       const res = await getSession(sid);
+      // History replay must rehydrate sources + verification so the
+      // citation chips and evidence drawer keep working on saved chats.
       const msgs = (res.data.messages || []).map(m => ({
         role: m.role,
         content: m.content,
-        sources: null,
+        sources: m.sources || null,
+        verification: m.verification || null,
+        // Sprint-4: restore agent panel from persisted agent_trace.
+        // Trace contains the full step list — synthesise a `done`-like
+        // summary so the panel header still works on replay.
+        agent: m.agent_trace ? {
+          plan: null,
+          steps: m.agent_trace.steps || [],
+          trace: m.agent_trace,
+          done: m.agent_trace.final_answer ? {
+            outcome: m.agent_trace.final_answer.outcome,
+            n_facts: (m.verification?.n_facts) || 0,
+            n_verified: (m.verification?.n_verified) || 0,
+            tool_calls: m.agent_trace.budget?.tool_calls_used,
+            elapsed_ms: (m.agent_trace.budget?.elapsed_s || 0) * 1000,
+          } : null,
+        } : null,
         mode: m.mode || "normal",
       }));
       patchSession(sid, { ...EMPTY_SESSION, messages: msgs, loaded: true });
@@ -253,11 +383,22 @@ export default function Chat({ user }) {
       streaming: true,
       buffer: "",
       sources: null,
+      verification: null,
+      agent: null,
       mode: "normal",
     }));
 
     send({ type: "question", text: q, session_id: sid });
   }
+
+  // Sprint-4: send an out-of-band interrupt frame. The backend sets
+  // budget.interrupt_requested = True on the running agent, which
+  // forces the next iteration to finalize with what it has.
+  const handleInterrupt = useCallback(() => {
+    const sid = streamingSidRef.current;
+    if (!sid) return;
+    send({ type: "interrupt", session_id: sid });
+  }, [send]);
 
   // Show welcome only on an empty, non-streaming session
   const showWelcome = activeId === null || (active.messages.length === 0 && !active.streaming);
@@ -344,11 +485,21 @@ export default function Chat({ user }) {
                 : <AIMessage key={i} msg={m} isStreaming={false} />
             )}
 
-            {/* Streaming bubble — ONLY on the active session if it's streaming */}
+            {/* Streaming bubble — ONLY on the active session if it's streaming.
+                We pass sources/verification/agent so once they arrive (before
+                the `done` frame) chips + sources + reasoning panel render live. */}
             {active.streaming && (
               <AIMessage
-                msg={{ role: "assistant", content: active.buffer, sources: null, mode: active.mode }}
+                msg={{
+                  role: "assistant",
+                  content: active.buffer,
+                  sources: active.sources,
+                  verification: active.verification,
+                  agent: active.agent,
+                  mode: active.mode,
+                }}
                 isStreaming={true}
+                onInterrupt={handleInterrupt}
               />
             )}
 

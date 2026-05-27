@@ -21,7 +21,7 @@ right mode when the user asks for a chronological summary or any
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -64,6 +64,17 @@ class RetrievedChunk:
     folder_path: Optional[str]
     vector_score: Optional[float]
     rerank_score: Optional[float]
+    # Option B: the same byte-identical content can live in many parent
+    # emails. `occurrences` lists every parent (email_id, attachment_id,
+    # filename, date, from_email, subject, ...) so the prompt builder can
+    # surface "this doc was sent on N dates by M people" to Claude.
+    # Length 1 for legacy v1 chunks and for unique email-body chunks.
+    occurrences: List[Dict[str, Any]] = field(default_factory=list)
+    # `latest_date` = max(occurrences[].date). Useful for "what's the most
+    # recent time this came up?" reasoning at the chat layer.
+    latest_date: Any = None
+    # Cluster id (sha256 in Option B). Empty for v1 chunks.
+    sha256: Optional[str] = None
 
 
 class Retriever:
@@ -76,6 +87,7 @@ class Retriever:
         vector_index_name: str,
         retrieval_top_k: int = 50,
         rerank_top_k: int = 8,
+        v2_pipeline: Optional[Any] = None,
     ) -> None:
         self.mongo = mongo
         self.embedder = embedder
@@ -83,6 +95,10 @@ class Retriever:
         self.vector_index_name = vector_index_name
         self.retrieval_top_k = retrieval_top_k
         self.rerank_top_k = rerank_top_k
+        # Optional v2 orchestrator. When set AND its settings.enabled is
+        # True, retrieve() routes through the v2 pipeline. Otherwise we
+        # fall through to the original v1 vector→rerank flow.
+        self.v2_pipeline = v2_pipeline
 
     # ----- vector search -----
 
@@ -121,6 +137,10 @@ class Retriever:
                     "to_emails": 1,
                     "subject": 1,
                     "folder_path": 1,
+                    # Option B fan-out — harmless on v1 chunks (just absent).
+                    "occurrences": 1,
+                    "latest_date": 1,
+                    "sha256": 1,
                     "score": {"$meta": "vectorSearchScore"},
                 }
             },
@@ -134,10 +154,28 @@ class Retriever:
         query: str,
         atlas_filter: Optional[Dict[str, Any]] = None,
     ) -> List[RetrievedChunk]:
-        """End-to-end: embed → vector search → rerank → return chunks."""
+        """End-to-end: embed → vector search → rerank → return chunks.
+
+        If a v2 pipeline is attached AND enabled, route through it instead.
+        On any v2 failure we transparently fall back to the v1 flow below.
+        """
         if not query.strip():
             return []
 
+        # v2 routing — fail-safe: if v2 returns empty (or raises) we fall
+        # back to v1 below so production never breaks.
+        if self.v2_pipeline is not None and getattr(
+            self.v2_pipeline.settings, "enabled", False
+        ):
+            try:
+                v2_chunks = self.v2_pipeline.retrieve(query, atlas_filter=atlas_filter)
+                if v2_chunks:
+                    return v2_chunks
+                logger.info("v2 pipeline returned 0 chunks — falling back to v1")
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"v2 pipeline failed, falling back to v1: {exc}")
+
+        # ---- v1 path (default behaviour) -------------------------------
         logger.debug(f"Embedding query ({len(query)} chars)")
         qvec = self.embedder.embed_query(query)
 
@@ -229,4 +267,8 @@ def _to_chunk(c: Dict[str, Any], *, rerank_score: Optional[float]) -> RetrievedC
         folder_path=c.get("folder_path"),
         vector_score=c.get("score"),
         rerank_score=rerank_score,
+        # Option B fan-out. Pass through as-is; empty list for v1 chunks.
+        occurrences=list(c.get("occurrences") or []),
+        latest_date=c.get("latest_date"),
+        sha256=c.get("sha256"),
     )

@@ -23,8 +23,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import List, Optional, Tuple
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple
 
 import anthropic
 
@@ -99,7 +99,13 @@ The user has asked for a chronological / timeline-style summary. The SOURCES bel
 
 
 def _format_chunk_for_prompt(idx: int, chunk: RetrievedChunk) -> str:
-    """Render a single retrieved chunk as a numbered SOURCE block."""
+    """Render a single retrieved chunk as a numbered SOURCE block (plain).
+
+    Option B: when an attachment was sent in multiple emails, surface the
+    fan-out compactly so Claude can attribute the same fact to multiple
+    senders / dates. We cap the visible fan-out at 3 entries (with a
+    summary line for the rest) to keep the prompt bounded.
+    """
     head_parts: List[str] = [f"#{idx}"]
     if chunk.source_type == "email_body":
         head_parts.append("Email")
@@ -123,8 +129,134 @@ def _format_chunk_for_prompt(idx: int, chunk: RetrievedChunk) -> str:
         head_parts.append(f"subject: {chunk.subject}")
 
     header = " | ".join(head_parts)
+    fan_out = _format_occurrences_fanout(chunk)
     body = chunk.body or chunk.text
+    if fan_out:
+        return f"[{header}]\n{fan_out}\n{body}"
     return f"[{header}]\n{body}"
+
+
+def _format_occurrences_fanout(chunk: RetrievedChunk) -> str:
+    """Return a one-line summary of additional occurrences for this content.
+
+    The PRIMARY occurrence is already rendered in the chunk header (date,
+    from, subject). This method renders the OTHER occurrences — i.e. all
+    additional parent emails that carried this same byte-identical file —
+    so Claude knows the document was also sent on dates X / Y / Z by
+    different senders.
+
+    Empty string if the chunk has 0 or 1 occurrences (nothing to add).
+    """
+    occs = chunk.occurrences or []
+    if len(occs) <= 1:
+        return ""
+
+    # The primary (earliest) is already in the header → render the rest.
+    extra = occs[1:]
+    visible = extra[:3]
+    parts: List[str] = []
+    for o in visible:
+        bits: List[str] = []
+        d = o.get("date")
+        if d is not None:
+            try:
+                bits.append(d.strftime("%Y-%m-%d"))
+            except AttributeError:
+                bits.append(str(d))
+        if o.get("from_email"):
+            bits.append(f"from {o['from_email']}")
+        subj = (o.get("subject") or "").strip()
+        if subj:
+            bits.append(f"subject: {subj[:80]}")
+        if bits:
+            parts.append("(" + " | ".join(bits) + ")")
+    extra_more = len(extra) - len(visible)
+    summary = "Also sent in: " + "; ".join(parts) if parts else ""
+    if extra_more > 0:
+        if summary:
+            summary += f"; +{extra_more} more email(s)"
+        else:
+            summary = f"Also sent in {extra_more} other email(s)"
+    return summary
+
+
+def _xml_escape(s: str) -> str:
+    """Minimal XML attribute escape — Claude tolerates ampersand-only escape."""
+    if not s:
+        return ""
+    return (
+        s.replace("&", "&amp;")
+         .replace("<", "&lt;")
+         .replace(">", "&gt;")
+         .replace('"', "&quot;")
+    )
+
+
+def _format_chunk_xml(idx: int, chunk: RetrievedChunk) -> str:
+    """
+    Render a chunk as `<doc id="N" ...>body</doc>`.
+
+    Anthropic best-practice for Claude in long-context retrieval: wrap
+    each evidence document in an XML tag with meaningful attributes.
+    Claude's attention pattern on tagged docs is measurably better than
+    on plain bracketed headers.
+    """
+    attrs: List[Tuple[str, str]] = [("id", str(idx))]
+    if chunk.source_type == "email_body":
+        attrs.append(("type", "email"))
+    elif chunk.source_type == "attachment":
+        attrs.append(("type", "attachment"))
+        if chunk.filename:
+            attrs.append(("filename", _xml_escape(chunk.filename)))
+        if chunk.page_start is not None:
+            if chunk.page_end and chunk.page_end != chunk.page_start:
+                attrs.append(("pages", f"{chunk.page_start}-{chunk.page_end}"))
+            else:
+                attrs.append(("page", str(chunk.page_start)))
+    if chunk.date is not None:
+        try:
+            attrs.append(("date", chunk.date.strftime("%Y-%m-%d %H:%M")))
+        except AttributeError:
+            attrs.append(("date", _xml_escape(str(chunk.date))))
+    if chunk.from_email:
+        attrs.append(("from", _xml_escape(chunk.from_email)))
+    if chunk.to_emails:
+        attrs.append(("to", _xml_escape(", ".join(chunk.to_emails[:3]))))
+    if chunk.subject:
+        attrs.append(("subject", _xml_escape(chunk.subject)))
+    # Option B fan-out — render as a single-attribute summary so Claude
+    # can attribute the same file across multiple parent emails without
+    # bloating the XML tag list.
+    occ_count = len(chunk.occurrences or [])
+    if occ_count > 1:
+        attrs.append(("appeared_in_n_emails", str(occ_count)))
+        latest = chunk.latest_date
+        if latest is not None:
+            try:
+                attrs.append(("latest_appearance", latest.strftime("%Y-%m-%d")))
+            except AttributeError:
+                attrs.append(("latest_appearance", _xml_escape(str(latest))))
+
+    attrs_str = " ".join(f'{k}="{v}"' for k, v in attrs)
+    body = chunk.body or chunk.text or ""
+    fan_out = _format_occurrences_fanout(chunk)
+    body_with_fanout = f"{fan_out}\n{body}" if fan_out else body
+    return f"<doc {attrs_str}>\n{body_with_fanout}\n</doc>"
+
+
+# Tail reminder appended AFTER the question. Best-practice instruction
+# placement for long context (Anthropic's own guidance). Reminds Claude
+# of the highest-leverage rules right where it starts generating.
+_TAIL_REMINDER = (
+    "REMINDER (apply strictly):\n"
+    "  • Cite EVERY factual claim with [#N] referring to the source above. "
+    "Uncited claims will be treated as expertise commentary, not corpus facts.\n"
+    "  • If the corpus does not support a claim, say so plainly — never fabricate.\n"
+    "  • When the same fact appears at different dates, surface ALL versions "
+    "with their dates and flag which is most recent / operative.\n"
+    "  • If a quoted dollar amount, name, or filename appears anywhere in the "
+    "sources above, USE IT. Don't say it isn't present.\n"
+)
 
 
 def _build_user_message(
@@ -132,7 +264,15 @@ def _build_user_message(
     chunks: List[RetrievedChunk],
     *,
     timeline: bool = False,
+    xml_sources: bool = False,
 ) -> str:
+    """
+    Compose the user-turn message: SOURCES block + question + tail reminder.
+
+    When `xml_sources=True`, each chunk is wrapped in `<doc>...</doc>` and the
+    full block in `<sources>...</sources>`. Otherwise we use the legacy
+    bracketed-header format (kept for backward compatibility / older tests).
+    """
     if not chunks:
         return (
             f"QUESTION:\n{question}\n\n"
@@ -141,6 +281,26 @@ def _build_user_message(
             "absence of supporting corpus evidence.)"
         )
 
+    if xml_sources:
+        inner = "\n".join(
+            _format_chunk_xml(i + 1, c) for i, c in enumerate(chunks)
+        )
+        order_note = (
+            "  (sorted by date ascending)"
+            if timeline
+            else "  (best signals at start AND end of block; cite as [#N])"
+        )
+        sources_block = f"<sources count=\"{len(chunks)}\">{order_note}\n{inner}\n</sources>"
+        body = (
+            f"{sources_block}\n\n"
+            f"<question>\n{question}\n</question>\n\n"
+            f"{_TAIL_REMINDER}"
+        )
+        if timeline:
+            body = f"{TIMELINE_INSTRUCTION}\n\n{body}"
+        return body
+
+    # ---- legacy plain format ----
     sources_block = "\n\n".join(
         _format_chunk_for_prompt(i + 1, c) for i, c in enumerate(chunks)
     )
@@ -161,6 +321,12 @@ class Turn:
     answer: str
     chunks: List[RetrievedChunk] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.utcnow)
+    # Sprint-3-finish verification metadata. Empty for v1 / legacy path.
+    facts: List[Dict[str, Any]] = field(default_factory=list)
+    fact_verdicts: List[Dict[str, Any]] = field(default_factory=list)
+    verification_outcome: Optional[str] = None     # e.g. VERIFIED_FIRST_PASS
+    # Sprint-4 agent trace. None for non-agent turns.
+    agent_trace: Optional[Dict[str, Any]] = None
 
 
 class LegalAdvisorChat:
@@ -171,18 +337,69 @@ class LegalAdvisorChat:
         anthropic_api_key: str,
         retriever: Retriever,
         *,
-        model: str = "claude-sonnet-4-6",
-        max_tokens: int = 4096,
+        model: str = "claude-opus-4-6",
+        max_tokens: int = 8192,
+        # ---- v2 add-ons (all optional; OFF by default) -------------------
+        use_enhanced_prompt: bool = False,
+        summary_memory: Optional[Any] = None,    # SummaryMemory instance
+        xml_sources: bool = False,
+        anthropic_client: Optional[anthropic.Anthropic] = None,
+        # ---- Sprint 3 finish: verified-answer pipeline -------------------
+        use_structured_output: bool = False,
+        use_citation_verifier: bool = False,
+        use_verifier_retry: bool = False,
+        verifier_threshold: float = 85.0,
+        verifier_log_db: Optional[Any] = None,   # pymongo Database or None
+        # ---- Sprint 4: Agentic Legal Investigator -----------------------
+        use_agent: bool = False,
+        agent_v2_pipeline: Optional[Any] = None,  # V2Pipeline for tool wiring
+        agent_max_tool_calls: int = 30,
+        agent_max_total_tokens: int = 3_000_000,
+        agent_max_wall_clock_s: float = 1200.0,
+        agent_model: str = "claude-opus-4-6",
+        agent_max_tokens_per_call: int = 16384,
+        agent_seed_with_initial_search: bool = True,
+        agent_trace_log_db: Optional[Any] = None,
     ) -> None:
-        if not anthropic_api_key:
+        if not anthropic_api_key and anthropic_client is None:
             raise RuntimeError(
                 "ANTHROPIC_API_KEY is missing. Add it to .env before chatting."
             )
-        self.client = anthropic.Anthropic(api_key=anthropic_api_key)
+        self.client = anthropic_client or anthropic.Anthropic(api_key=anthropic_api_key)
         self.retriever = retriever
         self.model = model
         self.max_tokens = max_tokens
         self.history: List[Turn] = []
+        # v2 hooks
+        self.use_enhanced_prompt = use_enhanced_prompt
+        self.summary_memory = summary_memory
+        self.xml_sources = xml_sources
+        # Sprint 3 finish — verified-answer pipeline
+        self.use_structured_output = use_structured_output
+        self.use_citation_verifier = use_citation_verifier
+        self.use_verifier_retry = use_verifier_retry
+        self.verifier_threshold = verifier_threshold
+        self.verifier_log_db = verifier_log_db
+        # Sprint 4 — Agentic Legal Investigator
+        self.use_agent = use_agent
+        self.agent_v2_pipeline = agent_v2_pipeline
+        self.agent_max_tool_calls = agent_max_tool_calls
+        self.agent_max_total_tokens = agent_max_total_tokens
+        self.agent_max_wall_clock_s = agent_max_wall_clock_s
+        self.agent_model = agent_model
+        self.agent_max_tokens_per_call = agent_max_tokens_per_call
+        self.agent_seed_with_initial_search = agent_seed_with_initial_search
+        self.agent_trace_log_db = agent_trace_log_db
+        # Hook for the WS layer to subscribe to live agent events.
+        # Caller sets this on a per-question basis. Type:
+        #   Callable[[event_type: str, payload: dict], None]
+        self.on_agent_event: Optional[Any] = None
+        # Hook for the WS layer to inject an interrupt request.
+        # Caller passes the budget object back to the layer via
+        # `get_current_budget()` after `ask()` returns; for the
+        # in-progress case the WS handler can set the interrupt flag
+        # directly through a shared mutable BudgetTracker (advanced).
+        self._current_budget: Optional[Any] = None
 
     def ask(
         self,
@@ -219,30 +436,309 @@ class LegalAdvisorChat:
             chunks = self.retriever.retrieve(question, atlas_filter=atlas_filter)
         logger.info(f"Retrieved {len(chunks)} chunks for question")
 
-        prior_messages = []
-        for turn in self.history:
-            prior_messages.append({"role": "user", "content": turn.question})
-            prior_messages.append({"role": "assistant", "content": turn.answer})
+        # ---- prior messages (with optional summary memory) -----------------
+        prior_messages = self._build_prior_messages()
 
-        user_msg = _build_user_message(question, chunks, timeline=timeline)
+        user_msg = _build_user_message(
+            question, chunks, timeline=timeline, xml_sources=self.xml_sources,
+        )
         prior_messages.append({"role": "user", "content": user_msg})
 
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=self.max_tokens,
-            system=SYSTEM_PROMPT,
-            messages=prior_messages,
+        # ---- system prompt (v1 default; v2 enhanced if enabled) -----------
+        system_prompt = self._build_system_prompt(
+            question=question, timeline=timeline, chunks=chunks,
         )
 
-        answer_parts: List[str] = []
-        for block in response.content:
-            if getattr(block, "type", None) == "text":
-                answer_parts.append(block.text)
-        answer = "\n".join(answer_parts).strip()
+        # ---- Single answer path: Sprint 4 agent ----
+        # The agent loop is the sole production pipeline. It internally
+        # falls back to the Sprint-3 verified one-shot (`_ask_verified`)
+        # if the agent runner crashes or `agent_v2_pipeline` is missing.
+        # No legacy plain-Opus branch — every query gets verification
+        # and (on failure) one retry pass.
+        turn = self._ask_agent(question=question, initial_chunks=chunks)
 
-        turn = Turn(question=question, answer=answer, chunks=chunks)
         self.history.append(turn)
+
+        # ---- update summary memory in the background (best-effort) --------
+        if self.summary_memory is not None:
+            try:
+                from src.rag.v2.memory import Turn as MemTurn  # local import — avoids circular
+                mem_turns = [
+                    MemTurn(question=t.question, answer=t.answer)
+                    for t in self.history
+                ]
+                self.summary_memory.maybe_update_summary(mem_turns)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"summary memory update skipped: {exc}")
+
         return turn
+
+    # ------------------------------------------------------------------
+    # Sprint 4 — Agentic Legal Investigator
+    # ------------------------------------------------------------------
+
+    def _ask_agent(
+        self,
+        *,
+        question: str,
+        initial_chunks: List[RetrievedChunk],
+    ) -> Turn:
+        """
+        Run the v3 agent loop and return a Turn with agent_trace.
+
+        This is the SOLE answer path in production. The Sprint-3
+        verified one-shot (`_ask_verified`) is kept ONLY as an internal
+        resilience fallback when:
+          • `agent_v2_pipeline` is missing (misconfiguration), or
+          • the agent runner raises an unhandled exception.
+        Under normal operation every query goes through the agent.
+        """
+        # Resilience: if the agent infrastructure is not wired, degrade
+        # gracefully to the verified one-shot instead of crashing.
+        if self.agent_v2_pipeline is None:
+            logger.warning(
+                "agent_v2_pipeline missing; degrading to verified one-shot "
+                "for this query"
+            )
+            return self._fallback_to_verified(question, initial_chunks)
+
+        from src.rag.v3 import AgentRunner, BudgetTracker
+
+        budget = BudgetTracker(
+            max_tool_calls=self.agent_max_tool_calls,
+            max_total_tokens=self.agent_max_total_tokens,
+            max_wall_clock_s=self.agent_max_wall_clock_s,
+        )
+        # Expose the budget so the WS layer can request interrupt
+        # mid-investigation by setting `budget.interrupt_requested = True`.
+        self._current_budget = budget
+
+        runner = AgentRunner(
+            anthropic_client=self.client,
+            v2_pipeline=self.agent_v2_pipeline,
+            retriever=self.retriever,
+            model=self.agent_model,
+            max_tokens_per_call=self.agent_max_tokens_per_call,
+            fuzzy_threshold=self.verifier_threshold,
+        )
+
+        agent_result = None
+        try:
+            agent_result = runner.run(
+                question,
+                budget=budget,
+                seed_with_initial_search=self.agent_seed_with_initial_search,
+                on_event=self.on_agent_event,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.error(f"agent loop crashed; falling back to verified one-shot: {exc}")
+        finally:
+            self._current_budget = None
+
+        if agent_result is None:
+            return self._fallback_to_verified(question, initial_chunks)
+
+        # Persist agent_trace if configured.
+        if self.agent_trace_log_db is not None:
+            try:
+                self.agent_trace_log_db["agent_trace_log"].insert_one({
+                    **agent_result.agent_trace,
+                    "model": self.agent_model,
+                    "outcome": agent_result.outcome,
+                    "n_facts": agent_result.n_facts,
+                    "n_verified": agent_result.n_verified,
+                    "elapsed_ms": agent_result.elapsed_ms,
+                })
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"agent_trace_log write failed: {exc}")
+
+        return Turn(
+            question=question,
+            answer=agent_result.answer,
+            chunks=agent_result.chunks,
+            facts=agent_result.facts,
+            fact_verdicts=agent_result.fact_verdicts,
+            verification_outcome=agent_result.outcome,
+            agent_trace=agent_result.agent_trace,
+        )
+
+    def _fallback_to_verified(
+        self,
+        question: str,
+        initial_chunks: List[RetrievedChunk],
+    ) -> Turn:
+        """
+        Internal resilience hatch — used ONLY when the agent loop is
+        unavailable. Reconstructs the messages + system prompt fresh
+        because the original `ask()` already pushed the user turn.
+        """
+        prior_messages = self._build_prior_messages()
+        user_msg = _build_user_message(
+            question, initial_chunks, timeline=False, xml_sources=self.xml_sources,
+        )
+        system_prompt = self._build_system_prompt(
+            question=question, timeline=False, chunks=initial_chunks,
+        )
+        return self._ask_verified(
+            question=question,
+            chunks=initial_chunks,
+            system_prompt=system_prompt,
+            user_msg=user_msg,
+            prior_messages=prior_messages,
+        )
+
+    def get_current_budget(self):
+        """Expose the running BudgetTracker so the WS layer can set
+        `interrupt_requested = True` from an out-of-band 'stop' frame."""
+        return self._current_budget
+
+    # ------------------------------------------------------------------
+    # Sprint 3 finish — verified-answer pipeline
+    # ------------------------------------------------------------------
+
+    def _ask_verified(
+        self,
+        *,
+        question: str,
+        chunks: List[RetrievedChunk],
+        system_prompt: str,
+        user_msg: str,
+        prior_messages: List[dict],
+    ) -> Turn:
+        """
+        Run the structured-output + citation-verifier + retry pipeline.
+
+        Falls back gracefully to a legacy text answer if the pipeline
+        emits no facts or the model didn't call the submit_answer tool
+        (the pipeline already handles those edges and returns whatever
+        prose Opus produced).
+        """
+        # Lazy import — keeps module load fast for legacy users.
+        from src.rag.v2.answer_pipeline import (
+            generate_verified_answer,
+            log_verification,
+            OUTCOME_FALLBACK,
+        )
+
+        try:
+            verified = generate_verified_answer(
+                anthropic_client=self.client,
+                model=self.model,
+                system_prompt=system_prompt,
+                user_message=user_msg,
+                prior_messages=prior_messages,
+                chunks=chunks,
+                max_tokens=self.max_tokens,
+                fuzzy_threshold=self.verifier_threshold,
+                enable_retry=self.use_verifier_retry,
+            )
+        except Exception as exc:  # noqa: BLE001
+            # Catastrophic failure of the verified pipeline — fall back to
+            # a plain Opus call so the user still gets an answer.
+            logger.error(
+                f"verified-answer pipeline crashed; falling back to "
+                f"plain answer: {exc}"
+            )
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                system=system_prompt,
+                messages=prior_messages + [{"role": "user", "content": user_msg}],
+            )
+            parts = [
+                b.text for b in response.content
+                if getattr(b, "type", None) == "text"
+            ]
+            return Turn(
+                question=question,
+                answer="\n".join(parts).strip(),
+                chunks=chunks,
+                verification_outcome=OUTCOME_FALLBACK,
+            )
+
+        # Optional audit logging — silent on failure.
+        if self.verifier_log_db is not None:
+            log_verification(
+                mongo_db=self.verifier_log_db,
+                verified=verified,
+                query=question,
+                model=self.model,
+            )
+
+        return Turn(
+            question=question,
+            answer=verified.answer,
+            chunks=chunks,
+            facts=verified.facts,
+            fact_verdicts=verified.fact_verdicts,
+            verification_outcome=verified.outcome,
+        )
+
+    # ------------------------------------------------------------------
+    # Internal helpers — extracted to keep `ask()` readable
+    # ------------------------------------------------------------------
+
+    def _build_prior_messages(self) -> List[dict]:
+        """
+        Returns the list of {role, content} messages representing the
+        conversation BEFORE the new user question.
+
+        When `summary_memory` is set, we delegate so older turns get
+        compacted into a running summary.
+        """
+        if self.summary_memory is not None:
+            try:
+                from src.rag.v2.memory import Turn as MemTurn
+                mem_turns = [
+                    MemTurn(question=t.question, answer=t.answer)
+                    for t in self.history
+                ]
+                return list(self.summary_memory.build_prior_messages(mem_turns))
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"summary memory build failed, using raw history: {exc}")
+
+        # v1 default — just flatten history.
+        msgs: List[dict] = []
+        for turn in self.history:
+            msgs.append({"role": "user", "content": turn.question})
+            msgs.append({"role": "assistant", "content": turn.answer})
+        return msgs
+
+    def _build_system_prompt(
+        self,
+        *,
+        question: str,
+        timeline: bool,
+        chunks: List[RetrievedChunk],
+    ) -> str:
+        """v1 prompt by default; v2 enhanced prompt when configured."""
+        if not self.use_enhanced_prompt:
+            return SYSTEM_PROMPT
+
+        # Lazy import to keep v1 path free of v2 dependencies.
+        try:
+            from src.rag.v2.prompts import build_system_prompt
+            from src.rag.v2.query_understanding import extract_signals
+
+            sigs = extract_signals(question)
+            intent = "timeline" if timeline else sigs.primary_intent()
+
+            corpus_min: Optional[datetime] = None
+            corpus_max: Optional[datetime] = None
+            valid_dates = [c.date for c in chunks if isinstance(c.date, datetime)]
+            if valid_dates:
+                corpus_min = min(valid_dates)
+                corpus_max = max(valid_dates)
+
+            return build_system_prompt(
+                intent=intent,
+                today=datetime.now(timezone.utc),
+                corpus_min_date=corpus_min,
+                corpus_max_date=corpus_max,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"v2 enhanced prompt build failed, using v1: {exc}")
+            return SYSTEM_PROMPT
 
     def reset(self) -> None:
         self.history.clear()

@@ -82,14 +82,33 @@ class SessionStore:
         content: str,
         chunks_used: int = 0,
         mode: str = "normal",
+        sources: Optional[List[Dict[str, Any]]] = None,
+        verification: Optional[Dict[str, Any]] = None,
+        agent_trace: Optional[Dict[str, Any]] = None,
     ) -> None:
-        msg = {
+        """
+        Append a message to the session.
+
+        For assistant turns, optionally persist:
+          - `sources`: the same items list the WS emitted (so history replay
+                       can render citation chips + evidence drawer)
+          - `verification`: full verification metadata (outcome, n_verified,
+                            facts[], verdicts[]) for Sprint-3-finish UI
+          - `agent_trace`: Sprint 4 agent reasoning trace (steps, tools used)
+        """
+        msg: Dict[str, Any] = {
             "role": role,
             "content": content,
             "timestamp": _now(),
             "chunks_used": chunks_used,
             "mode": mode,
         }
+        if sources:
+            msg["sources"] = sources
+        if verification:
+            msg["verification"] = verification
+        if agent_trace:
+            msg["agent_trace"] = agent_trace
         update: Dict[str, Any] = {
             "$push": {"messages": msg},
             "$set": {"updated_at": _now()},

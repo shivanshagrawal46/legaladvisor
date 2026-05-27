@@ -76,8 +76,15 @@ fi
 # Only install python3-venv / python3-dev / build-essential if MISSING
 PY_PKGS_TO_INSTALL=()
 
-if ! python3 -c "import venv" 2>/dev/null && [ "$NEED_NEWER_PYTHON" = false ]; then
-    PY_PKGS_TO_INSTALL+=("python3-venv")
+if [ "$NEED_NEWER_PYTHON" = false ]; then
+    # Try `python3 -m venv test` to see if venv actually works
+    VENV_TEST=$(mktemp -d)
+    if ! python3 -m venv "$VENV_TEST/test" > /dev/null 2>&1; then
+        # Need the version-specific venv package (Ubuntu 24.04 needs python3.12-venv,
+        # 22.04 needs python3.10-venv, etc.)
+        PY_PKGS_TO_INSTALL+=("python3-venv" "python${PY_VER}-venv")
+    fi
+    rm -rf "$VENV_TEST"
 fi
 
 # python3-dev needed for some packages with C extensions (e.g. bcrypt) if they fall back to source
@@ -178,7 +185,10 @@ echo "      ✅ Using local serve at $DEPLOY_DIR/frontend/node_modules/.bin/serv
 echo "[7/8] Installing systemd services..."
 cd "$DEPLOY_DIR"
 
-SERVE_BIN="$DEPLOY_DIR/frontend/node_modules/.bin/serve"
+# Detect node's absolute path — needed because systemd uses minimal PATH
+# and nvm-installed node (e.g. /root/.nvm/...) is not in /usr/bin
+NODE_BIN=$(which node)
+SERVE_JS="$DEPLOY_DIR/frontend/node_modules/serve/build/main.js"
 
 # Patch backend service: use venv's uvicorn + correct WorkingDirectory
 sed -e "s|/usr/bin/python3 -m uvicorn|$DEPLOY_DIR/venv/bin/uvicorn|g" \
@@ -186,9 +196,11 @@ sed -e "s|/usr/bin/python3 -m uvicorn|$DEPLOY_DIR/venv/bin/uvicorn|g" \
     -e "s|EnvironmentFile=.*|EnvironmentFile=$DEPLOY_DIR/.env|g" \
     deploy/legaladvisor-backend.service > /tmp/legaladvisor-backend.service
 
-# Patch frontend service: WorkingDirectory + use LOCAL serve binary (not /usr/bin/npx)
+# Patch frontend service: use absolute node binary + serve's main.js (not env+npx)
+# This avoids the "/usr/bin/env: 'node': No such file or directory" issue
+# when node is installed via nvm.
 sed -e "s|WorkingDirectory=.*|WorkingDirectory=$DEPLOY_DIR/frontend|g" \
-    -e "s|ExecStart=.*|ExecStart=$SERVE_BIN -s dist -l 5015|g" \
+    -e "s|ExecStart=.*|ExecStart=$NODE_BIN $SERVE_JS -s dist -l 5015|g" \
     deploy/legaladvisor-frontend.service > /tmp/legaladvisor-frontend.service
 
 cp /tmp/legaladvisor-backend.service  /etc/systemd/system/legaladvisor-backend.service

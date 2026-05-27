@@ -103,7 +103,7 @@ class _SlidingRateLimiter:
 class VoyageEmbedder:
     """Stateful, retrying embedder. Pass `api_key` once on construction."""
 
-    def __init__(self, api_key: str, model: str = "voyage-3") -> None:
+    def __init__(self, api_key: str, model: str = "voyage-4-large") -> None:
         if not api_key:
             raise RuntimeError(
                 "VOYAGE_API_KEY is missing. Add it to .env before running embeddings."
