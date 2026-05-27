@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from datetime import date, datetime
 from typing import Any, Dict, List
 
 from fastapi import WebSocket, WebSocketDisconnect
@@ -87,12 +88,48 @@ def _chunk_to_source_item(c: Any, idx: int) -> Dict[str, Any]:
     }
 
 
+def _json_safe(obj: Any) -> Any:
+    """
+    Recursively convert a payload into something the stdlib ``json`` module
+    can serialize. ``starlette.WebSocket.send_json`` uses plain ``json.dumps``
+    with no ``default=`` hook, so any ``datetime`` / ``date`` / ``ObjectId``
+    instance anywhere inside the payload would raise ``TypeError``. Agent
+    traces (``BudgetTracker.started_at``, ``AgentStep.started_at`` …) and
+    verifier results (``VerificationReport.generated_at``) both ship with
+    datetime fields, so we normalise them here at the API boundary.
+    """
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_json_safe(v) for v in obj]
+    # Last-resort: anything with an .isoformat() is probably a date-like.
+    if hasattr(obj, "isoformat") and callable(obj.isoformat):
+        try:
+            return obj.isoformat()
+        except Exception:
+            pass
+    return obj
+
+
+async def _send_json_safe(ws: WebSocket, payload: Dict[str, Any]) -> None:
+    """Drop-in safer alternative to ``ws.send_json`` for payloads that may
+    contain datetimes or other non-JSON-native primitives."""
+    await ws.send_text(json.dumps(_json_safe(payload), separators=(",", ":"), ensure_ascii=False))
+
+
 def _trim_agent_trace(trace: Dict[str, Any]) -> Dict[str, Any]:
     """
     Trim the agent_trace to a size suitable for persistence and history
     replay. We drop nothing important — just cap any unbounded fields
     (very long tool_input strings, etc.) and remove the per-step
     duplicate of full_payload that the agent already streamed.
+
+    Datetime fields are converted to ISO strings via :func:`_json_safe` so
+    the resulting dict is JSON-serialisable for both WebSocket streaming
+    and MongoDB persistence (where BSON does accept datetime, but mixed
+    nesting is safer as strings for cross-component reuse).
     """
     if not isinstance(trace, dict):
         return trace
@@ -115,7 +152,7 @@ def _trim_agent_trace(trace: Dict[str, Any]) -> Dict[str, Any]:
             st["summary"] = st["summary"][:797] + "..."
         trimmed_steps.append(st)
     out["steps"] = trimmed_steps
-    return out
+    return _json_safe(out)
 
 
 async def _stream_text(ws: WebSocket, text: str) -> None:
@@ -348,7 +385,7 @@ async def handle_chat_ws(ws: WebSocket, store: SessionStore) -> None:
                     "facts": turn.facts,
                     "verdicts": turn.fact_verdicts,
                 }
-                await ws.send_json({"type": "verification", **verification_payload})
+                await _send_json_safe(ws, {"type": "verification", **verification_payload})
 
             # Sprint 4: trim the agent trace before persisting/streaming
             # to keep document size sane. Step summaries already contain
@@ -361,7 +398,7 @@ async def handle_chat_ws(ws: WebSocket, store: SessionStore) -> None:
                 # incrementally from agent_step events, but this frame
                 # gives a deterministic final state including the
                 # forced-reason / outcome).
-                await ws.send_json({
+                await _send_json_safe(ws, {
                     "type": "agent_trace",
                     "trace": agent_trace_payload,
                 })
