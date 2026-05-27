@@ -39,3 +39,8 @@ tenacity>=8.3
 
 # Logging
 loguru>=0.7
+
+# Sprint 3 citation verifier — OCR-tolerant fuzzy matching (rapidfuzz's
+# partial_ratio_alignment is what scores each verbatim_quote against its
+# source chunk). Required by src/rag/v2/verifier.py.
+rapidfuzz>=3.0
