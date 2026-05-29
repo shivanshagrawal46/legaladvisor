@@ -30,17 +30,17 @@ function badgeForFacts(facts) {
     return {
       icon: <CheckCircleFilled />,
       label: total === 1 ? "Supports 1 verified claim" : `Supports ${total} verified claims`,
-      bg: "#f0f7eb",
-      border: "#c8e2b3",
-      color: "#3c7e1a",
+      bg: "var(--green-tint)",
+      border: "var(--green-line)",
+      color: "var(--green)",
     };
   }
   return {
     icon: <ExclamationCircleFilled />,
     label: `${verified}/${total} claims verified · ${unver} to review`,
-    bg: "#fdf5e8",
-    border: "#f5dfa0",
-    color: "#b07a1a",
+    bg: "var(--gold-tint)",
+    border: "var(--gold-line)",
+    color: "var(--gold)",
   };
 }
 
@@ -55,7 +55,7 @@ function FactsTooltip({ facts }) {
         }}>
           <div style={{
             fontWeight: 600,
-            color: f.verdict === "VERIFIED" ? "#3c7e1a" : "#b07a1a",
+            color: f.verdict === "VERIFIED" ? "var(--green)" : "var(--gold)",
             marginBottom: 2,
           }}>
             {f.verdict === "VERIFIED" ? "✓" : "⚠"} {f.claim || "(no claim)"}
@@ -68,7 +68,7 @@ function FactsTooltip({ facts }) {
         </div>
       ))}
       {(facts || []).length > 4 && (
-        <div style={{ marginTop: 6, color: "#8892b0", fontSize: 11 }}>
+        <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 11 }}>
           …and {facts.length - 4} more. Click the card to view all.
         </div>
       )}
@@ -126,9 +126,9 @@ export default function Sources({ items }) {
                     icon={s.type === "attachment" ? <PaperClipOutlined /> : <MailOutlined />}
                     style={{
                       ...styles.typeTag,
-                      background: s.type === "attachment" ? "#eef0fb" : "#edf8f2",
-                      color: s.type === "attachment" ? "#6574c4" : "#3a8c5c",
-                      borderColor: s.type === "attachment" ? "#d4d9f0" : "#b7e4c7",
+                      background: s.type === "attachment" ? "var(--river-tint)" : "var(--surface-inset)",
+                      color: s.type === "attachment" ? "var(--river)" : "var(--t2)",
+                      borderColor: s.type === "attachment" ? "var(--river-mist)" : "var(--hair-2)",
                     }}
                   >
                     {s.type === "attachment" ? "Attachment" : "Email"}
@@ -157,7 +157,21 @@ export default function Sources({ items }) {
                   </div>
                 )}
                 {badge && (
-                  <Tooltip title={<FactsTooltip facts={s.verified_facts} />} placement="top">
+                  <Tooltip
+                    title={<FactsTooltip facts={s.verified_facts} />}
+                    placement="top"
+                    color="#fdfbf6"
+                    overlayInnerStyle={{
+                      color: "var(--ink)",
+                      border: "1px solid var(--hair)",
+                      borderRadius: 8,
+                      padding: "11px 13px",
+                      boxShadow: "var(--sh-md)",
+                      fontSize: 12,
+                      lineHeight: 1.55,
+                      minHeight: 0,
+                    }}
+                  >
                     <Tag
                       icon={badge.icon}
                       style={{
@@ -187,41 +201,42 @@ export default function Sources({ items }) {
 }
 
 const styles = {
-  wrap: { marginTop: 14, borderTop: "1px solid #ebedf5", paddingTop: 10 },
+  wrap: { marginTop: 18, borderTop: "1px solid var(--hair)", paddingTop: 4 },
   collapse: { background: "transparent" },
   collapseLabel: {
     display: "flex", alignItems: "center", gap: 8,
-    fontSize: 12, color: "#8892b0", fontWeight: 500,
+    fontSize: 11.5, color: "var(--muted)", fontWeight: 500,
   },
   sourceCount: {
-    background: "#eef0fb", color: "#6574c4",
-    borderRadius: 10, padding: "1px 7px", fontSize: 11, fontWeight: 600,
+    background: "transparent", color: "var(--muted-2)",
+    padding: "0", fontSize: 11.5, fontWeight: 600,
+    fontFamily: "'JetBrains Mono', monospace",
   },
-  citedHint: { fontSize: 11, color: "#3c7e1a", fontWeight: 500 },
+  citedHint: { fontSize: 11.5, color: "var(--green)", fontWeight: 500 },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: 8, paddingTop: 4,
+    gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))",
+    gap: 8, paddingTop: 6,
   },
   sourceCard: {
-    background: "#fafbfe",
-    border: "1px solid #ebedf5",
-    borderRadius: 8,
-    padding: "10px 12px",
-    transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s",
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
+    borderRadius: "var(--r-md)",
+    padding: "12px 14px",
   },
   cardHeader: {
-    display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap",
+    display: "flex", alignItems: "center", gap: 7, marginBottom: 6, flexWrap: "wrap",
   },
   typeTag: {
-    borderRadius: 4, fontSize: 11, fontWeight: 500, lineHeight: "20px", margin: 0,
+    borderRadius: "var(--pill)", fontSize: 10, fontWeight: 500, lineHeight: "18px", margin: 0,
+    padding: "0 9px", border: "1px solid",
   },
   indexLabel: {
-    fontSize: 11, fontWeight: 700, color: "#6574c4", fontFamily: "monospace",
+    fontSize: 11, fontWeight: 600, color: "var(--brand)", fontFamily: "'JetBrains Mono', monospace",
   },
-  score: { fontSize: 10, color: "#c5c9dc", marginLeft: "auto" },
+  score: { fontSize: 10, color: "var(--muted-2)", marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace" },
   cardTitle: {
-    fontSize: 12, fontWeight: 500, color: "#2d3152",
+    fontSize: 13, fontWeight: 500, color: "var(--ink)",
     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
     marginBottom: 4,
   },
@@ -229,19 +244,20 @@ const styles = {
     display: "flex", flexWrap: "wrap", gap: "4px 10px",
   },
   metaItem: {
-    fontSize: 11, color: "#b0b6cc",
+    fontSize: 11, color: "var(--muted-2)",
     display: "flex", alignItems: "center",
   },
   factsBadge: {
-    marginTop: 8,
+    marginTop: 9,
     marginRight: 0,
-    borderRadius: 4,
+    borderRadius: "var(--pill)",
     fontSize: 10,
-    fontWeight: 600,
-    lineHeight: "18px",
-    padding: "0 6px",
+    fontWeight: 500,
+    lineHeight: "16px",
+    padding: "0 9px",
     display: "inline-flex",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
+    border: "1px solid",
   },
 };

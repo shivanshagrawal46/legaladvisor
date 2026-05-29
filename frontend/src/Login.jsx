@@ -34,7 +34,7 @@ export default function Login({ onLogin }) {
         {/* Logo */}
         <div style={styles.logoBlock}>
           <div style={styles.logoCircle}>
-            <span style={{ fontSize: 28 }}>⚖️</span>
+            <span style={{ fontSize: 26 }}>⚖️</span>
           </div>
           <Title level={3} style={styles.title}>Mango Tree</Title>
           <Text style={styles.subtitle}>Legal Advisor · Fraud Investigation</Text>
@@ -56,7 +56,7 @@ export default function Login({ onLogin }) {
             rules={[{ required: true, message: "Please enter your email" }]}
           >
             <Input
-              prefix={<MailOutlined style={{ color: "#b0b6cc" }} />}
+              prefix={<MailOutlined style={{ color: "var(--muted-2)" }} />}
               placeholder="you@example.com"
               size="large"
               style={styles.input}
@@ -70,7 +70,7 @@ export default function Login({ onLogin }) {
             style={{ marginBottom: 24 }}
           >
             <Input.Password
-              prefix={<LockOutlined style={{ color: "#b0b6cc" }} />}
+              prefix={<LockOutlined style={{ color: "var(--muted-2)" }} />}
               placeholder="••••••••••"
               size="large"
               style={styles.input}
@@ -103,7 +103,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg, #f0f2f9 0%, #e8eaf6 50%, #f5f6fa 100%)",
+    background: "var(--paper)",
     padding: 24,
     position: "relative",
     overflow: "hidden",
@@ -111,17 +111,17 @@ const styles = {
   bgPattern: {
     position: "absolute",
     inset: 0,
-    backgroundImage: "radial-gradient(circle at 25% 25%, rgba(101,116,196,0.08) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(101,116,196,0.06) 0%, transparent 50%)",
+    backgroundImage: "radial-gradient(900px 600px at 25% 18%, rgba(35,74,82,0.05) 0%, transparent 55%), radial-gradient(800px 500px at 82% 88%, rgba(164,122,46,0.04) 0%, transparent 55%)",
     pointerEvents: "none",
   },
   card: {
-    background: "#ffffff",
-    borderRadius: 16,
-    padding: "44px 40px 36px",
+    background: "var(--surface)",
+    borderRadius: "var(--r-lg)",
+    padding: "48px 44px 36px",
     width: "100%",
-    maxWidth: 420,
-    boxShadow: "0 4px 32px rgba(101,116,196,0.10), 0 1px 4px rgba(0,0,0,0.04)",
-    border: "1px solid rgba(101,116,196,0.12)",
+    maxWidth: 416,
+    boxShadow: "var(--sh-md)",
+    border: "1px solid var(--hair)",
     position: "relative",
     zIndex: 1,
   },
@@ -129,55 +129,55 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 36,
   },
   logoCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, #eef0fb, #e4e7f8)",
-    border: "1px solid rgba(101,116,196,0.18)",
+    width: 60,
+    height: 60,
+    borderRadius: "var(--r-md)",
+    background: "var(--paper-2)",
+    border: "1px solid var(--hair-2)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
-    boxShadow: "0 2px 12px rgba(101,116,196,0.12)",
+    marginBottom: 18,
   },
   title: {
     margin: 0,
-    color: "#1a1d2e",
-    fontWeight: 700,
-    letterSpacing: "-0.3px",
+    color: "var(--ink)",
+    fontWeight: 600,
+    fontSize: 22,
+    letterSpacing: "-0.015em",
   },
   subtitle: {
-    color: "#8892b0",
+    color: "var(--muted)",
     fontSize: 13,
-    marginTop: 4,
+    marginTop: 6,
   },
   label: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: 500,
-    color: "#4a5568",
+    color: "var(--t2)",
   },
   input: {
-    borderRadius: 8,
-    borderColor: "#e2e5f0",
+    borderRadius: "var(--r-sm)",
+    borderColor: "var(--hair-2)",
     fontSize: 14,
   },
   btn: {
     height: 44,
-    borderRadius: 8,
-    background: "linear-gradient(135deg, #6574c4, #8b6cc8)",
+    borderRadius: "var(--r-sm)",
+    background: "var(--brand)",
     border: "none",
-    fontSize: 15,
-    fontWeight: 600,
-    boxShadow: "0 2px 12px rgba(101,116,196,0.3)",
+    fontSize: 14.5,
+    fontWeight: 500,
+    boxShadow: "var(--sh-sm)",
   },
   footer: {
     display: "block",
     textAlign: "center",
-    color: "#b0b6cc",
+    color: "var(--muted-2)",
     fontSize: 11,
-    marginTop: 24,
+    marginTop: 28,
   },
 };

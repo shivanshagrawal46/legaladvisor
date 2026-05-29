@@ -62,6 +62,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
         <Tooltip title="New conversation" placement="right">
           <Button
             type="text"
+            className="newchat-btn"
             icon={<PlusOutlined />}
             onClick={onNew}
             style={styles.newBtn}
@@ -71,18 +72,17 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
 
       {/* Sessions */}
       <div style={styles.sectionLabel}>
-        <MessageOutlined style={{ fontSize: 10, marginRight: 5 }} />
-        CONVERSATIONS
+        <span style={styles.sectionLabelText}>Conversations</span>
         {sessions.length > 0 && (
-          <span style={styles.countBadge}>{sessions.length}</span>
+          <span className="mono" style={styles.countBadge}>{sessions.length}</span>
         )}
       </div>
 
       <div style={styles.listWrap}>
         {sessions.length === 0 && (
           <div style={styles.emptyState}>
-            <MessageOutlined style={{ fontSize: 20, color: "#c5c9dc", marginBottom: 8 }} />
-            <Text style={{ color: "#b0b6cc", fontSize: 12 }}>No conversations yet</Text>
+            <MessageOutlined style={{ fontSize: 20, color: "var(--t5)", marginBottom: 8 }} />
+            <Text style={{ color: "var(--muted-2)", fontSize: 12 }}>No conversations yet</Text>
           </div>
         )}
         {sessions.map(s => (
@@ -96,16 +96,17 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
             onClick={() => onSelect(s.session_id)}
           >
             <div style={styles.itemIcon}>
-              <MessageOutlined style={{ fontSize: 12, color: s.session_id === activeId ? "#6574c4" : "#b0b6cc" }} />
+              <MessageOutlined style={{ fontSize: 12, color: s.session_id === activeId ? "var(--river)" : "var(--muted-2)" }} />
             </div>
             <div style={styles.itemContent}>
               <div style={styles.itemTitle}>{s.title || "New conversation"}</div>
-              <div style={styles.itemMeta}>{formatDate(s.updated_at)}</div>
+              <div style={styles.itemMeta} className="mono">{formatDate(s.updated_at)}</div>
             </div>
             <Tooltip title="Delete" placement="right">
               <Button
                 type="text"
                 size="small"
+                className="session-del"
                 icon={<DeleteOutlined />}
                 loading={deletingId === s.session_id}
                 onClick={e => confirmDelete(e, s.session_id)}
@@ -139,53 +140,56 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
 
 const styles = {
   aside: {
-    width: 268,
-    minWidth: 268,
-    background: "#ffffff",
-    borderRight: "1px solid #ebedf5",
+    width: 264,
+    minWidth: 264,
+    background: "var(--surface-2)",
+    borderRight: "1px solid var(--hair)",
     display: "flex",
     flexDirection: "column",
     height: "100vh",
     overflow: "hidden",
-    boxShadow: "1px 0 0 #ebedf5",
   },
   header: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "18px 16px 14px",
-    borderBottom: "1px solid #f0f2f9",
+    padding: "20px 18px 18px",
+    borderBottom: "1px solid var(--hair)",
   },
   brand: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
+    gap: 11,
   },
   brandIcon: {
     width: 34,
     height: 34,
-    borderRadius: 8,
-    background: "linear-gradient(135deg, #eef0fb, #e4e7f8)",
-    border: "1px solid rgba(101,116,196,0.15)",
+    borderRadius: "var(--r-sm)",
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: 16,
   },
   brandName: {
-    fontWeight: 700,
-    fontSize: 14,
-    color: "#1a1d2e",
-    lineHeight: 1.3,
+    fontWeight: 600,
+    fontSize: 14.5,
+    color: "var(--ink)",
+    lineHeight: 1.25,
+    letterSpacing: "-0.005em",
   },
   brandSub: {
-    fontSize: 10,
-    color: "#b0b6cc",
-    letterSpacing: "0.02em",
+    fontSize: 9.5,
+    color: "var(--muted-2)",
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+    fontWeight: 600,
+    marginTop: 3,
   },
   newBtn: {
-    color: "#6574c4",
-    borderRadius: 8,
+    color: "var(--brand)",
+    borderRadius: "var(--r-sm)",
     width: 32,
     height: 32,
     display: "flex",
@@ -193,52 +197,55 @@ const styles = {
     justifyContent: "center",
   },
   sectionLabel: {
-    padding: "14px 16px 8px",
-    fontSize: 10,
-    fontWeight: 600,
-    color: "#b0b6cc",
-    letterSpacing: "0.08em",
+    padding: "22px 20px 10px",
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionLabelText: {
+    fontSize: 10,
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.16em",
+    color: "var(--muted-2)",
   },
   countBadge: {
-    marginLeft: "auto",
-    background: "#f0f2f9",
-    color: "#8892b0",
-    borderRadius: 10,
-    padding: "1px 7px",
-    fontSize: 10,
+    background: "transparent",
+    color: "var(--muted-2)",
+    padding: "1px 0",
+    fontSize: 10.5,
     fontWeight: 600,
   },
   listWrap: {
     flex: 1,
     overflowY: "auto",
-    padding: "4px 8px",
+    padding: "2px 10px 8px",
   },
   emptyState: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: "32px 16px",
+    padding: "40px 16px",
     opacity: 0.7,
   },
   item: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
-    borderRadius: 8,
-    padding: "9px 10px",
-    marginBottom: 2,
+    gap: 10,
+    borderRadius: "var(--r-sm)",
+    padding: "9px 11px",
+    marginBottom: 1,
     cursor: "pointer",
-    transition: "background 0.15s",
     position: "relative",
   },
   itemActive: {
-    background: "#eef0fb",
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
+    boxShadow: "var(--sh-sm)",
   },
   itemIcon: {
-    width: 26,
-    height: 26,
+    width: 22,
+    height: 22,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -251,22 +258,21 @@ const styles = {
   itemTitle: {
     fontSize: 13,
     fontWeight: 500,
-    color: "#2d3152",
+    color: "var(--t1)",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
   itemMeta: {
     fontSize: 11,
-    color: "#b0b6cc",
-    marginTop: 1,
+    color: "var(--muted-2)",
+    marginTop: 2,
   },
   deleteBtn: {
-    opacity: 0.4,
-    color: "#8892b0",
+    color: "var(--muted-2)",
     flexShrink: 0,
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -274,26 +280,26 @@ const styles = {
     fontSize: 11,
   },
   userFooter: {
-    padding: "12px 14px",
-    borderTop: "1px solid #f0f2f9",
+    padding: "14px 16px",
+    borderTop: "1px solid var(--hair)",
     display: "flex",
     alignItems: "center",
-    gap: 10,
-    background: "#fafbfe",
+    gap: 11,
+    background: "var(--paper)",
   },
   userAvatar: {
     width: 32,
     height: 32,
     borderRadius: "50%",
-    background: "linear-gradient(135deg, #6574c4, #8b6cc8)",
+    background: "var(--brand)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#fff",
-    fontWeight: 700,
+    color: "#f8f5ee",
+    fontWeight: 600,
     fontSize: 12,
     flexShrink: 0,
-    boxShadow: "0 2px 6px rgba(101,116,196,0.3)",
+    letterSpacing: "0.03em",
   },
   userInfo: {
     flex: 1,
@@ -302,21 +308,21 @@ const styles = {
   userName: {
     fontSize: 13,
     fontWeight: 600,
-    color: "#2d3152",
+    color: "var(--ink)",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
   userEmail: {
-    fontSize: 10,
-    color: "#b0b6cc",
+    fontSize: 10.5,
+    color: "var(--muted-2)",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
     display: "block",
   },
   logoutBtn: {
-    color: "#b0b6cc",
+    color: "var(--muted-2)",
     flexShrink: 0,
   },
 };

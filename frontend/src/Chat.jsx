@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button, Input, Tooltip, Tag, Typography, ConfigProvider } from "antd";
@@ -77,10 +77,10 @@ function TypingDots() {
   );
 }
 
-function AIMessage({ msg, isStreaming, onInterrupt }) {
+const AIMessage = memo(function AIMessage({ msg, isStreaming, onInterrupt }) {
   return (
     <EvidenceProvider sources={msg.sources} verification={msg.verification}>
-      <div style={styles.aiRow}>
+      <div style={styles.aiRow} className="msg-in">
         <div style={styles.aiAvatar}>⚖️</div>
         <div style={styles.aiBubble}>
           {msg.mode === "timeline" && (
@@ -118,20 +118,20 @@ function AIMessage({ msg, isStreaming, onInterrupt }) {
       <EvidenceDrawer />
     </EvidenceProvider>
   );
-}
+});
 
-function UserMessage({ content }) {
+const UserMessage = memo(function UserMessage({ content }) {
   return (
-    <div style={styles.userRow}>
+    <div style={styles.userRow} className="msg-in">
       <div style={styles.userBubble}>
         <Text style={styles.userText}>{content}</Text>
       </div>
       <div style={styles.userAvatar}>
-        <UserOutlined style={{ fontSize: 14, color: "#6574c4" }} />
+        <UserOutlined style={{ fontSize: 14, color: "var(--river)" }} />
       </div>
     </div>
   );
-}
+});
 
 export default function Chat({ user }) {
   // ── Session list (left sidebar) ─────────────────────────────────────────────
@@ -307,6 +307,10 @@ export default function Chat({ user }) {
     if (sid === activeId) return;
     setActiveId(sid);
 
+    // Seed a "loading" placeholder so the welcome screen does NOT flash
+    // while we fetch the conversation history from the server.
+    setSessionStates(prev => prev[sid] ? prev : { ...prev, [sid]: { ...EMPTY_SESSION, loaded: false } });
+
     const cur = sessionStates[sid];
 
     // If we have local cached state (especially mid-stream or freshly chatted),
@@ -400,17 +404,31 @@ export default function Chat({ user }) {
     send({ type: "interrupt", session_id: sid });
   }, [send]);
 
-  // Show welcome only on an empty, non-streaming session
-  const showWelcome = activeId === null || (active.messages.length === 0 && !active.streaming);
+  // Show welcome only on an empty, non-streaming, *loaded* session.
+  // Without the `loaded` guard the welcome screen flashes for ~1s every
+  // time the user clicks a conversation that hasn't been hydrated yet.
+  const showWelcome = activeId === null || (active.loaded && active.messages.length === 0 && !active.streaming);
+  const showSessionLoading = activeId !== null && !active.loaded && active.messages.length === 0 && !active.streaming;
   const msgCount = active.messages.filter(m => m.role === "user").length;
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: "#6574c4",
-          borderRadius: 8,
-          fontFamily: "Inter, -apple-system, sans-serif",
+          colorPrimary: "#234a52",
+          colorLink: "#234a52",
+          borderRadius: 4,
+          fontFamily: "'Inter', -apple-system, sans-serif",
+          colorBgSpotlight: "#fdfbf6",
+          colorTextLightSolid: "#1c1e2a",
+        },
+        components: {
+          Tooltip: {
+            colorBgSpotlight: "#fdfbf6",
+            colorTextLightSolid: "#1c1e2a",
+            borderRadiusOuter: 8,
+            borderRadius: 8,
+          },
         },
       }}
     >
@@ -429,16 +447,16 @@ export default function Chat({ user }) {
           <div style={styles.topbar}>
             <div style={styles.topbarLeft}>
               <div style={styles.topbarTitle}>Legal Advisor</div>
-              <Text style={styles.topbarSub}>Fraud Investigation Assistant</Text>
+              <Text style={styles.topbarSub}>Fraud Investigation</Text>
             </div>
             <div style={styles.topbarRight}>
               <Tag
-                icon={<span style={{ ...styles.statusDot, background: wsReady ? "#52c41a" : "#faad14" }} />}
+                icon={<span style={{ ...styles.statusDot, background: wsReady ? "var(--green)" : "var(--gold)" }} />}
                 style={{
                   ...styles.statusTag,
-                  background: wsReady ? "#f5f9f0" : "#fdf5e8",
-                  borderColor: wsReady ? "#d9f0c7" : "#f5dfa0",
-                  color: wsReady ? "#52a940" : "#b07a1a",
+                  background: wsReady ? "var(--green-tint)" : "var(--gold-tint)",
+                  borderColor: wsReady ? "var(--green-line)" : "var(--gold-line)",
+                  color: wsReady ? "var(--green)" : "var(--gold)",
                 }}
               >
                 {wsReady ? "Live" : "Connecting"}
@@ -457,11 +475,12 @@ export default function Chat({ user }) {
             {showWelcome && (
               <div style={styles.welcome}>
                 <div style={styles.welcomeIconWrap}>
-                  <span style={{ fontSize: 36 }}>⚖️</span>
+                  <span style={{ fontSize: 32 }}>⚖️</span>
                 </div>
-                <div style={styles.welcomeTitle}>Good day, {user.name.split(" ")[0]}</div>
+                <div style={styles.welcomeTitle}>Good day, {user.name.split(" ")[0]}.</div>
                 <Text style={styles.welcomeText}>
-                  Ask anything about the fraud case — court filings, dates, amounts, parties, timelines.
+                  Ask anything about the case — filings, dates, amounts, parties, timelines.
+                  Every answer is verified against the source record.
                 </Text>
                 <div style={styles.suggestGrid}>
                   {SUGGESTED.map(s => (
@@ -471,11 +490,19 @@ export default function Chat({ user }) {
                       style={styles.suggestion}
                       onClick={() => handleSend(s)}
                     >
-                      <span style={styles.suggestionArrow}>→</span>
+                      <span style={styles.suggestionArrow} className="suggestion-arrow">→</span>
                       {s}
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {showSessionLoading && (
+              <div style={styles.loadingState}>
+                <div className="skel-line" style={{ width: "62%", margin: "0 auto 10px" }} />
+                <div className="skel-line" style={{ width: "82%", margin: "0 auto 10px" }} />
+                <div className="skel-line" style={{ width: "48%", margin: "0 auto" }} />
               </div>
             )}
 
@@ -539,6 +566,7 @@ export default function Chat({ user }) {
                     onClick={() => handleSend()}
                     disabled={!input.trim() || active.streaming || !wsReady}
                     style={styles.sendBtn}
+                    className="send-btn"
                   />
                 </Tooltip>
               </div>
@@ -551,99 +579,117 @@ export default function Chat({ user }) {
 }
 
 const styles = {
-  layout: { display: "flex", height: "100vh", overflow: "hidden", background: "#f5f6fa" },
-  main: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" },
+  layout: { display: "flex", height: "100vh", overflow: "hidden", background: "var(--paper)" },
+  main: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--paper)" },
   topbar: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "12px 28px", background: "#ffffff",
-    borderBottom: "1px solid #ebedf5", flexShrink: 0,
-    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+    padding: "16px 36px", background: "rgba(248,245,238,0.78)",
+    borderBottom: "1px solid var(--hair)", flexShrink: 0,
+    backdropFilter: "saturate(180%) blur(14px)",
+    WebkitBackdropFilter: "saturate(180%) blur(14px)",
   },
-  topbarLeft: { display: "flex", alignItems: "center", gap: 10 },
-  topbarTitle: { fontWeight: 700, fontSize: 15, color: "#1a1d2e" },
+  topbarLeft: { display: "flex", alignItems: "baseline", gap: 14 },
+  topbarTitle: { fontWeight: 600, fontSize: 15.5, color: "var(--ink)", letterSpacing: "-0.005em" },
   topbarSub: {
-    fontSize: 12, color: "#b0b6cc",
-    borderLeft: "1px solid #ebedf5", paddingLeft: 10, marginLeft: 2,
+    fontSize: 10, color: "var(--muted-2)", textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 600,
+    paddingLeft: 14, borderLeft: "1px solid var(--hair-2)",
   },
-  topbarRight: { display: "flex", alignItems: "center", gap: 6 },
-  statusDot: { display: "inline-block", width: 6, height: 6, borderRadius: "50%", marginRight: 5 },
-  statusTag: { fontSize: 11, borderRadius: 20, display: "flex", alignItems: "center", fontWeight: 500 },
-  modelTag: { fontSize: 11, borderRadius: 20, background: "#eef0fb", borderColor: "#d4d9f0", color: "#6574c4", fontWeight: 500 },
-  voyageTag: { fontSize: 11, borderRadius: 20, background: "#fdf5e8", borderColor: "#f5dfa0", color: "#b07a1a", fontWeight: 500 },
-  messages: { flex: 1, overflowY: "auto", padding: "24px 0" },
+  topbarRight: { display: "flex", alignItems: "center", gap: 8 },
+  statusDot: { display: "inline-block", width: 6, height: 6, borderRadius: "50%", marginRight: 6 },
+  statusTag: { fontSize: 11, borderRadius: "var(--pill)", display: "inline-flex", alignItems: "center", fontWeight: 500, padding: "2px 10px", border: "1px solid" },
+  modelTag: { fontSize: 11, borderRadius: "var(--pill)", background: "var(--brand-soft)", borderColor: "var(--brand-mist)", color: "var(--brand)", fontWeight: 500, padding: "2px 10px" },
+  voyageTag: { fontSize: 11, borderRadius: "var(--pill)", background: "var(--paper-2)", borderColor: "var(--hair-2)", color: "var(--muted)", fontWeight: 500, padding: "2px 10px" },
+  messages: { flex: 1, overflowY: "auto", padding: "32px 0 12px" },
+  loadingState: {
+    maxWidth: 880,
+    margin: "0 auto",
+    padding: "60px 36px",
+    width: "100%",
+  },
   welcome: {
     display: "flex", flexDirection: "column", alignItems: "center",
-    padding: "48px 24px 24px", maxWidth: 620, margin: "0 auto", width: "100%", textAlign: "center",
+    padding: "72px 24px 32px", maxWidth: 680, margin: "0 auto", width: "100%", textAlign: "center",
   },
   welcomeIconWrap: {
-    width: 72, height: 72, borderRadius: 16,
-    background: "linear-gradient(135deg, #eef0fb, #e4e7f8)",
-    border: "1px solid rgba(101,116,196,0.15)",
+    width: 64, height: 64, borderRadius: "var(--r-lg)",
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    marginBottom: 18, boxShadow: "0 4px 16px rgba(101,116,196,0.12)",
+    marginBottom: 28, boxShadow: "var(--sh-sm)",
   },
-  welcomeTitle: { fontSize: 22, fontWeight: 700, color: "#1a1d2e", marginBottom: 8 },
-  welcomeText: { color: "#8892b0", fontSize: 14, lineHeight: 1.65, marginBottom: 28 },
-  suggestGrid: { display: "flex", flexDirection: "column", gap: 8, width: "100%" },
+  welcomeTitle: { fontSize: "clamp(28px, 3.6vw, 38px)", fontWeight: 500, color: "var(--ink)", marginBottom: 16, letterSpacing: "-0.025em", lineHeight: 1.15 },
+  welcomeText: { color: "var(--muted)", fontSize: 15, lineHeight: 1.65, marginBottom: 40, maxWidth: 460 },
+  suggestGrid: { display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 540 },
   suggestion: {
-    background: "#ffffff", border: "1px solid #ebedf5", borderRadius: 10,
-    padding: "12px 16px", color: "#3d4566", fontSize: 13, textAlign: "left",
-    cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
-    fontFamily: "Inter, sans-serif", transition: "all 0.15s",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+    background: "var(--surface)", border: "1px solid var(--hair)", borderRadius: "var(--r-md)",
+    padding: "14px 18px", color: "var(--t2)", fontSize: 13.5, textAlign: "left",
+    cursor: "pointer", display: "flex", alignItems: "center", gap: 12,
+    fontFamily: "Inter, sans-serif", fontWeight: 450,
   },
-  suggestionArrow: { fontSize: 14, color: "#b0b6cc", flexShrink: 0 },
+  suggestionArrow: { fontSize: 14, color: "var(--muted-2)", flexShrink: 0, transition: "transform var(--fast), color var(--fast)" },
   aiRow: {
-    display: "flex", alignItems: "flex-start", gap: 12,
-    padding: "8px 28px", maxWidth: 880, margin: "0 auto", width: "100%",
+    display: "flex", alignItems: "flex-start", gap: 14,
+    padding: "14px 36px", maxWidth: 880, margin: "0 auto", width: "100%",
   },
-  aiAvatar: { fontSize: 22, flexShrink: 0, paddingTop: 4, lineHeight: 1 },
+  aiAvatar: {
+    fontSize: 16, flexShrink: 0, lineHeight: 1,
+    width: 32, height: 32, borderRadius: "var(--r-sm)",
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    marginTop: 4,
+  },
   aiBubble: {
-    flex: 1, background: "#ffffff", border: "1px solid #ebedf5",
-    borderRadius: "4px 12px 12px 12px", padding: "14px 18px",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.04)", minWidth: 0,
+    flex: 1, background: "transparent", border: "none",
+    borderRadius: 0, padding: "4px 0 0",
+    minWidth: 0,
   },
   timelineTag: {
-    marginBottom: 12, background: "#fdf8ee",
-    borderColor: "#f5dfa0", color: "#b07a1a",
-    borderRadius: 4, fontSize: 11, fontWeight: 600,
+    marginBottom: 12, background: "var(--paper-2)",
+    borderColor: "var(--hair-2)", color: "var(--muted)",
+    borderRadius: "var(--pill)", fontSize: 10.5, fontWeight: 500,
+    padding: "0 10px",
   },
   userRow: {
     display: "flex", alignItems: "flex-start", justifyContent: "flex-end",
-    gap: 10, padding: "8px 28px", maxWidth: 880, margin: "0 auto", width: "100%",
+    gap: 12, padding: "14px 36px", maxWidth: 880, margin: "0 auto", width: "100%",
   },
   userBubble: {
-    background: "linear-gradient(135deg, #6574c4, #8b6cc8)",
-    borderRadius: "12px 4px 12px 12px", padding: "12px 16px",
-    maxWidth: "72%", boxShadow: "0 2px 8px rgba(101,116,196,0.2)",
+    background: "var(--user-bubble)",
+    border: "1px solid var(--user-bubble-border)",
+    borderRadius: "var(--r-md)",
+    padding: "11px 16px",
+    maxWidth: "70%",
   },
-  userText: { fontSize: 14, color: "#ffffff", lineHeight: 1.65 },
+  userText: { fontSize: 14.5, color: "var(--ink)", lineHeight: 1.6, fontWeight: 450 },
   userAvatar: {
-    width: 32, height: 32, borderRadius: "50%",
-    background: "#eef0fb", border: "1px solid #d4d9f0",
+    width: 32, height: 32, borderRadius: "var(--r-sm)",
+    background: "var(--surface)", border: "1px solid var(--hair)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    flexShrink: 0, paddingTop: 4,
+    flexShrink: 0, marginTop: 4,
   },
   dots: { display: "flex", gap: 5, alignItems: "center", padding: "4px 0" },
-  dot: { width: 7, height: 7, borderRadius: "50%", background: "#c5c9dc", display: "inline-block" },
-  inputArea: { padding: "16px 28px 20px", background: "#f5f6fa", flexShrink: 0 },
+  dot: { width: 6, height: 6, borderRadius: "50%", background: "var(--brand)", display: "inline-block", opacity: 0.45 },
+  inputArea: { padding: "12px 36px 24px", flexShrink: 0, background: "transparent" },
   inputCard: {
-    background: "#ffffff", border: "1px solid #e2e5f0",
-    borderRadius: 12, padding: "12px 14px 10px",
-    boxShadow: "0 2px 12px rgba(101,116,196,0.08)",
-    maxWidth: 824, margin: "0 auto",
+    background: "var(--surface)", border: "1px solid var(--hair-2)",
+    borderRadius: "var(--r-md)", padding: "13px 16px 11px",
+    boxShadow: "var(--sh-sm)",
+    maxWidth: 820, margin: "0 auto",
+    transition: "border-color var(--med), box-shadow var(--med)",
   },
   textarea: {
-    fontSize: 14, color: "#1a1d2e", background: "transparent",
-    resize: "none", lineHeight: 1.65, padding: "2px 6px",
+    fontSize: 15, color: "var(--ink)", background: "transparent",
+    resize: "none", lineHeight: 1.6, padding: "4px 6px",
   },
   inputFooter: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
-    marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0f2f9",
+    marginTop: 9, paddingTop: 10, borderTop: "1px solid var(--hair)",
   },
-  inputHint: { fontSize: 11, color: "#c5c9dc" },
+  inputHint: { fontSize: 11, color: "var(--muted-2)" },
   sendBtn: {
-    background: "linear-gradient(135deg, #6574c4, #8b6cc8)",
-    border: "none", boxShadow: "0 2px 8px rgba(101,116,196,0.3)",
+    background: "var(--brand)",
+    border: "none",
+    boxShadow: "var(--sh-sm)",
   },
 };

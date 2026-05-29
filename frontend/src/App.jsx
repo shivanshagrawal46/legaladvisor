@@ -17,14 +17,33 @@ export default function App() {
       .finally(() => setChecking(false));
   }, []);
 
+  const theme = {
+    token: {
+      colorPrimary: "#234a52",
+      colorLink: "#234a52",
+      borderRadius: 4,
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      colorBgSpotlight: "#fdfbf6",
+      colorTextLightSolid: "#1c1e2a",
+    },
+    components: {
+      Tooltip: {
+        colorBgSpotlight: "#fdfbf6",
+        colorTextLightSolid: "#1c1e2a",
+        borderRadiusOuter: 8,
+        borderRadius: 8,
+      },
+    },
+  };
+
   if (checking) return (
-    <ConfigProvider theme={{ token: { colorPrimary: "#6574c4" } }}>
+    <ConfigProvider theme={theme}>
       <div style={{
         height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #f0f2f9, #e8eaf6)",
+        background: "radial-gradient(900px 600px at 50% 30%, #f3f1ea 0%, rgba(243,241,234,0) 60%), #fafaf7",
       }}>
         <Spin size="large" />
       </div>
@@ -32,10 +51,14 @@ export default function App() {
   );
 
   if (!user) return (
-    <ConfigProvider theme={{ token: { colorPrimary: "#6574c4", borderRadius: 8 } }}>
+    <ConfigProvider theme={theme}>
       <Login onLogin={setUser} />
     </ConfigProvider>
   );
 
-  return <Chat user={user} />;
+  return (
+    <ConfigProvider theme={theme}>
+      <Chat user={user} />
+    </ConfigProvider>
+  );
 }

@@ -61,15 +61,15 @@ const TOOL_LABEL = {
 
 function StepIcon({ step, isCurrent }) {
   if (step.error) {
-    return <ExclamationCircleFilled style={{ color: "#b03a3a" }} />;
+    return <ExclamationCircleFilled style={{ color: "var(--red)" }} />;
   }
   if (step.type === "submit_final_answer" || step.tool_name === "submit_final_answer") {
-    return <CheckCircleFilled style={{ color: "#3c7e1a" }} />;
+    return <CheckCircleFilled style={{ color: "var(--green)" }} />;
   }
   if (isCurrent) {
-    return <LoadingOutlined style={{ color: "#6574c4" }} spin />;
+    return <LoadingOutlined style={{ color: "var(--river)" }} spin />;
   }
-  return <span style={{ color: "#6574c4" }}>{TOOL_ICON[step.tool_name] || <RobotOutlined />}</span>;
+  return <span style={{ color: "var(--river)" }}>{TOOL_ICON[step.tool_name] || <RobotOutlined />}</span>;
 }
 
 
@@ -103,7 +103,7 @@ function StepRow({ step, isCurrent, isLast }) {
   return (
     <div style={styles.stepRow}>
       <div style={styles.stepGutter}>
-        <div style={{ ...styles.stepDot, background: step.error ? "#fdecec" : (isCurrent ? "#eef0fb" : "#f5f9f0") }}>
+        <div style={{ ...styles.stepDot, background: step.error ? "var(--red-tint)" : (isCurrent ? "var(--river-tint)" : "var(--green-tint)") }}>
           <StepIcon step={step} isCurrent={isCurrent} />
         </div>
         {!isLast && <div style={styles.stepConnector} />}
@@ -145,7 +145,7 @@ function StepRow({ step, isCurrent, isLast }) {
                     <span key={i} style={styles.chunkRef}>[#{i}]</span>
                   ))}
                   {step.new_chunk_indices.length > 20 && (
-                    <span style={{ color: "#8892b0", fontSize: 11 }}>
+                    <span style={{ color: "var(--muted)", fontSize: 11 }}>
                       +{step.new_chunk_indices.length - 20} more
                     </span>
                   )}
@@ -215,11 +215,11 @@ export default function AgentReasoningPanel({
     ?? _backendElapsedMs
     ?? (isStreaming ? liveElapsedMs : null);
 
-  const headerColor = done?.outcome === "VERIFIED_FIRST_PASS" ? "#3c7e1a"
-                    : done?.outcome === "VERIFIED_AFTER_RETRY" ? "#3a6cb0"
-                    : done?.outcome === "KEPT_ORIGINAL" ? "#b07a1a"
-                    : done?.outcome === "FALLBACK" ? "#b03a3a"
-                    : "#6574c4";
+  const headerColor = done?.outcome === "VERIFIED_FIRST_PASS" ? "var(--green)"
+                    : done?.outcome === "VERIFIED_AFTER_RETRY" ? "var(--info)"
+                    : done?.outcome === "KEPT_ORIGINAL" ? "var(--gold)"
+                    : done?.outcome === "FALLBACK" ? "var(--red)"
+                    : "var(--river)";
 
   const statusText = useMemo(() => {
     if (isLive) {
@@ -265,8 +265,8 @@ export default function AgentReasoningPanel({
                 percent={pct}
                 showInfo={false}
                 size="small"
-                strokeColor={pct >= 90 ? "#b07a1a" : "#6574c4"}
-                trailColor="#ebedf5"
+                strokeColor={pct >= 90 ? "var(--gold)" : "var(--river)"}
+                trailColor="var(--hair)"
                 style={{ width: 60, lineHeight: 1 }}
               />
               <Text style={styles.meterLabel}>{toolCallsUsed}/{maxCalls}</Text>
@@ -330,19 +330,19 @@ export default function AgentReasoningPanel({
 
 const styles = {
   wrap: {
-    marginBottom: 12,
-    background: "#fafbfe",
-    border: "1px solid #ebedf5",
-    borderRadius: 8,
+    marginBottom: 14,
+    background: "var(--paper-2)",
+    border: "1px solid var(--hair)",
+    borderRadius: "var(--r-md)",
     overflow: "hidden",
   },
   header: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "8px 12px",
-    background: "#ffffff",
-    borderBottom: "1px solid #ebedf5",
+    padding: "10px 14px",
+    background: "var(--surface)",
+    borderBottom: "1px solid var(--hair)",
     gap: 12,
   },
   headerLeft: {
@@ -372,13 +372,14 @@ const styles = {
   },
   meterLabel: {
     fontSize: 11,
-    color: "#8892b0",
-    fontFamily: "monospace",
+    color: "var(--muted)",
+    fontFamily: "'JetBrains Mono', monospace",
     fontWeight: 600,
   },
   elapsedText: {
     fontSize: 11,
-    color: "#8892b0",
+    color: "var(--muted)",
+    fontFamily: "'JetBrains Mono', monospace",
     display: "inline-flex",
     alignItems: "center",
   },
@@ -389,7 +390,7 @@ const styles = {
   },
   collapseLabel: {
     fontSize: 11,
-    color: "#8892b0",
+    color: "var(--muted)",
     fontWeight: 500,
   },
   collapse: {
@@ -415,7 +416,7 @@ const styles = {
     width: 22,
     height: 22,
     borderRadius: "50%",
-    border: "1px solid #ebedf5",
+    border: "1px solid var(--hair)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -425,7 +426,7 @@ const styles = {
   stepConnector: {
     width: 1,
     flex: 1,
-    background: "#e6e9f2",
+    background: "var(--hair-2)",
     minHeight: 16,
     marginTop: 2,
   },
@@ -448,25 +449,25 @@ const styles = {
   },
   stepNum: {
     fontSize: 10,
-    color: "#b0b6cc",
-    fontFamily: "monospace",
+    color: "var(--muted-2)",
+    fontFamily: "'JetBrains Mono', monospace",
     fontWeight: 700,
     minWidth: 20,
   },
   stepLabel: {
     fontSize: 12,
     fontWeight: 600,
-    color: "#1a1d2e",
+    color: "var(--ink)",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
   newChunksTag: {
     fontSize: 10,
-    background: "#eef0fb",
-    color: "#6574c4",
-    borderColor: "#d4d9f0",
-    borderRadius: 3,
+    background: "var(--river-tint)",
+    color: "var(--river)",
+    borderColor: "var(--river-mist)",
+    borderRadius: "var(--r-xs)",
     padding: "0 4px",
     height: 16,
     lineHeight: "14px",
@@ -474,17 +475,18 @@ const styles = {
   },
   elapsedTag: {
     fontSize: 10,
-    color: "#b0b6cc",
+    color: "var(--muted-2)",
     marginLeft: "auto",
+    fontFamily: "'JetBrains Mono', monospace",
   },
   caret: {
     fontSize: 10,
-    color: "#b0b6cc",
-    transition: "transform 0.15s",
+    color: "var(--muted-2)",
+    transition: "transform 0.2s",
   },
   stepSummary: {
     fontSize: 11,
-    color: "#6b7498",
+    color: "var(--muted)",
     paddingLeft: 28,
     paddingTop: 2,
     lineHeight: 1.55,
@@ -493,14 +495,14 @@ const styles = {
     marginTop: 8,
     marginLeft: 28,
     padding: "8px 10px",
-    background: "#ffffff",
-    border: "1px solid #ebedf5",
-    borderRadius: 6,
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
+    borderRadius: "var(--r-sm)",
   },
   detailsLabel: {
     fontSize: 10,
     fontWeight: 700,
-    color: "#8892b0",
+    color: "var(--muted)",
     letterSpacing: 0.5,
     display: "block",
     marginBottom: 4,
@@ -514,14 +516,14 @@ const styles = {
     gap: 6,
     fontSize: 11,
     lineHeight: 1.5,
-    fontFamily: "'Fira Code', monospace",
+    fontFamily: "'JetBrains Mono', monospace",
   },
   toolInputKey: {
-    color: "#6574c4",
+    color: "var(--river)",
     flexShrink: 0,
   },
   toolInputVal: {
-    color: "#3d4566",
+    color: "var(--t2)",
     wordBreak: "break-word",
   },
   chunkRefs: {
@@ -530,21 +532,21 @@ const styles = {
     gap: 4,
   },
   chunkRef: {
-    background: "#eef0fb",
-    color: "#6574c4",
-    borderRadius: 3,
+    background: "var(--river-tint)",
+    color: "var(--river)",
+    borderRadius: "var(--r-xs)",
     padding: "0 5px",
     fontSize: 10,
-    fontFamily: "monospace",
+    fontFamily: "'JetBrains Mono', monospace",
     fontWeight: 600,
     lineHeight: "16px",
   },
   errorBox: {
     fontSize: 11,
-    color: "#b03a3a",
-    background: "#fdecec",
-    border: "1px solid #f5c0c0",
-    borderRadius: 4,
+    color: "var(--red)",
+    background: "var(--red-tint)",
+    border: "1px solid var(--red-line)",
+    borderRadius: "var(--r-sm)",
     padding: "6px 8px",
   },
 };

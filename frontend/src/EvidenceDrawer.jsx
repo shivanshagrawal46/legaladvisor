@@ -44,26 +44,26 @@ function verdictBadge(verdict) {
     return {
       icon: <CheckCircleFilled />,
       label: "Verified",
-      bg: "#f0f7eb",
-      border: "#c8e2b3",
-      color: "#3c7e1a",
+      bg: "var(--green-tint)",
+      border: "var(--green-line)",
+      color: "var(--green)",
     };
   }
   if (verdict === "CITATION_INVALID") {
     return {
       icon: <ExclamationCircleFilled />,
       label: "Invalid citation",
-      bg: "#fdecec",
-      border: "#f5c0c0",
-      color: "#b03a3a",
+      bg: "var(--red-tint)",
+      border: "var(--red-line)",
+      color: "var(--red)",
     };
   }
   return {
     icon: <ExclamationCircleFilled />,
     label: "Unverified — review",
-    bg: "#fdf5e8",
-    border: "#f5dfa0",
-    color: "#b07a1a",
+    bg: "var(--gold-tint)",
+    border: "var(--gold-line)",
+    color: "var(--gold)",
   };
 }
 
@@ -210,21 +210,21 @@ export default function EvidenceDrawer() {
       <Tag
         icon={src.type === "attachment" ? <PaperClipOutlined /> : <MailOutlined />}
         style={{
-          background: src.type === "attachment" ? "#eef0fb" : "#edf8f2",
-          color: src.type === "attachment" ? "#6574c4" : "#3a8c5c",
-          borderColor: src.type === "attachment" ? "#d4d9f0" : "#b7e4c7",
+          background: src.type === "attachment" ? "var(--river-tint)" : "var(--surface-inset)",
+          color: src.type === "attachment" ? "var(--river)" : "var(--t2)",
+          borderColor: src.type === "attachment" ? "var(--river-mist)" : "var(--hair-2)",
           margin: 0,
           flexShrink: 0,
         }}
       >
         {src.type === "attachment" ? "Attachment" : "Email"}
       </Tag>
-      <Text strong style={{ fontSize: 15, color: "#1a1d2e", flexShrink: 0 }}>
+      <Text strong className="mono" style={{ fontSize: 14, color: "var(--river)", flexShrink: 0 }}>
         [#{src.index}]
       </Text>
       <Text style={{
         fontSize: 14,
-        color: "#3d4566",
+        color: "var(--t2)",
         overflow: "hidden",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
@@ -275,8 +275,8 @@ export default function EvidenceDrawer() {
       destroyOnClose
       maskClosable
       styles={{
-        body: { padding: "16px 22px 24px", background: "#fbfbfd" },
-        header: { borderBottom: "1px solid #ebedf5", padding: "12px 20px" },
+        body: { padding: "16px 22px 24px", background: "var(--paper-2)" },
+        header: { borderBottom: "1px solid var(--hair)", padding: "12px 20px", background: "var(--surface)" },
       }}
     >
       {!src ? (
@@ -304,7 +304,7 @@ export default function EvidenceDrawer() {
               </span>
             )}
             {src.rerank_score != null && (
-              <span style={{ ...styles.metaItem, color: "#b0b6cc" }}>
+              <span className="mono" style={{ ...styles.metaItem, color: "var(--muted-2)" }}>
                 rerank {src.rerank_score}
               </span>
             )}
@@ -342,8 +342,8 @@ export default function EvidenceDrawer() {
                       key={v.fact_id}
                       style={{
                         ...styles.claimCard,
-                        borderColor: isActiveFact ? "#6574c4" : "#ebedf5",
-                        boxShadow: isActiveFact ? "0 2px 8px rgba(101,116,196,0.18)" : "none",
+                        borderColor: isActiveFact ? "var(--river)" : "var(--hair)",
+                        boxShadow: isActiveFact ? "0 8px 24px -14px rgba(14,85,96,0.4)" : "none",
                       }}
                     >
                       <div style={styles.claimHeader}>
@@ -360,7 +360,7 @@ export default function EvidenceDrawer() {
                           {badge.label}
                         </Tag>
                         {v.score != null && v.verdict === "VERIFIED" && (
-                          <Text style={{ fontSize: 11, color: "#b0b6cc", marginLeft: "auto" }}>
+                          <Text className="mono" style={{ fontSize: 11, color: "var(--muted-2)", marginLeft: "auto" }}>
                             confidence {Math.round(v.score)}%
                           </Text>
                         )}
@@ -371,7 +371,7 @@ export default function EvidenceDrawer() {
                       {v.verbatim_quote && (
                         <div style={{
                           ...styles.verbatim,
-                          borderLeftColor: v.verdict === "VERIFIED" ? "#7fc04d" : "#e8b14a",
+                          borderLeftColor: v.verdict === "VERIFIED" ? "var(--green)" : "var(--gold)",
                         }}>
                           <span style={{ flex: 1 }}>"{v.verbatim_quote}"</span>
                           <Tooltip title="Copy quote">
@@ -404,7 +404,7 @@ export default function EvidenceDrawer() {
                 <button
                   className="icon-btn"
                   onClick={() => copyText(src.body || "")}
-                  style={{ fontSize: 12, color: "#8892b0" }}
+                  style={{ fontSize: 12, color: "var(--muted)" }}
                 >
                   <CopyOutlined /> copy
                 </button>
@@ -416,8 +416,8 @@ export default function EvidenceDrawer() {
                   <span
                     key={i}
                     style={{
-                      background: s.verdict === "VERIFIED" ? "#e9f5d8" : "#fdeec3",
-                      borderBottom: `2px solid ${s.verdict === "VERIFIED" ? "#7fc04d" : "#e8b14a"}`,
+                      background: s.verdict === "VERIFIED" ? "var(--green-tint)" : "var(--gold-tint)",
+                      borderBottom: `2px solid ${s.verdict === "VERIFIED" ? "var(--green)" : "var(--gold)"}`,
                       padding: "0 1px",
                     }}
                   >
@@ -450,25 +450,26 @@ const styles = {
   },
   metaItem: {
     fontSize: 12,
-    color: "#6b7498",
+    color: "var(--muted)",
     display: "inline-flex",
     alignItems: "center",
   },
   section: {
-    marginTop: 18,
+    marginTop: 20,
   },
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: 0.6,
-    color: "#8892b0",
+    fontSize: 10.5,
+    fontWeight: 600,
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+    color: "var(--muted)",
   },
   claimCard: {
-    background: "#ffffff",
-    border: "1px solid #ebedf5",
-    borderRadius: 10,
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
+    borderRadius: "var(--r-md)",
     padding: "12px 14px",
-    transition: "border-color 0.15s, box-shadow 0.15s",
+    transition: "border-color var(--fast), box-shadow var(--fast)",
   },
   claimHeader: {
     display: "flex",
@@ -478,20 +479,21 @@ const styles = {
   },
   claimText: {
     margin: 0,
-    fontSize: 13,
-    color: "#1a1d2e",
+    fontSize: 13.5,
+    color: "var(--ink)",
     lineHeight: 1.6,
   },
   verbatim: {
     marginTop: 8,
-    padding: "8px 10px",
-    background: "#fbfbfd",
-    borderLeft: "3px solid #7fc04d",
-    borderRadius: "0 6px 6px 0",
-    fontSize: 12,
-    color: "#3d4566",
+    padding: "8px 11px",
+    background: "var(--paper-2)",
+    borderLeft: "3px solid var(--green)",
+    borderRadius: "0 var(--r-sm) var(--r-sm) 0",
+    fontSize: 13,
+    color: "var(--t2)",
+    fontFamily: "'Instrument Serif', Georgia, serif",
     fontStyle: "italic",
-    lineHeight: 1.55,
+    lineHeight: 1.5,
     display: "flex",
     alignItems: "flex-start",
     gap: 6,
@@ -500,22 +502,22 @@ const styles = {
     marginTop: 8,
     padding: "6px 10px",
     fontSize: 12,
-    color: "#b07a1a",
-    background: "#fdf8ee",
-    borderRadius: 6,
+    color: "var(--gold)",
+    background: "var(--gold-tint)",
+    borderRadius: "var(--r-sm)",
   },
   bodyBox: {
     marginTop: 8,
-    padding: "12px 14px",
-    background: "#ffffff",
-    border: "1px solid #ebedf5",
-    borderRadius: 10,
-    fontSize: 13,
-    lineHeight: 1.7,
-    color: "#3d4566",
+    padding: "14px 16px",
+    background: "var(--surface)",
+    border: "1px solid var(--hair)",
+    borderRadius: "var(--r-md)",
+    fontSize: 12.5,
+    lineHeight: 1.75,
+    color: "var(--t2)",
     whiteSpace: "pre-wrap",
     wordBreak: "break-word",
-    fontFamily: "'Fira Code', 'SF Mono', monospace",
+    fontFamily: "'JetBrains Mono', 'SF Mono', monospace",
     maxHeight: "calc(100vh - 380px)",
     overflowY: "auto",
   },
@@ -523,8 +525,8 @@ const styles = {
     marginTop: 10,
     padding: "8px 10px",
     fontSize: 11,
-    color: "#b07a1a",
-    background: "#fdf8ee",
-    borderRadius: 6,
+    color: "var(--gold)",
+    background: "var(--gold-tint)",
+    borderRadius: "var(--r-sm)",
   },
 };

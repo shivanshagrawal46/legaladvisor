@@ -55,6 +55,8 @@ app.add_middleware(
         "http://139.59.39.65:5015",
         "http://139.59.39.65",
     ],
+    # Any localhost / 127.0.0.1 port in dev (Vite may pick 5174, 5175, … if 5173 is busy)
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

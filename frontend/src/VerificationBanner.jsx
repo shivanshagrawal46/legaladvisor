@@ -42,7 +42,7 @@ export default function VerificationBanner() {
   if (outcome === "NO_FACTS" || n_total === 0) {
     return (
       <div style={{ ...styles.row, ...styles.grey }}>
-        <SafetyCertificateFilled style={{ fontSize: 13, color: "#8892b0" }} />
+        <SafetyCertificateFilled style={{ fontSize: 13, color: "var(--muted)" }} />
         <span>No corpus facts cited — this answer is scoping/expertise only.</span>
       </div>
     );
@@ -51,7 +51,7 @@ export default function VerificationBanner() {
   if (outcome === "FALLBACK") {
     return (
       <div style={{ ...styles.row, ...styles.grey }}>
-        <ExclamationCircleFilled style={{ fontSize: 13, color: "#b07a1a" }} />
+        <ExclamationCircleFilled style={{ fontSize: 13, color: "var(--gold)" }} />
         <span>Verifier unavailable — citations were not verified.</span>
       </div>
     );
@@ -76,7 +76,7 @@ export default function VerificationBanner() {
           {outcome === "VERIFIED_AFTER_RETRY" && (
             <Tag
               icon={<SyncOutlined spin={false} />}
-              style={{ ...styles.tag, background: "#eaf2fc", color: "#3a6cb0", borderColor: "#c2d6f0" }}
+              style={{ ...styles.tag, background: "var(--info-soft)", color: "var(--info)", borderColor: "var(--info-border)" }}
             >
               self-corrected
             </Tag>
@@ -112,7 +112,7 @@ export default function VerificationBanner() {
           <Button
             type="link"
             size="small"
-            style={{ marginLeft: "auto", padding: 0, height: "auto", color: "#b07a1a", fontWeight: 600 }}
+            style={{ marginLeft: "auto", padding: 0, height: "auto", color: "var(--gold)", fontWeight: 600 }}
           >
             review evidence →
           </Button>
@@ -124,30 +124,31 @@ export default function VerificationBanner() {
 
 const styles = {
   row: {
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
-    gap: 8,
-    padding: "6px 10px",
-    borderRadius: 6,
-    fontSize: 12,
-    marginBottom: 10,
+    gap: 6,
+    padding: "3px 11px 3px 9px",
+    borderRadius: "var(--pill)",
+    fontSize: 11.5,
+    marginBottom: 14,
     border: "1px solid",
+    fontWeight: 500,
   },
   green: {
-    background: "#f5f9f0",
-    borderColor: "#d9f0c7",
-    color: "#3c7e1a",
+    background: "var(--green-tint)",
+    borderColor: "var(--green-line)",
+    color: "var(--green)",
   },
   amber: {
-    background: "#fdf5e8",
-    borderColor: "#f5dfa0",
-    color: "#b07a1a",
+    background: "var(--gold-tint)",
+    borderColor: "var(--gold-line)",
+    color: "var(--gold)",
   },
   grey: {
-    background: "#f5f6fa",
-    borderColor: "#ebedf5",
-    color: "#6b7498",
+    background: "var(--paper-2)",
+    borderColor: "var(--hair)",
+    color: "var(--muted)",
   },
   sep: { opacity: 0.55 },
-  tag: { marginLeft: 4, fontSize: 10, borderRadius: 4, padding: "0 6px", height: 18, lineHeight: "16px" },
+  tag: { marginLeft: 6, fontSize: 10, borderRadius: "var(--pill)", padding: "0 8px", height: 17, lineHeight: "15px", fontWeight: 500 },
 };

@@ -1,162 +1,355 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* =====================================================================
+   Legal Advisor UI — calm, restrained, Harvey-grade
+   Warm cream paper · deep slate ink (never pure black) · refined navy-teal.
+   ===================================================================== */
+:root {
+  /* Paper — warm, calm, very subtle */
+  --paper:        #f8f5ee;
+  --paper-2:      #f1ede2;
+  --paper-3:      #e7e2d3;
+  --surface:      #fdfbf6;
+  --surface-2:    #f5f2eb;
+  --surface-inset:#ece8db;
+
+  /* Ink — deep slate, NEVER pure black */
+  --ink:          #1c1e2a;
+  --ink-soft:     #2e3142;
+  --t1:           #1c1e2a;
+  --t2:           #3d4156;
+  --t3:           #6e7384;
+  --t4:           #9ea3b3;
+  --t5:           #c5c8d2;
+  --muted:        #6e7384;
+  --muted-2:      #9ea3b3;
+
+  /* Hairlines */
+  --hair:         #e8e3d5;
+  --hair-2:       #d6cfbb;
+  --line:         var(--hair);
+  --line-2:       var(--hair-2);
+  --line-strong:  #bcb5a0;
+
+  /* Brand — deep refined navy-teal (desaturated, expensive) */
+  --brand:        #234a52;
+  --brand-2:      #2e5d66;
+  --brand-deep:   #182f35;
+  --brand-soft:   #e3ebec;
+  --brand-soft-2: #eef2f3;
+  --brand-mist:   #c7d6d8;
+  --brand-border: var(--brand-mist);
+  --river:        var(--brand);
+  --river-soft:   var(--brand-2);
+  --river-mist:   var(--brand-mist);
+  --river-tint:   var(--brand-soft);
+  --river-tint-2: var(--brand-soft-2);
+
+  /* Functional — desaturated, low-volume */
+  --green:        #4a7c3a;
+  --green-tint:   #eef3e7;
+  --green-line:   #d5e1c5;
+  --ok:           var(--green);
+  --ok-soft:      var(--green-tint);
+  --ok-border:    var(--green-line);
+
+  --gold:         #a47a2e;
+  --gold-tint:    #f6efde;
+  --gold-line:    #e3d3a7;
+  --gold-soft:    var(--gold-tint);
+  --gold-border:  var(--gold-line);
+  --warn:         var(--gold);
+  --warn-soft:    var(--gold-tint);
+  --warn-border:  var(--gold-line);
+
+  --red:          #9b3a2e;
+  --red-tint:     #f5e6e2;
+  --red-line:     #e4c4bc;
+  --danger:       var(--red);
+  --danger-soft:  var(--red-tint);
+  --danger-border:var(--red-line);
+
+  --info:         var(--brand-2);
+  --info-soft:    var(--brand-soft);
+  --info-border:  var(--brand-mist);
+
+  /* Subtle user bubble — soft warm cream, NOT black */
+  --user-bubble:       #efeadd;
+  --user-bubble-border:#e0d9c4;
+
+  /* Motion — premium spring */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 0.2s var(--ease);
+  --med:  0.36s var(--ease);
+
+  /* Radius — disciplined */
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --pill: 999px;
+
+  /* Elevation — almost none at rest, all depth comes from hover lift */
+  --sh-xs: none;
+  --sh-sm: 0 1px 1px rgba(28,30,42,0.03);
+  --sh-md: 0 14px 36px -22px rgba(28,30,42,0.22);
+  --sh-lg: 0 24px 60px -28px rgba(35,74,82,0.28);
+  --sh-brand: 0 8px 22px -10px rgba(35,74,82,0.32);
+
+  /* Legacy aliases so existing components re-skin automatically */
+  --brand-600:    var(--brand);
+  --brand-700:    var(--brand-deep);
+  --brand-grad:   linear-gradient(180deg, #2c4a55 0%, #1d3c45 100%);
+  --canvas:       var(--paper);
+  --canvas-grad:  radial-gradient(1100px 620px at 82% -12%, #f1ede2 0%, rgba(241,237,226,0) 60%), var(--paper);
+}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root {
   height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f5f6fa;
-  color: #1a1d2e;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
 }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d9dde8; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #b8bdd0; }
-
-/* Markdown styles inside chat bubbles */
-.md-content p { margin: 6px 0; line-height: 1.7; font-size: 14px; }
-.md-content h1, .md-content h2, .md-content h3 {
-  margin: 16px 0 8px;
+/* ---- Type utilities ---- */
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+.eyebrow {
+  font-size: 10.5px;
   font-weight: 600;
-  color: #1a1d2e;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted-2);
 }
-.md-content h2 { font-size: 15px; }
-.md-content h3 { font-size: 14px; }
-.md-content ul, .md-content ol { padding-left: 20px; }
-.md-content li { margin: 4px 0; line-height: 1.65; font-size: 14px; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #d4cdb9;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: #b8b09a; background-clip: padding-box; }
+
+::selection { background: rgba(35,74,82,0.16); color: var(--ink); }
+
+*:focus { outline: none; }
+*:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* =====================================================================
+   Markdown — generous, editorial, calm
+   ===================================================================== */
+.md-content { color: var(--t1); }
+.md-content p { margin: 10px 0; line-height: 1.78; font-size: 15px; color: var(--t1); }
+.md-content > :first-child { margin-top: 0; }
+.md-content > :last-child { margin-bottom: 0; }
+.md-content h1, .md-content h2, .md-content h3, .md-content h4 {
+  margin: 22px 0 10px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  line-height: 1.32;
+}
+.md-content h1 { font-size: 20px; }
+.md-content h2 { font-size: 17px; }
+.md-content h3 { font-size: 15.5px; }
+.md-content h4 { font-size: 13.5px; color: var(--t2); font-weight: 600; }
+.md-content ul, .md-content ol { padding-left: 22px; margin: 10px 0; }
+.md-content li { margin: 6px 0; line-height: 1.75; font-size: 15px; }
+.md-content li::marker { color: var(--muted-2); }
 .md-content table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   width: 100%;
-  margin: 12px 0;
+  margin: 16px 0;
   font-size: 13px;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   overflow: hidden;
-  border: 1px solid #e8eaf2;
+  border: 1px solid var(--hair);
 }
 .md-content th {
-  background: #f0f2f9;
-  padding: 8px 12px;
+  background: var(--paper-2);
+  padding: 10px 14px;
   font-weight: 600;
   text-align: left;
-  border-bottom: 1px solid #e8eaf2;
-  color: #3d4566;
+  border-bottom: 1px solid var(--hair);
+  color: var(--muted);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 .md-content td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #f0f2f9;
-  color: #3d4566;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--hair);
+  color: var(--t2);
 }
 .md-content tr:last-child td { border-bottom: none; }
-.md-content tr:nth-child(even) td { background: #fafbfe; }
+.md-content tr:nth-child(even) td { background: var(--surface-2); }
 .md-content code {
-  background: #f0f2f9;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #4a5568;
-  font-family: 'Fira Code', monospace;
+  background: var(--paper-2);
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  font-size: 12.5px;
+  color: var(--brand);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 .md-content pre {
-  background: #f7f8fc;
-  border: 1px solid #e8eaf2;
-  padding: 14px;
-  border-radius: 8px;
+  background: var(--ink-soft);
+  border: none;
+  padding: 16px 18px;
+  border-radius: var(--r-md);
   overflow-x: auto;
-  margin: 10px 0;
+  margin: 14px 0;
 }
-.md-content pre code { background: none; padding: 0; }
+.md-content pre code { background: none; padding: 0; color: #eceadb; }
 .md-content blockquote {
-  border-left: 3px solid #6574c4;
-  padding: 4px 0 4px 14px;
-  color: #6b7498;
-  margin: 8px 0;
+  border-left: 2px solid var(--brand-mist);
+  padding: 4px 0 4px 16px;
+  color: var(--muted);
+  margin: 12px 0;
+  font-style: italic;
 }
-.md-content strong { color: #1a1d2e; font-weight: 600; }
-.md-content a { color: #6574c4; text-decoration: none; }
-.md-content hr { border: none; border-top: 1px solid #e8eaf2; margin: 14px 0; }
+.md-content strong { color: var(--ink); font-weight: 600; }
+.md-content em { color: var(--t2); }
+.md-content a { color: var(--brand); text-decoration: none; border-bottom: 1px solid var(--brand-mist); transition: border-color var(--fast); }
+.md-content a:hover { border-bottom-color: var(--brand); }
+.md-content hr { border: none; border-top: 1px solid var(--hair); margin: 20px 0; }
 
-/* Typing cursor */
+/* =====================================================================
+   Animations
+   ===================================================================== */
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .typing-cursor {
   display: inline-block;
-  width: 2px;
-  height: 15px;
-  background: #6574c4;
+  width: 2px; height: 15px;
+  background: var(--brand);
   margin-left: 2px;
   vertical-align: middle;
   animation: blink 1s step-end infinite;
 }
 
-/* Dot bounce */
 @keyframes bounce {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-  40% { transform: translateY(-6px); opacity: 1; }
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+  40% { transform: translateY(-5px); opacity: 1; }
 }
-.bounce-dot { animation: bounce 1.3s infinite ease-in-out; }
+.bounce-dot { animation: bounce 1.35s infinite ease-in-out; }
 
-/* Suggestion hover */
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-in { animation: msgIn 0.45s var(--ease) both; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fadeIn 0.4s var(--ease) both; }
+
+/* =====================================================================
+   Interactive — restrained micro-motion
+   ===================================================================== */
+.suggestion-btn {
+  transition: transform var(--med), border-color var(--med), background var(--med);
+}
 .suggestion-btn:hover {
-  background: #eef0fb !important;
-  border-color: #6574c4 !important;
-  color: #6574c4 !important;
+  background: var(--surface) !important;
+  border-color: var(--hair-2) !important;
+  color: var(--ink) !important;
+  transform: translateY(-2px);
 }
+.suggestion-btn:hover .suggestion-arrow { transform: translateX(3px); color: var(--brand) !important; }
 
-/* Sidebar item hover */
-.session-item:hover { background: #f0f2f9 !important; }
+.session-item { transition: background var(--fast); }
+.session-item:hover { background: var(--surface-2) !important; }
+.session-item .session-del { opacity: 0; transition: opacity var(--fast); }
+.session-item:hover .session-del { opacity: 0.5; }
 
-/* Citation chip — small inline badge for [#N] in the assistant prose */
-.citation-chip {
-  font-family: 'Inter', sans-serif;
-  outline: none;
-}
-.citation-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  filter: brightness(1.02);
-}
-.citation-chip:focus-visible {
-  outline: 2px solid #6574c4;
-  outline-offset: 1px;
-}
-.citation-chip:active {
-  transform: translateY(0);
-}
+.citation-chip { font-family: 'JetBrains Mono', monospace; outline: none; transition: background var(--fast); }
+.citation-chip:hover { filter: brightness(0.98); }
+.citation-chip:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 
-/* Source card hover — only when clickable */
+.source-card { transition: transform var(--med), border-color var(--med), background var(--med); }
 .source-card[style*="cursor: pointer"]:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(101,116,196,0.12);
-  border-color: #d4d9f0 !important;
+  transform: translateY(-2px);
+  border-color: var(--hair-2) !important;
+  background: var(--surface) !important;
 }
 
-/* Tiny inline icon button (copy, etc.) */
 .icon-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #8892b0;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 11px;
-  transition: background 0.1s, color 0.1s;
-  font-family: 'Inter', sans-serif;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--muted); padding: 3px 5px; border-radius: var(--r-xs);
+  font-size: 11px; transition: background var(--fast), color var(--fast);
+  font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 3px;
 }
-.icon-btn:hover {
-  background: #f0f2f9;
-  color: #6574c4;
+.icon-btn:hover { background: var(--surface-inset); color: var(--brand); }
+
+.agent-step-header { transition: background var(--fast); }
+.agent-step-header:hover { background: var(--surface-inset); border-radius: var(--r-sm); }
+.agent-step-header:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; border-radius: var(--r-sm); }
+
+.send-btn { transition: background var(--fast), box-shadow var(--fast), opacity var(--fast) !important; }
+.send-btn:not(:disabled):hover { box-shadow: var(--sh-brand) !important; filter: brightness(1.08); }
+.send-btn:not(:disabled):active { filter: brightness(0.96); }
+
+.newchat-btn { transition: background var(--fast), color var(--fast) !important; }
+.newchat-btn:hover { background: var(--brand-soft) !important; color: var(--brand) !important; }
+
+/* =====================================================================
+   AntD overrides — Tooltip / Popover restyled to the calm palette.
+   Default tooltip is a stark black popover; that doesn't belong here.
+   ===================================================================== */
+.ant-tooltip .ant-tooltip-inner {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--hair) !important;
+  box-shadow: var(--sh-md) !important;
+  border-radius: var(--r-md) !important;
+  padding: 11px 13px !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  min-height: 0 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.ant-tooltip .ant-tooltip-arrow::before {
+  background: var(--surface) !important;
+}
+.ant-tooltip .ant-tooltip-arrow::after {
+  background: var(--surface) !important;
+  box-shadow: -1px -1px 0 var(--hair) !important;
+}
+.ant-popover .ant-popover-inner {
+  background: var(--surface) !important;
+  border: 1px solid var(--hair) !important;
+  box-shadow: var(--sh-md) !important;
+  border-radius: var(--r-md) !important;
 }
 
-/* Agent step header — hover-only background to indicate expandability */
-.agent-step-header:hover {
-  background: #f0f2f9;
-  border-radius: 4px;
+/* Empty-state skeleton when switching to an unloaded conversation */
+@keyframes skel {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.35; }
 }
-.agent-step-header:focus-visible {
-  outline: 2px solid #6574c4;
-  outline-offset: 1px;
+.skel-line {
+  height: 12px;
   border-radius: 4px;
+  background: var(--paper-2);
+  animation: skel 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
