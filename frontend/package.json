@@ -16,6 +16,7 @@
     "@ant-design/icons": "^6.2.3",
     "antd": "^6.4.3",
     "axios": "^1.16.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.16.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.15.1",

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Spin, Tag, Card, Timeline, Descriptions, Button, Tabs, message } from "antd";
+import jsPDF from "jspdf";
 import { getProperty, getEvidencePacket } from "./api";
 
 const SEV_COLOR = { critical: "red", high: "volcano", medium: "gold", info: "default" };
@@ -29,7 +30,71 @@ export default function PropertyDetail() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = `evidence_${propertyId}.json`; a.click();
-    message.success("Evidence packet exported");
+    message.success("Evidence packet (JSON) exported");
+  };
+
+  // Court-presentable PDF rendering of the same packet (custody + cited
+  // timeline + findings), with auto page-breaks and text wrapping.
+  const exportPacketPdf = async () => {
+    const r = await getEvidencePacket(propertyId);
+    const p = r.data || {};
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const M = 40;
+    const W = doc.internal.pageSize.getWidth() - M * 2;
+    const PH = doc.internal.pageSize.getHeight();
+    let y = M;
+    const ensure = (h) => { if (y + h > PH - M) { doc.addPage(); y = M; } };
+    const line = (text, { size = 10, bold = false, gap = 4, color = [28, 30, 42] } = {}) => {
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.setFontSize(size);
+      doc.setTextColor(color[0], color[1], color[2]);
+      doc.splitTextToSize(String(text ?? ""), W).forEach((w) => {
+        ensure(size + gap); doc.text(w, M, y); y += size + gap;
+      });
+    };
+    const heading = (t) => {
+      y += 8; ensure(22);
+      line(t, { size: 13, bold: true, color: [35, 74, 82] });
+      doc.setDrawColor(231, 226, 214); doc.line(M, y, M + W, y); y += 8;
+    };
+
+    line("EVIDENCE PACKET — COURT-READY", { size: 16, bold: true, color: [35, 74, 82] });
+    line(p.address || p.property_id || propertyId, { size: 12, bold: true });
+    line(`Parcel ${p.parcel_id || "—"}  ·  Side: ${p.side || "—"}  ·  Generated ${p.generated_at || ""}`,
+      { size: 9, color: [91, 95, 110] });
+
+    heading("Documents & chain of custody");
+    (p.documents || []).forEach((dd, i) => {
+      line(`${i + 1}. [${dd.source_type || "doc"}] ${dd.source_file || dd.doc_id}`, { bold: true });
+      line(`SHA-256: ${dd.sha256 || "—"}   ·   pages: ${dd.pages ?? "—"}   ·   vendor: ${dd.vendor || "—"}`,
+        { size: 8.5, color: [91, 95, 110] });
+    });
+    if (!(p.documents || []).length) line("(none)", { color: [91, 95, 110] });
+
+    if ((p.ownership_intervals || []).length) {
+      heading("Ownership timeline (bitemporal)");
+      p.ownership_intervals.forEach((iv) => line(
+        `${iv.as_of || "?"} → ${iv.until || "present"}   ·   ${iv.owner_name || iv.owner}`
+        + (iv.amount ? `   ·   ${iv.amount}` : ""), { size: 9.5 }));
+    }
+
+    heading("Event timeline (cited)");
+    (p.timeline || []).forEach((ev) => {
+      line(`${ev.date || "?"}  [${ev.event_type || ""}]  ${ev.detail || ""}`
+        + (ev.amount ? `  (${ev.amount})` : ""), { size: 9.5 });
+      if (ev.source_quote) line(`"${ev.source_quote}"`, { size: 8, color: [91, 95, 110] });
+    });
+    if (!(p.timeline || []).length) line("(none)", { color: [91, 95, 110] });
+
+    heading("Findings");
+    (p.findings || []).forEach((f) => {
+      line(`• [${(f.severity || "").toUpperCase()}] ${f.title || ""}  (${f.status || "pending"})`, { bold: true });
+      (f.evidence || []).forEach((e) => { if (e.quote) line(`"${e.quote}"`, { size: 8, color: [91, 95, 110] }); });
+    });
+    if (!(p.findings || []).length) line("(none)", { color: [91, 95, 110] });
+
+    doc.save(`evidence_${propertyId}.pdf`);
+    message.success("Evidence packet (PDF) exported");
   };
 
   if (loading) return <Spin />;
@@ -65,7 +130,10 @@ export default function PropertyDetail() {
               { label: "Foreclosure", children: eq.active_foreclosure || "—" },
               { label: "Lis pendens", children: eq.lis_pendens || "—" },
             ]} />
-          <Button onClick={exportPacket} style={{ marginTop: 12 }}>⬇ Export evidence packet (court-ready)</Button>
+          <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Button type="primary" onClick={exportPacketPdf}>⬇ Evidence packet (PDF)</Button>
+            <Button onClick={exportPacket}>⬇ Evidence packet (JSON)</Button>
+          </div>
         </Card>
 
         <Card size="small" title={`Findings (${d.findings?.length || 0})`}

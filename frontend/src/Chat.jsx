@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
+import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button, Input, Tooltip, Tag, Typography, ConfigProvider } from "antd";
@@ -448,6 +449,11 @@ export default function Chat({ user }) {
             <div style={styles.topbarLeft}>
               <div style={styles.topbarTitle}>Legal Advisor</div>
               <Text style={styles.topbarSub}>Fraud Investigation</Text>
+              {/* Jump to the investigation workspace pages */}
+              <nav style={styles.topbarNav}>
+                <Link to="/portfolio" style={styles.navLink}>Portfolio</Link>
+                <Link to="/findings" style={styles.navLink}>Findings</Link>
+              </nav>
             </div>
             <div style={styles.topbarRight}>
               <Tag
@@ -589,6 +595,12 @@ const styles = {
     WebkitBackdropFilter: "saturate(180%) blur(14px)",
   },
   topbarLeft: { display: "flex", alignItems: "baseline", gap: 14 },
+  topbarNav: { display: "flex", alignItems: "center", gap: 4, marginLeft: 6 },
+  navLink: {
+    padding: "4px 12px", borderRadius: 6, fontSize: 13, fontWeight: 600,
+    textDecoration: "none", color: "#234a52", background: "rgba(35,74,82,0.07)",
+    border: "1px solid rgba(35,74,82,0.15)", whiteSpace: "nowrap",
+  },
   topbarTitle: { fontWeight: 600, fontSize: 15.5, color: "var(--ink)", letterSpacing: "-0.005em" },
   topbarSub: {
     fontSize: 10, color: "var(--muted-2)", textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 600,
