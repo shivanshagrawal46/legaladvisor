@@ -131,8 +131,14 @@ export default function PropertyDetail() {
               { label: "Lis pendens", children: eq.lis_pendens || "—" },
             ]} />
           <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Button type="primary" onClick={exportPacketPdf}>⬇ Evidence packet (PDF)</Button>
-            <Button onClick={exportPacket}>⬇ Evidence packet (JSON)</Button>
+            <Button onClick={exportPacketPdf}
+              style={{ background: "#fff", color: "#234a52", borderColor: "#234a52", fontWeight: 600 }}>
+              ⬇ Evidence packet (PDF)
+            </Button>
+            <Button onClick={exportPacket}
+              style={{ background: "#fff", color: "#234a52", borderColor: "#234a52" }}>
+              ⬇ Evidence packet (JSON)
+            </Button>
           </div>
         </Card>
 
