@@ -465,7 +465,16 @@ class LegalAdvisorChat:
         # if the agent runner crashes or `agent_v2_pipeline` is missing.
         # No legacy plain-Opus branch — every query gets verification
         # and (on failure) one retry pass.
-        turn = self._ask_agent(question=question, initial_chunks=chunks)
+        # In Clean mode, the SAME privilege exclusion must apply to every
+        # retrieval the agent does internally (not just the seed) — otherwise
+        # the agent's own tool calls leak privileged chunks into a shareable
+        # answer. Pass the filter through to the agent's toolbox.
+        agent_base_filter = None
+        if mode == "clean":
+            from src.rag.provenance import clean_mode_filter
+            agent_base_filter = clean_mode_filter()
+        turn = self._ask_agent(question=question, initial_chunks=chunks,
+                               base_filter=agent_base_filter)
 
         # ---- Sprint 5.5/5.6/5.7: mode, provenance footer, isolation ------
         turn.mode = mode
@@ -512,6 +521,7 @@ class LegalAdvisorChat:
         *,
         question: str,
         initial_chunks: List[RetrievedChunk],
+        base_filter: Optional[dict] = None,
     ) -> Turn:
         """
         Run the v3 agent loop and return a Turn with agent_trace.
@@ -565,6 +575,7 @@ class LegalAdvisorChat:
                 seed_with_initial_search=self.agent_seed_with_initial_search,
                 on_event=self.on_agent_event,
                 prior_messages=prior_messages,
+                base_filter=base_filter,
             )
         except Exception as exc:  # noqa: BLE001
             logger.error(f"agent loop crashed; falling back to verified one-shot: {exc}")

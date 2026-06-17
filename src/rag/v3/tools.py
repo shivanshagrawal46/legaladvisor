@@ -126,10 +126,24 @@ class ToolBox:
     stateless at the class-method level.
     """
 
-    def __init__(self, *, v2_pipeline: V2Pipeline, retriever: Retriever) -> None:
+    def __init__(self, *, v2_pipeline: V2Pipeline, retriever: Retriever,
+                 base_filter: Optional[Dict[str, Any]] = None) -> None:
         self.v2 = v2_pipeline
         self.retriever = retriever
         self._pad = None  # set per-run by AgentRunner
+        # base_filter is merged into EVERY retrieval (Clean/privilege mode):
+        # e.g. {"privilege_status": {"$ne": "privileged"}} so the agent's own
+        # tool retrievals can never pull privileged chunks into a shareable
+        # answer. Empty dict = no restriction (Analysis mode).
+        self.base_filter: Dict[str, Any] = dict(base_filter or {})
+        self.exclude_privileged: bool = (
+            self.base_filter.get("privilege_status", {}) == {"$ne": "privileged"})
+
+    def _merge_filter(self, f: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """Merge the base (privilege) filter into a tool's own filter."""
+        if not self.base_filter:
+            return f
+        return {**(f or {}), **self.base_filter}
 
     def attach_scratchpad(self, pad: "AgentScratchpad") -> None:  # noqa: F821 (fwd ref)
         self._pad = pad
@@ -145,7 +159,7 @@ class ToolBox:
         re-show chunks the planner has already seen).
         """
         try:
-            results = self.v2.retrieve(query)
+            results = self.v2.retrieve(query, atlas_filter=self._merge_filter(None))
         except Exception as exc:  # noqa: BLE001
             return ToolResult(
                 summary=f"search failed: {exc}",
@@ -269,7 +283,7 @@ class ToolBox:
                 payload={"start_date": start_date, "end_date": end_date},
             )
 
-        atlas_filter = {"date": {"$gte": sd, "$lte": ed}}
+        atlas_filter = self._merge_filter({"date": {"$gte": sd, "$lte": ed}})
         q = (query or self._pad.query or "").strip() if self._pad else (query or "")
         if not q:
             q = "summary of events"
@@ -335,7 +349,7 @@ class ToolBox:
 
         col = self.v2.settings.chunks_collection_name
         cursor = self.v2.mongo.db[col].find(
-            {"sha256": target_sha},
+            self._merge_filter({"sha256": target_sha}),
             sort=[("chunk_index", 1)],
         )
         from src.rag.retriever import _to_chunk
@@ -419,10 +433,10 @@ class ToolBox:
         # special chars in the quote.
         pattern = re.escape(q)
         cursor = self.v2.mongo.db[col].find(
-            {"$or": [
+            self._merge_filter({"$or": [
                 {"body": {"$regex": pattern, "$options": "i"}},
                 {"text": {"$regex": pattern, "$options": "i"}},
-            ]},
+            ]}),
             limit=int(max_results),
         )
         from src.rag.retriever import _to_chunk
@@ -478,10 +492,10 @@ class ToolBox:
         col = self.v2.settings.chunks_collection_name
         pattern = re.escape(filename_pattern.strip())
         cursor = self.v2.mongo.db[col].find(
-            {"$or": [
+            self._merge_filter({"$or": [
                 {"filename": {"$regex": pattern, "$options": "i"}},
                 {"occurrences.filename": {"$regex": pattern, "$options": "i"}},
-            ]},
+            ]}),
         )
         from src.rag.retriever import _to_chunk
         # Group by sha256 (Option B dedup); take one rep per doc.
@@ -690,7 +704,7 @@ class ToolBox:
             return ToolResult(summary=f'search_entity_cluster: no canonical entity matched "{query}"',
                               payload={"query": query, "resolved_entities": []})
         rows = fan_out_chunks(self.retriever.mongo.db["email_chunks_v2"], res["all"],
-                              limit=int(limit))
+                              limit=int(limit), exclude_privileged=self.exclude_privileged)
         chunks = [_to_chunk(r, rerank_score=None) for r in rows]
         new_idx = self._pad.add_chunks(chunks) if chunks else []
         names = [self._eidx.by_id.get(e, {}).get("canonical_name") or e

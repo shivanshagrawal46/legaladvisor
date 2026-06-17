@@ -70,6 +70,10 @@ INDEX_DEFINITION = {
         {"type": "filter", "path": "attachment_id"},
         {"type": "filter", "path": "email_id"},
         {"type": "filter", "path": "latest_date"},
+        # Evidentiary spine — REQUIRED for Clean/shareable mode (filters out
+        # privileged at the vector layer) and corpus-scoped retrieval.
+        {"type": "filter", "path": "privilege_status"},
+        {"type": "filter", "path": "corpus"},
 
         # Option B fan-out filter paths — Atlas Vector Search supports
         # array path filters with "any-element-matches" semantics, which

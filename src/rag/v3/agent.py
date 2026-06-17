@@ -154,6 +154,7 @@ class AgentRunner:
         seed_with_initial_search: bool = True,
         on_event: Optional[Callable[[str, Dict[str, Any]], None]] = None,
         prior_messages: Optional[List[Dict[str, Any]]] = None,
+        base_filter: Optional[Dict[str, Any]] = None,
     ) -> AgentResult:
         """Run the agent loop and return a verified answer.
 
@@ -167,8 +168,11 @@ class AgentRunner:
         pad = AgentScratchpad(query=query, budget=budget, on_event=on_event)
         result = AgentResult()
 
-        # Tool wiring
-        toolbox = ToolBox(v2_pipeline=self.v2, retriever=self.retriever)
+        # Tool wiring. base_filter (e.g. Clean-mode privilege exclusion) is
+        # enforced on EVERY tool retrieval so the agent can't pull privileged
+        # chunks into a shareable answer.
+        toolbox = ToolBox(v2_pipeline=self.v2, retriever=self.retriever,
+                          base_filter=base_filter)
         toolbox.attach_scratchpad(pad)
         tool_specs = build_tool_specs(toolbox)
         tool_descriptions = [
@@ -204,7 +208,7 @@ class AgentRunner:
         # ----- step 0: seed with one initial v2 retrieve --------------
         if seed_with_initial_search:
             try:
-                seed = self.retriever.retrieve(query)
+                seed = self.retriever.retrieve(query, atlas_filter=(base_filter or None))
                 pad.add_chunks(seed)
                 # Record a synthetic step so the UI shows the seed
                 seed_step = AgentStep(
