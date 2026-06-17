@@ -828,12 +828,146 @@ def extract_no_ext_via_sniff(data: bytes, filename: str) -> ExtractionResult:
 
 
 # =========================================================================
+# 8b. TNEF (winmail.dat) — unwrap embedded documents
+# =========================================================================
+
+def extract_tnef(data: bytes, filename: str) -> ExtractionResult:
+    """Decode an Outlook winmail.dat (TNEF) blob and extract text from every
+    document wrapped inside it (PDF / Word / Excel / image / …), recursively.
+    Each embedded file is run back through the full extractor (incl. Claude
+    Vision OCR for scanned PDFs) so nothing inside the .dat is missed."""
+    try:
+        from tnefparse import TNEF
+    except ImportError:
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason="tnef_lib_missing")
+    try:
+        tnef = TNEF(data)
+    except Exception as exc:  # noqa: BLE001
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason=f"tnef_parse_error:{exc}")
+
+    # Full extraction params so embedded scanned PDFs still get Vision OCR.
+    try:
+        from config.settings import Settings
+        st = Settings.load()
+        vparams = dict(
+            ocr_lang=st.ocr_lang, ocr_min_chars=st.ocr_text_layer_min_chars,
+            ocr_dpi=st.ocr_dpi, enable_ocr=True,
+            vision_enabled=st.ocr_vision_enabled, vision_model=st.ocr_vision_model,
+            vision_min_pages=st.ocr_vision_min_pages, vision_dpi=st.ocr_vision_dpi,
+            vision_concurrency=st.ocr_vision_max_concurrency,
+        )
+    except Exception:  # noqa: BLE001
+        vparams = dict(enable_ocr=True)
+
+    parts: List[str] = []
+    pages: List[PageResult] = []
+    pno = 1
+
+    # TNEF message body (html / plain) if present.
+    body = ""
+    try:
+        hb = getattr(tnef, "htmlbody", None)
+        if hb:
+            from src.cleaner import html_to_text
+            body = html_to_text(hb if isinstance(hb, str) else hb.decode("utf-8", "ignore"))
+        else:
+            b = getattr(tnef, "body", None)
+            if b:
+                body = b if isinstance(b, str) else b.decode("utf-8", "ignore")
+    except Exception:  # noqa: BLE001
+        body = ""
+    if body and body.strip():
+        parts.append(body.strip())
+        pages.append(PageResult(pno, body.strip(), "tnef_body"))
+        pno += 1
+
+    n_emb = 0
+    for att in (getattr(tnef, "attachments", None) or []):
+        try:
+            aname = att.name
+            if isinstance(aname, bytes):
+                aname = aname.decode("utf-8", "ignore")
+            aname = (aname or "tnef_attachment").strip("\x00 ")
+            adata = att.data
+        except Exception:  # noqa: BLE001
+            continue
+        if not adata:
+            continue
+        n_emb += 1
+        header = f"[Embedded: {aname}]"
+        try:
+            sub = extract_from_bytes(adata, aname, **vparams)
+        except Exception:  # noqa: BLE001
+            sub = None
+        if sub and (sub.text or "").strip():
+            parts.append(f"{header}\n{sub.text.strip()}")
+            pages.append(PageResult(pno, sub.text.strip(), f"tnef:{sub.method}"))
+            pno += 1
+        else:
+            parts.append(f"{header} (no extractable text)")
+
+    text = "\n\n".join(parts).strip()
+    if not text:
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason=f"tnef_no_content(emb={n_emb})")
+    return ExtractionResult(
+        text=text, method="tnef",
+        pages=pages or [PageResult(1, text, "tnef")],
+        char_count=len(text),
+    )
+
+
+# =========================================================================
+# 8c. Modern zip-based Office (.xlsx / .xlsm / .pptx / .odt / .docx)
+# =========================================================================
+
+def extract_office_zip(data: bytes, filename: str) -> ExtractionResult:
+    """Generic text extraction from modern zip-based Office formats by reading
+    the XML parts and stripping tags. Good enough for retrieval across
+    spreadsheets, decks, and ODF docs without per-format libraries."""
+    import zipfile
+
+    try:
+        zf = zipfile.ZipFile(io.BytesIO(data))
+    except Exception as exc:  # noqa: BLE001
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason=f"officezip_bad:{exc}")
+    keep = ("word/document", "xl/sharedstrings", "xl/worksheets",
+            "ppt/slides/slide", "ppt/notesslides", "content.xml")
+    chunks: List[str] = []
+    for name in zf.namelist():
+        low = name.lower()
+        if not low.endswith(".xml") or not any(k in low for k in keep):
+            continue
+        try:
+            raw = zf.read(name).decode("utf-8", "ignore")
+        except Exception:  # noqa: BLE001
+            continue
+        txt = re.sub(r"<[^>]+>", " ", raw)
+        txt = re.sub(r"\s+", " ", txt).strip()
+        if txt:
+            chunks.append(txt)
+    text = "\n".join(chunks).strip()
+    if not text:
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason="officezip_no_text")
+    return ExtractionResult(
+        text=text, method="office_zip",
+        pages=[PageResult(1, text, "office_zip")],
+        char_count=len(text),
+    )
+
+
+# =========================================================================
 # 9. Dispatcher used by the orchestrator
 # =========================================================================
 
 _IMAGE_RE_OCR_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".bmp",
                        ".tif", ".tiff", ".webp"}
 _AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
+_OFFICE_ZIP_EXTS = {".xlsx", ".xlsm", ".pptx", ".odt", ".docx"}
 
 
 def rescue_extract(
@@ -867,6 +1001,10 @@ def rescue_extract(
         return extract_audio_via_whisper(data, filename)
     if ext == "":
         return extract_no_ext_via_sniff(data, filename)
+    if ext == ".dat":
+        return extract_tnef(data, filename)
+    if ext in _OFFICE_ZIP_EXTS:
+        return extract_office_zip(data, filename)
     if ext in _IMAGE_RE_OCR_EXTS:
         # Either the v1 pass said `image_no_text` (RapidOCR found nothing
         # readable) or this image was skipped for another reason. Either

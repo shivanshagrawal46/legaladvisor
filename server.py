@@ -38,6 +38,7 @@ from api.auth import (
 from api.sessions import SessionStore
 from api.rag_singleton import get_mongo
 from api.websocket_chat import handle_chat_ws
+from api.views import router as views_router
 
 # ── app ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -167,6 +168,10 @@ async def delete_session(
 async def chat_ws(websocket: WebSocket):
     store = get_store()
     await handle_chat_ws(websocket, store)
+
+
+# ── Sprint 8 views (portfolio, property detail, findings, dashboard) ──────────
+app.include_router(views_router)
 
 
 # ── health ────────────────────────────────────────────────────────────────────

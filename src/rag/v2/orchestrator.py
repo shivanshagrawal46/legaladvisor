@@ -39,7 +39,7 @@ from src.rag.reranker import VoyageReranker
 from src.rag.retriever import RetrievedChunk, _to_chunk
 from src.rag.v2.hybrid_search import HybridSearcher, ensure_v2_text_index
 from src.rag.v2.ordering import interleave_for_attention
-from src.rag.v2.parent_doc import parent_document_expand
+from src.rag.v2.parent_doc import parent_document_expand, neighbor_expand
 from src.rag.v2.query_rewriter import QueryRewriter, RewrittenQuery
 from src.rag.v2.query_understanding import QuerySignals, extract_signals
 from src.rag.v2.temporal import (
@@ -82,6 +82,7 @@ class V2Settings:
     rrf_k: int = 60
     rrf_fused_cap: int = 200
     vector_top_k: int = 150
+    vector_min_score: float = 0.0   # Vector recall floor (0.0 = off)
     bm25_top_k: int = 100
     phrase_top_k: int = 80
     body_regex_top_k: int = 80
@@ -100,6 +101,12 @@ class V2Settings:
     parent_doc_max_parents: int = 5
     parent_doc_max_per_parent: int = 20
 
+    # Neighbor expansion (chunk-boundary miss guard) — on by default; fires on
+    # single hits, pulls chunk_index ±window from the same parent doc.
+    neighbor_expand: bool = True
+    neighbor_expand_window: int = 1
+    neighbor_expand_max_added: int = 40
+
     # Tunables — full-doc mode
     full_doc_token_budget: int = 50_000
     full_doc_max_docs: int = 4
@@ -109,6 +116,11 @@ class V2Settings:
 
     # Models
     query_rewriter_model: str = "claude-sonnet-4-6"
+
+    # Sprint 7.1 — LLM-as-reranker (Opus final relevance pass on top-N)
+    llm_reranker: bool = False
+    llm_reranker_model: str = "claude-opus-4-8"
+    llm_reranker_top_n: int = 50
 
     # Option B: name of the chunks collection. v1 → "email_chunks",
     # Option B v2 → "email_chunks_v2". Settable so we can A/B without
@@ -135,6 +147,7 @@ class V2Pipeline:
     hybrid_searcher: HybridSearcher
     query_rewriter: QueryRewriter
     settings: V2Settings
+    llm_reranker_obj: Any = None
 
     @classmethod
     def build(
@@ -164,12 +177,18 @@ class V2Pipeline:
             body_regex_top_k=v2_settings.body_regex_top_k,
             filename_top_k=v2_settings.filename_top_k,
             chunks_collection_name=v2_settings.chunks_collection_name,
+            min_score=v2_settings.vector_min_score,
         )
         rewriter = QueryRewriter(
             client=anthropic_client,
             model=v2_settings.query_rewriter_model,
             max_alt_queries=v2_settings.max_alt_queries,
         )
+        llm_rr = None
+        if v2_settings.llm_reranker:
+            from src.rag.v2.llm_reranker import LLMReranker
+            llm_rr = LLMReranker(anthropic_client, model=v2_settings.llm_reranker_model,
+                                 top_n=v2_settings.llm_reranker_top_n)
         return cls(
             mongo=mongo,
             embedder=embedder,
@@ -178,6 +197,7 @@ class V2Pipeline:
             hybrid_searcher=hybrid,
             query_rewriter=rewriter,
             settings=v2_settings,
+            llm_reranker_obj=llm_rr,
         )
 
     # ------------------------------------------------------------------
@@ -344,6 +364,15 @@ class V2Pipeline:
                 ordered_docs.append(doc)
                 rerank_score_map[str(doc.get("_id"))] = float(r.get("score", 0.0))
 
+        # ---- 7.5 LLM-as-reranker (Sprint 7.1, Opus final pass) --------
+        if self.llm_reranker_obj is not None and len(ordered_docs) > 1:
+            try:
+                new_order = self.llm_reranker_obj.rerank(query, ordered_docs)
+                ordered_docs = [ordered_docs[i] for i in new_order]
+                logger.info(f"v2 LLM-reranker reordered top {self.settings.llm_reranker_top_n}")
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"LLM-reranker skipped: {exc}")
+
         # ---- 8. Full-document mode (Sprint 2.5 Lever 4) ---------------
         # If the query explicitly names a document, pull the entire doc.
         # The per-doc budget scales down as more docs are named.
@@ -377,6 +406,22 @@ class V2Pipeline:
                 ordered_docs = exp.chunks
             except Exception as exc:  # noqa: BLE001
                 logger.warning(f"v2 parent_doc expand failed: {exc}")
+
+        # ---- 9.5 Neighbor expansion (chunk-boundary miss guard) -------
+        # Pull the immediate neighbors of every hit so a fact split across a
+        # chunk boundary (e.g. a lien amount continuing into the next chunk)
+        # is never silently lost. Fires on single hits (parent_doc needs 2+),
+        # additive, fail-safe; the evidence cap below trims any overflow.
+        if getattr(s, "neighbor_expand", True) and ordered_docs:
+            try:
+                ordered_docs = neighbor_expand(
+                    self.mongo,
+                    retrieved_chunks=ordered_docs,
+                    window=getattr(s, "neighbor_expand_window", 1),
+                    max_added=getattr(s, "neighbor_expand_max_added", 40),
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"v2 neighbor_expand failed: {exc}")
 
         # ---- 10. Smart interleaved ordering ---------------------------
         # "Lost in the middle" mitigation: put strongest signals at the

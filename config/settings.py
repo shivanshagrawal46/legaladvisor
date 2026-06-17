@@ -133,16 +133,23 @@ class Settings:
     rag_v3_agent_max_tokens_per_call: int  # max_tokens per planner LLM call
     rag_v3_agent_seed_with_initial_search: bool   # Seed with v2 retrieve first
     rag_v3_agent_trace_log: bool           # Persist agent_trace to Mongo
+    rag_v3_agent_effort: str               # Opus 4.8 adaptive-thinking effort (xhigh)
 
     # v2 tunables — models
     rag_v2_query_rewriter_model: str  # LLM used for HyDE + multi-query (Sonnet 4.6 default)
     rag_v2_summary_model: str         # LLM used for conversation summary
+
+    # Sprint 7.1 — LLM-as-reranker (Opus final relevance pass on top-N)
+    rag_v2_llm_reranker: bool
+    rag_v2_llm_reranker_model: str
+    rag_v2_llm_reranker_top_n: int
 
     # v2 tunables — channel-level retrieval
     rag_v2_max_alt_queries: int       # How many alternate phrasings to generate
     rag_v2_rrf_k: int                 # RRF formula constant (literature default 60)
     rag_v2_rrf_fused_cap: int         # Max unique chunks kept after fusion
     rag_v2_vector_top_k: int          # Candidates per query embedding
+    rag_v2_vector_min_score: float    # Vector recall floor (0.0 = off)
     rag_v2_bm25_top_k: int            # Candidates per BM25 phrasing
     rag_v2_phrase_top_k: int          # Candidates per quoted-phrase BM25
     rag_v2_body_regex_top_k: int      # Candidates per literal substring lookup
@@ -212,10 +219,11 @@ class Settings:
             embedding_model=_get("EMBEDDING_MODEL", "voyage-4-large"),
             embedding_dim=_get_int("EMBEDDING_DIM", 1024),
             rerank_model=_get("RERANK_MODEL", "rerank-2.5"),
-            claude_model=_get("CLAUDE_MODEL", "claude-sonnet-4-6"),
-            claude_max_output_tokens=_get_int("CLAUDE_MAX_OUTPUT_TOKENS", 8192),
-            chunk_size_tokens=_get_int("CHUNK_SIZE_TOKENS", 500),
-            chunk_overlap_tokens=_get_int("CHUNK_OVERLAP_TOKENS", 100),
+            claude_model=_get("CLAUDE_MODEL", "claude-opus-4-8"),
+            claude_max_output_tokens=_get_int("CLAUDE_MAX_OUTPUT_TOKENS", 40960),
+            # Defaults aligned to the LIVE email_chunks_v2 corpus (1000/200).
+            chunk_size_tokens=_get_int("CHUNK_SIZE_TOKENS", 1000),
+            chunk_overlap_tokens=_get_int("CHUNK_OVERLAP_TOKENS", 200),
             retrieval_top_k=_get_int("RETRIEVAL_TOP_K", 50),
             rerank_top_k=_get_int("RERANK_TOP_K", 8),
             vector_index_name=_get("VECTOR_INDEX_NAME", "email_chunks_vector"),
@@ -261,12 +269,13 @@ class Settings:
             # legal query.
             rag_v3_agent_enabled=_get_bool("RAG_V3_AGENT_ENABLED", False),
             rag_v3_agent_max_tool_calls=_get_int("RAG_V3_AGENT_MAX_TOOL_CALLS", 30),
-            rag_v3_agent_max_total_tokens=_get_int("RAG_V3_AGENT_MAX_TOTAL_TOKENS", 3_000_000),
+            rag_v3_agent_max_total_tokens=_get_int("RAG_V3_AGENT_MAX_TOTAL_TOKENS", 15_000_000),
             rag_v3_agent_max_wall_clock_s=_get_float("RAG_V3_AGENT_MAX_WALL_CLOCK_S", 1200.0),
-            rag_v3_agent_model=_get("RAG_V3_AGENT_MODEL", "claude-opus-4-6"),
-            rag_v3_agent_max_tokens_per_call=_get_int("RAG_V3_AGENT_MAX_TOKENS_PER_CALL", 16384),
+            rag_v3_agent_model=_get("RAG_V3_AGENT_MODEL", "claude-opus-4-8"),
+            rag_v3_agent_max_tokens_per_call=_get_int("RAG_V3_AGENT_MAX_TOKENS_PER_CALL", 64000),
             rag_v3_agent_seed_with_initial_search=_get_bool("RAG_V3_AGENT_SEED_WITH_INITIAL_SEARCH", True),
             rag_v3_agent_trace_log=_get_bool("RAG_V3_AGENT_TRACE_LOG", True),
+            rag_v3_agent_effort=_get("RAG_V3_AGENT_EFFORT", "xhigh"),
 
             # tunables — models
             rag_v2_query_rewriter_model=_get(
@@ -275,12 +284,16 @@ class Settings:
             rag_v2_summary_model=_get(
                 "RAG_V2_SUMMARY_MODEL", "claude-sonnet-4-6"
             ),
+            rag_v2_llm_reranker=_get_bool("RAG_V2_LLM_RERANKER", True),
+            rag_v2_llm_reranker_model=_get("RAG_V2_LLM_RERANKER_MODEL", "claude-opus-4-8"),
+            rag_v2_llm_reranker_top_n=_get_int("RAG_V2_LLM_RERANKER_TOP_N", 50),
 
             # tunables — channels
             rag_v2_max_alt_queries=_get_int("RAG_V2_MAX_ALT_QUERIES", 3),
             rag_v2_rrf_k=_get_int("RAG_V2_RRF_K", 60),
             rag_v2_rrf_fused_cap=_get_int("RAG_V2_RRF_FUSED_CAP", 200),
             rag_v2_vector_top_k=_get_int("RAG_V2_VECTOR_TOP_K", 150),
+            rag_v2_vector_min_score=_get_float("RAG_V2_VECTOR_MIN_SCORE", 0.0),
             rag_v2_bm25_top_k=_get_int("RAG_V2_BM25_TOP_K", 100),
             rag_v2_phrase_top_k=_get_int("RAG_V2_PHRASE_TOP_K", 80),
             rag_v2_body_regex_top_k=_get_int("RAG_V2_BODY_REGEX_TOP_K", 80),
@@ -288,9 +301,9 @@ class Settings:
             rag_v2_cluster_cap_per_parent=_get_int("RAG_V2_CLUSTER_CAP_PER_PARENT", 5),
 
             # tunables — adaptive K
-            rag_v2_adaptive_k_simple=_get_int("RAG_V2_ADAPTIVE_K_SIMPLE", 50),
-            rag_v2_adaptive_k_complex=_get_int("RAG_V2_ADAPTIVE_K_COMPLEX", 70),
-            rag_v2_adaptive_k_comprehensive=_get_int("RAG_V2_ADAPTIVE_K_COMPREHENSIVE", 80),
+            rag_v2_adaptive_k_simple=_get_int("RAG_V2_ADAPTIVE_K_SIMPLE", 70),
+            rag_v2_adaptive_k_complex=_get_int("RAG_V2_ADAPTIVE_K_COMPLEX", 100),
+            rag_v2_adaptive_k_comprehensive=_get_int("RAG_V2_ADAPTIVE_K_COMPREHENSIVE", 120),
 
             # tunables — parent-doc
             rag_v2_parent_doc_token_budget=_get_int("RAG_V2_PARENT_DOC_TOKEN_BUDGET", 8000),
@@ -303,7 +316,7 @@ class Settings:
 
             # safety
             rag_v2_total_evidence_cap_tokens=_get_int(
-                "RAG_V2_TOTAL_EVIDENCE_CAP_TOKENS", 100000
+                "RAG_V2_TOTAL_EVIDENCE_CAP_TOKENS", 500000
             ),
 
             # tunables — summary memory

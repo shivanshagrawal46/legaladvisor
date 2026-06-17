@@ -129,6 +129,7 @@ class HybridSearcher:
         body_regex_top_k: int = 80,
         filename_top_k: int = 50,
         chunks_collection_name: str = _DEFAULT_V2_COLLECTION,
+        min_score: float = 0.0,
     ) -> None:
         self.mongo = mongo
         self.vector_index_name = vector_index_name
@@ -139,6 +140,10 @@ class HybridSearcher:
         self.body_regex_top_k = max(1, body_regex_top_k)
         self.filename_top_k = max(1, filename_top_k)
         self.chunks_collection_name = chunks_collection_name
+        # Vector-search recall floor. 0.0 = OFF (preserves current behavior).
+        # Applied as a post-projection $match on the cosine score so only
+        # candidates at/above the floor survive. Keep LOW — too high hurts recall.
+        self.min_score = max(0.0, float(min_score))
 
     @property
     def _col(self):
@@ -297,12 +302,17 @@ class HybridSearcher:
         if atlas_filter:
             stage_vector["$vectorSearch"]["filter"] = atlas_filter
 
-        pipeline = [
+        pipeline: List[Dict[str, Any]] = [
             stage_vector,
             {"$project": _PROJECTION},
         ]
         # Add the vector search score for downstream consumers.
         pipeline[-1]["$project"]["score"] = {"$meta": "vectorSearchScore"}
+        # Optional recall floor: drop candidates below the cosine threshold.
+        # $vectorSearch has no native minScore, so we filter on the projected
+        # score. Only applied when min_score > 0 (default 0.0 = no-op).
+        if self.min_score > 0.0:
+            pipeline.append({"$match": {"score": {"$gte": self.min_score}}})
         return list(self._col.aggregate(pipeline))
 
     def _bm25_search(
@@ -572,6 +582,11 @@ _PROJECTION: Dict[str, Any] = {
     "sha256": 1,
     "latest_date": 1,
     "occurrences": 1,
+    # Evidentiary spine (Sprint 2.3) — flow onto chunks so the provenance
+    # footer reports a real corpus / privilege posture instead of "unknown".
+    "corpus": 1,
+    "privilege_status": 1,
+    "doc_source_type": 1,
 }
 
 

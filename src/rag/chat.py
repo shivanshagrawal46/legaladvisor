@@ -327,6 +327,9 @@ class Turn:
     verification_outcome: Optional[str] = None     # e.g. VERIFIED_FIRST_PASS
     # Sprint-4 agent trace. None for non-agent turns.
     agent_trace: Optional[Dict[str, Any]] = None
+    # Sprint-5: privilege mode ("analysis" | "clean") + provenance footer.
+    mode: str = "analysis"
+    provenance: Optional[Dict[str, Any]] = None
 
 
 class LegalAdvisorChat:
@@ -410,7 +413,14 @@ class LegalAdvisorChat:
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
         max_chunks_timeline: int = 50,
+        mode: str = "analysis",
     ) -> Turn:
+        # ---- Sprint 5.5: Clean mode — exclude privileged at the retrieval
+        # layer so privileged strategy CANNOT leak into a shareable answer.
+        if mode == "clean":
+            from src.rag.provenance import clean_mode_filter
+            cf = clean_mode_filter()
+            atlas_filter = {**(atlas_filter or {}), **cf} if atlas_filter else cf
         # Auto-detect timeline intent if not explicitly set.
         auto_timeline, auto_from, auto_to = detect_timeline_intent(question)
         if timeline is None:
@@ -457,7 +467,27 @@ class LegalAdvisorChat:
         # and (on failure) one retry pass.
         turn = self._ask_agent(question=question, initial_chunks=chunks)
 
-        self.history.append(turn)
+        # ---- Sprint 5.5/5.6/5.7: mode, provenance footer, isolation ------
+        turn.mode = mode
+        try:
+            from src.rag.provenance import provenance_footer
+            foot = provenance_footer(turn.chunks or chunks, mode=mode,
+                                     fact_verdicts=turn.fact_verdicts)
+            turn.provenance = foot
+            if foot.get("text") and turn.answer:
+                turn.answer = f"{turn.answer}\n\n{foot['text']}"
+            # 5.6 cache/memory isolation: a Clean-mode turn must never become
+            # context for a later (possibly shareable) turn, and vice-versa —
+            # so Clean turns are NOT appended to the reusable analysis history.
+            if mode == "clean" and foot.get("clean_mode_leak"):
+                logger.error("CLEAN-MODE LEAK DETECTED — privileged sources in shareable answer")
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"provenance footer skipped: {exc}")
+
+        if mode != "clean":
+            self.history.append(turn)
+        else:
+            logger.info("Clean-mode turn — isolated (not added to reusable history)")
 
         # ---- update summary memory in the background (best-effort) --------
         if self.summary_memory is not None:
@@ -522,6 +552,11 @@ class LegalAdvisorChat:
             fuzzy_threshold=self.verifier_threshold,
         )
 
+        # Conversation memory: give the agent the prior turns (verbatim recent
+        # + rolling summary) so follow-up questions keep context. Previously the
+        # v3 agent ignored history entirely — this fixes that.
+        prior_messages = self._build_prior_messages()
+
         agent_result = None
         try:
             agent_result = runner.run(
@@ -529,6 +564,7 @@ class LegalAdvisorChat:
                 budget=budget,
                 seed_with_initial_search=self.agent_seed_with_initial_search,
                 on_event=self.on_agent_event,
+                prior_messages=prior_messages,
             )
         except Exception as exc:  # noqa: BLE001
             logger.error(f"agent loop crashed; falling back to verified one-shot: {exc}")

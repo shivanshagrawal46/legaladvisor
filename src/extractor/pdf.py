@@ -204,14 +204,17 @@ def extract_pdf(
                 vision_results = []
 
             # Map results back; anything missing falls back to RapidOCR.
+            # Accept BOTH frontier engines: claude_vision AND openai_vision
+            # (GPT-5 fallback for content-filtered pages). Discarding
+            # openai_vision here silently downgraded 76 pages to RapidOCR.
             handled_pages = set()
             for vp in vision_results:
                 idx0 = vp.page_no - 1
-                if vp.text and vp.method == "claude_vision":
+                if vp.text and vp.method in ("claude_vision", "openai_vision"):
                     text_layer_pages[idx0] = PdfPage(
                         page_no=vp.page_no,
                         text=vp.text,
-                        method="claude_vision",
+                        method=vp.method,
                         ocr_confidence=vp.ocr_confidence,
                     )
                     handled_pages.add(idx0)

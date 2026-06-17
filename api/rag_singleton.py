@@ -103,6 +103,7 @@ def _build_v2_pipeline_if_enabled():
         rrf_k=s.rag_v2_rrf_k,
         rrf_fused_cap=s.rag_v2_rrf_fused_cap,
         vector_top_k=s.rag_v2_vector_top_k,
+        vector_min_score=s.rag_v2_vector_min_score,
         bm25_top_k=s.rag_v2_bm25_top_k,
         phrase_top_k=s.rag_v2_phrase_top_k,
         body_regex_top_k=s.rag_v2_body_regex_top_k,
@@ -125,6 +126,10 @@ def _build_v2_pipeline_if_enabled():
         total_evidence_cap_tokens=s.rag_v2_total_evidence_cap_tokens,
         # Models
         query_rewriter_model=s.rag_v2_query_rewriter_model,
+        # Sprint 7.1 LLM-as-reranker (Opus final pass)
+        llm_reranker=s.rag_v2_llm_reranker,
+        llm_reranker_model=s.rag_v2_llm_reranker_model,
+        llm_reranker_top_n=s.rag_v2_llm_reranker_top_n,
         # Option B targets — when v2 is enabled we point at the v2
         # chunks collection and its dedicated Atlas index.
         chunks_collection_name=s.rag_v2_chunks_collection,

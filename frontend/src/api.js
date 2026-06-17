@@ -23,4 +23,17 @@ export const createSession = () => api.post("/api/sessions");
 export const getSession = (id) => api.get(`/api/sessions/${id}`);
 export const deleteSession = (id) => api.delete(`/api/sessions/${id}`);
 
+// ── Sprint 8: portfolio / findings / dashboard ──────────────────────────────
+export const getDashboard = () => api.get("/api/dashboard/stats");
+export const getProperties = (params = {}) =>
+  api.get("/api/portfolio/properties", { params });
+export const getProperty = (id) => api.get(`/api/properties/${id}`);
+export const getEvidencePacket = (id) =>
+  api.get(`/api/properties/${id}/evidence-packet`);
+export const getFindings = (params = {}) => api.get("/api/findings", { params });
+export const setFindingStatus = (id, status) =>
+  api.patch(`/api/findings/${id}`, { status });
+export const portfolioCell = (property_id, question) =>
+  api.post("/api/portfolio/cell", { property_id, question });
+
 export const WS_URL = `${WS_BASE}/ws/chat`;

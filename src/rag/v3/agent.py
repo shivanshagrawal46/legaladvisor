@@ -56,7 +56,19 @@ from src.rag.v3.scratchpad import (
 )
 from src.rag.v3.tools import ToolBox, ToolResult, build_tool_specs
 from src.rag.v3.prompts import build_agent_system_prompt, build_retry_system_prompt
+from src.rag.query_decomp import sufficiency_prompt
 from src.utils.logger import logger
+
+# Completeness gate injected once before the first final answer is accepted.
+_SUFFICIENCY_GATE = (
+    "HOLD — completeness self-check before I accept this as final (recall is "
+    "sacred in this matter).\n\n" + sufficiency_prompt() + "\n\n"
+    "If you have ALREADY satisfied every point above with cited evidence, call "
+    "submit_final_answer again now and it will be accepted immediately. If ANY "
+    "gap exists (an unchecked linked source, an unresolved entity/amount/date, "
+    "an unanswered sub-question, or a recorded fact not yet cited), use your "
+    "retrieval tools to close it FIRST, then submit."
+)
 
 
 # =====================================================================
@@ -117,6 +129,7 @@ class AgentRunner:
         model: str = "claude-opus-4-6",
         max_tokens_per_call: int = 16384,
         fuzzy_threshold: float = DEFAULT_FUZZY_THRESHOLD,
+        enforce_sufficiency: bool = True,
     ) -> None:
         self.client = anthropic_client
         self.v2 = v2_pipeline
@@ -124,6 +137,10 @@ class AgentRunner:
         self.model = model
         self.max_tokens_per_call = max_tokens_per_call
         self.fuzzy_threshold = fuzzy_threshold
+        # When True, the FIRST submit_final_answer is intercepted once with a
+        # completeness self-check (recall guard) before being accepted. Bounded
+        # to a single reflection pass so it can't loop or balloon cost.
+        self.enforce_sufficiency = enforce_sufficiency
 
     # ----------------------------------------------------------------
     # The main loop
@@ -136,8 +153,15 @@ class AgentRunner:
         budget: Optional[BudgetTracker] = None,
         seed_with_initial_search: bool = True,
         on_event: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+        prior_messages: Optional[List[Dict[str, Any]]] = None,
     ) -> AgentResult:
-        """Run the agent loop and return a verified answer."""
+        """Run the agent loop and return a verified answer.
+
+        `prior_messages` carries the conversation history (verbatim recent
+        turns + optional rolling summary) so follow-up questions keep context.
+        Same alternating user/assistant shape the verified path uses; it is
+        prepended before the seed user turn.
+        """
         t0 = time.time()
         budget = budget or BudgetTracker()
         pad = AgentScratchpad(query=query, budget=budget, on_event=on_event)
@@ -228,7 +252,12 @@ class AgentRunner:
             "Plan your next step. Call a tool, or call "
             "submit_final_answer when ready."
         )
-        messages: List[Dict[str, Any]] = [
+        # Prepend conversation history (if any) so follow-up turns keep
+        # context. Mirrors the verified path's `prior_messages + [user turn]`
+        # shape; _build_prior_messages yields alternating turns ending on an
+        # assistant message, so the seed user turn that follows is valid.
+        messages: List[Dict[str, Any]] = list(prior_messages or [])
+        messages.append(
             {
                 "role": "user",
                 "content": [
@@ -239,11 +268,12 @@ class AgentRunner:
                     }
                 ],
             }
-        ]
+        )
 
         # ----- main loop ---------------------------------------------
         terminal_payload: Optional[Dict[str, Any]] = None
         forced_reason: Optional[str] = None
+        reflected = False  # sufficiency self-check fires at most once
 
         while True:
             # Pre-step budget check. When exhausted, we DON'T just fall
@@ -396,6 +426,34 @@ class AgentRunner:
                     pad.record_step(step)
                     budget.record(was_tool_call=True)
                     continue
+
+                # Terminal tool — but first, enforce ONE completeness
+                # self-check (recall guard). On the first submit we bounce a
+                # sufficiency prompt back to the planner instead of accepting;
+                # it must re-confirm (or retrieve more, then re-submit). This
+                # closes the "answered too early / missed a linked source" gap.
+                if result_obj.is_terminal and self.enforce_sufficiency \
+                        and not reflected and not budget.exhausted():
+                    reflected = True
+                    pad.emit("agent_sufficiency_check",
+                             {"note": "completeness self-check before finalize"})
+                    tool_results_for_user_turn.append({
+                        "type": "tool_result",
+                        "tool_use_id": tu.id,
+                        "content": _SUFFICIENCY_GATE,
+                    })
+                    step = AgentStep(
+                        step_num=pad.next_step_num(),
+                        type=STEP_TYPE_TOOL,
+                        tool_name=name,
+                        tool_input={},
+                        tool_result_summary="sufficiency self-check requested "
+                                            "before accepting final answer",
+                        elapsed_ms=int((time.time() - step_t) * 1000),
+                    )
+                    pad.record_step(step)
+                    budget.record(was_tool_call=True)
+                    continue  # do NOT set saw_terminal — loop continues once
 
                 # Terminal tool — stash the payload, stop after this iter.
                 if result_obj.is_terminal:
@@ -696,6 +754,21 @@ class AgentRunner:
                     result=result,
                 )
 
+        # ----- Sprint 8 hardening: Defense-Counsel Critic + entity validation
+        hardening_report: Dict[str, Any] = {}
+        try:
+            import os
+            if os.getenv("RAG_V3_DEFENSE_CRITIC", "true").lower() in ("1", "true", "yes"):
+                from src.rag.v3.hardening import apply_hardening
+                hardening_report = apply_hardening(
+                    self.client, self.model, query=getattr(pad, "query", ""),
+                    answer=result.answer or "", facts=result.facts or [],
+                    mongo=self.retriever.mongo)
+                if hardening_report.get("annotated_answer"):
+                    result.answer = hardening_report["annotated_answer"]
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"Sprint-8 hardening skipped: {str(exc)[:120]}")
+
         # ----- Common bookkeeping -------------------------------------
         result.chunks = chunks
         result.elapsed_ms = int((time.time() - started_at) * 1000)
@@ -712,6 +785,7 @@ class AgentRunner:
             "reasoning_summary": terminal_payload.get("reasoning_summary"),
             "forced_reason": forced_reason,
             "retries": result.retries,
+            "hardening": hardening_report,
         })
 
         pad.emit("agent_done", {

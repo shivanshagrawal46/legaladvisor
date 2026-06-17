@@ -75,6 +75,11 @@ class RetrievedChunk:
     latest_date: Any = None
     # Cluster id (sha256 in Option B). Empty for v1 chunks.
     sha256: Optional[str] = None
+    # Evidentiary spine — flow corpus / privilege / doc-source-type through so
+    # the provenance footer can report a real corpus instead of "unknown".
+    corpus: Optional[str] = None
+    privilege_status: Optional[str] = None
+    doc_source_type: Optional[str] = None
 
 
 class Retriever:
@@ -141,6 +146,10 @@ class Retriever:
                     "occurrences": 1,
                     "latest_date": 1,
                     "sha256": 1,
+                    # Evidentiary spine (Sprint 2.3) — powers the provenance footer.
+                    "corpus": 1,
+                    "privilege_status": 1,
+                    "doc_source_type": 1,
                     "score": {"$meta": "vectorSearchScore"},
                 }
             },
@@ -271,4 +280,7 @@ def _to_chunk(c: Dict[str, Any], *, rerank_score: Optional[float]) -> RetrievedC
         occurrences=list(c.get("occurrences") or []),
         latest_date=c.get("latest_date"),
         sha256=c.get("sha256"),
+        corpus=c.get("corpus"),
+        privilege_status=c.get("privilege_status"),
+        doc_source_type=c.get("doc_source_type"),
     )

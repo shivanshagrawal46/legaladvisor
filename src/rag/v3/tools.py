@@ -37,7 +37,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Sequence
 
-from src.rag.retriever import RetrievedChunk, Retriever
+from src.rag.retriever import RetrievedChunk, Retriever, _to_chunk
 from src.rag.v2.orchestrator import V2Pipeline
 from src.rag.v2.verifier import verify_facts, DEFAULT_FUZZY_THRESHOLD
 from src.utils.logger import logger
@@ -660,6 +660,181 @@ class ToolBox:
             is_terminal=True,
         )
 
+    # =================================================================
+    # ENTITY-GRAPH tools (Sprint 3 fan-out)
+    # =================================================================
+
+    def _entity_index(self):
+        if getattr(self, "_eidx", None) is None:
+            from src.graph.fanout import EntityIndex
+            self._eidx = EntityIndex(self.retriever.mongo.db["entities"])
+        return self._eidx
+
+    def _new_chunk_briefs(self, chunks: List[RetrievedChunk], new_idx: List[int]) -> List[Dict[str, Any]]:
+        out = []
+        for c in chunks:
+            idx = self._pad._by_id.get(c.chunk_id)
+            if idx and idx in new_idx:
+                out.append((idx, c))
+        out.sort(key=lambda t: t[0])
+        return [_chunk_brief(c, idx) for idx, c in out]
+
+    def tool_search_entity_cluster(self, *, query: str, limit: int = 60) -> ToolResult:
+        """Resolve the entities named in `query` to canonical IDs, then fan out
+        across EVERY linked source type (David email + title + insurance +
+        equity + deed + litigation). The default tool for entity questions."""
+        from src.graph.fanout import fan_out_chunks, source_type_breakdown
+        idx = self._entity_index()
+        res = idx.resolve(query)
+        if not res["all"]:
+            return ToolResult(summary=f'search_entity_cluster: no canonical entity matched "{query}"',
+                              payload={"query": query, "resolved_entities": []})
+        rows = fan_out_chunks(self.retriever.mongo.db["email_chunks_v2"], res["all"],
+                              limit=int(limit))
+        chunks = [_to_chunk(r, rerank_score=None) for r in rows]
+        new_idx = self._pad.add_chunks(chunks) if chunks else []
+        names = [self._eidx.by_id.get(e, {}).get("canonical_name") or e
+                 for e in list(res["all"])[:8]]
+        briefs = self._new_chunk_briefs(chunks, new_idx)
+        bd = source_type_breakdown(rows)
+        return ToolResult(
+            summary=(f'entity_cluster("{query}") -> {len(res["all"])} entities '
+                     f'({", ".join(str(x) for x in names[:5])}), {len(chunks)} chunks '
+                     f'across {bd}'),
+            payload={"query": query, "resolved_entities": sorted(res["all"]),
+                     "entity_names": names, "source_breakdown": bd,
+                     "new_chunk_indices": new_idx, "briefs": briefs},
+            new_chunks=chunks)
+
+    def tool_list_documents_for_entity(self, *, entity_query: str, limit: int = 60) -> ToolResult:
+        """List the distinct DOCUMENTS (title reports, insurance, equity,
+        litigation, agreement) linked to the entity named in `entity_query`,
+        with type/address/date — a structured index, not chunk text."""
+        idx = self._entity_index()
+        res = idx.resolve(entity_query)
+        if not res["all"]:
+            return ToolResult(summary=f'no entity matched "{entity_query}"',
+                              payload={"resolved_entities": []})
+        docs = self.retriever.mongo.db["documents"]
+        q = {"$or": [{"property_ids": {"$in": list(res["properties"])}},
+                     {"owner_entity_id": {"$in": list(res["people"] | res["llcs"])}},
+                     {"owner_entity_ids": {"$in": list(res["people"] | res["llcs"])}},
+                     {"case_ids": {"$in": list(res["cases"])}}]}
+        rows = list(docs.find(q, {"_id": 1, "source_type": 1, "property_address": 1,
+                                  "vendor": 1, "is_update": 1, "completed_date": 1,
+                                  "search_date": 1, "document_date": 1,
+                                  "effective_date": 1}).limit(int(limit)))
+        listing = [{"doc_id": r["_id"], "type": r.get("source_type"),
+                    "address": r.get("property_address"),
+                    "date": _date_str(r.get("completed_date") or r.get("search_date")
+                                      or r.get("document_date") or r.get("effective_date")),
+                    "is_update": r.get("is_update")} for r in rows]
+        bd: Dict[str, int] = {}
+        for r in listing:
+            bd[r["type"]] = bd.get(r["type"], 0) + 1
+        return ToolResult(
+            summary=f'list_documents_for_entity("{entity_query}") -> {len(listing)} docs {bd}',
+            payload={"resolved_entities": sorted(res["all"]), "documents": listing,
+                     "breakdown": bd})
+
+    def tool_timeline(self, *, query: str, limit: int = 60) -> ToolResult:
+        """Return a CORRECT, cited chronology (from the event store) for the
+        property/entity named in `query`. The sequence is pre-sorted by date —
+        use for 'what happened to X and when' / flow-of-funds questions."""
+        from src.timeline.builder import timeline_for
+        idx = self._entity_index()
+        res = idx.resolve(query)
+        if not res["all"]:
+            return ToolResult(summary=f'timeline: no entity matched "{query}"', payload={})
+        pid = next(iter(res["properties"]), None)
+        if pid:
+            tl = timeline_for(self.retriever.mongo, property_id=pid, limit=int(limit))
+        else:
+            tl = timeline_for(self.retriever.mongo, entity_id=next(iter(res["all"])), limit=int(limit))
+        return ToolResult(
+            summary=f'timeline("{query}") -> {len(tl)} dated events',
+            payload={"resolved_entities": sorted(res["all"]), "events": tl})
+
+    def tool_decompose_search(self, *, query: str) -> ToolResult:
+        """Split a compound/multi-part question into sub-questions and run an
+        entity-cluster fan-out for EACH, merging results. Use for questions with
+        several asks so no part is dropped (recall on complex queries)."""
+        from src.rag.query_decomp import decompose_query
+        parts = decompose_query(query)
+        all_new, per_part = [], []
+        for p in parts:
+            r = self.tool_search_entity_cluster(query=p, limit=40)
+            per_part.append({"sub_query": p, "summary": r.summary})
+            all_new.extend(r.new_chunks)
+        return ToolResult(
+            summary=f'decompose_search -> {len(parts)} sub-questions, {len(all_new)} chunks',
+            payload={"sub_questions": parts, "per_part": per_part},
+            new_chunks=all_new)
+
+    def tool_flow_of_funds(self, *, query: str) -> ToolResult:
+        """Money-movement view for a property/entity: dated monetary events
+        (conveyances, mortgages, liens, judgments) with parsed amounts,
+        chronological. Use for flow-of-funds / asset-tracing questions."""
+        from src.timeline.builder import flow_of_funds
+        idx = self._entity_index()
+        res = idx.resolve(query)
+        if not res["all"]:
+            return ToolResult(summary=f'flow_of_funds: no entity matched "{query}"', payload={})
+        pid = next(iter(res["properties"]), None)
+        if pid:
+            fof = flow_of_funds(self.retriever.mongo, property_id=pid)
+        else:
+            fof = flow_of_funds(self.retriever.mongo, entity_id=next(iter(res["all"])))
+        return ToolResult(
+            summary=f'flow_of_funds("{query}") -> {fof["n_events"]} monetary events, '
+                    f'total seen {fof["total_amount_seen"]}',
+            payload=fof)
+
+    def tool_evidence_packet(self, *, query: str) -> ToolResult:
+        """Court-ready evidence bundle for the property named in `query`: every
+        linked document with custody (source file + SHA + pages), grounded
+        facts, the timeline, and findings — the full provenance chain."""
+        from src.timeline.builder import evidence_packet
+        idx = self._entity_index()
+        res = idx.resolve(query)
+        pid = next(iter(res["properties"]), None)
+        if not pid:
+            return ToolResult(summary=f'evidence_packet: no property matched "{query}"', payload={})
+        pk = evidence_packet(self.retriever.mongo, property_id=pid)
+        return ToolResult(
+            summary=(f'evidence_packet for {pk.get("address")}: {len(pk.get("documents", []))} docs, '
+                     f'{len(pk.get("timeline", []))} events, {len(pk.get("findings", []))} findings'),
+            payload=pk)
+
+    def tool_graph_query(self, *, entity_query: str) -> ToolResult:
+        """Multi-hop graph traversal from the named entity: its OWNS / member /
+        insurance / litigation neighbours via the relationships graph. Use for
+        'which properties does David's LLC own and what's their status?'."""
+        idx = self._entity_index()
+        res = idx.resolve(entity_query)
+        if not res["all"]:
+            return ToolResult(summary=f'no entity matched "{entity_query}"',
+                              payload={"resolved_entities": []})
+        rels = self.retriever.mongo.db["relationships"]
+        ents = self.retriever.mongo.db["entities"]
+        seeds = list(res["all"])
+        edges = list(rels.find({"$or": [{"src": {"$in": seeds}}, {"dst": {"$in": seeds}}]},
+                               {"_id": 0, "type": 1, "src": 1, "dst": 1, "as_of": 1}).limit(400))
+        neigh = {e["src"] for e in edges} | {e["dst"] for e in edges}
+        names = {x["_id"]: x.get("canonical_name") or x.get("canonical_address") or x["_id"]
+                 for x in ents.find({"_id": {"$in": list(neigh)}},
+                                    {"canonical_name": 1, "canonical_address": 1})}
+        summary_edges = [{"type": e["type"], "from": names.get(e["src"], e["src"]),
+                          "to": names.get(e["dst"], e["dst"]),
+                          "as_of": _date_str(e.get("as_of"))} for e in edges[:60]]
+        by_type: Dict[str, int] = {}
+        for e in edges:
+            by_type[e["type"]] = by_type.get(e["type"], 0) + 1
+        return ToolResult(
+            summary=f'graph_query("{entity_query}") -> {len(edges)} edges {by_type}',
+            payload={"resolved_entities": seeds, "edge_counts": by_type,
+                     "edges": summary_edges})
+
 
 # =====================================================================
 # Date helper
@@ -692,13 +867,128 @@ def _parse_iso_date(s: str) -> datetime:
 
 def build_tool_specs(box: ToolBox) -> Dict[str, ToolSpec]:
     return {
+        "search_entity_cluster": ToolSpec(
+            name="search_entity_cluster",
+            description=(
+                "PREFERRED for any question about a specific property, person, "
+                "LLC, or case. Resolves the named entity to its canonical ID and "
+                "fans out across EVERY linked source type at once — David's "
+                "emails, title reports, insurance, equity schedule, deeds, and "
+                "litigation — even when they share no keywords. Use this FIRST "
+                "for entity questions; fall back to `search` for keyword/topic "
+                "lookups that name no specific entity."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Question naming a property/person/LLC/case."},
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 120, "default": 60},
+                },
+                "required": ["query"],
+            },
+            fn=box.tool_search_entity_cluster,
+        ),
+        "list_documents_for_entity": ToolSpec(
+            name="list_documents_for_entity",
+            description=(
+                "List the distinct DOCUMENTS linked to a property/person/LLC/case "
+                "(type, address, date) — a structured index to see what exists "
+                "before pulling chunks. Good for 'what do we have on X?'."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "entity_query": {"type": "string"},
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 120, "default": 60},
+                },
+                "required": ["entity_query"],
+            },
+            fn=box.tool_list_documents_for_entity,
+        ),
+        "graph_query": ToolSpec(
+            name="graph_query",
+            description=(
+                "Traverse the knowledge graph from an entity to its neighbours "
+                "(OWNS, HAS_INSURANCE, LITIGATION_ABOUT, ...). Use for multi-hop "
+                "questions like 'which properties does this LLC own?'."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {"entity_query": {"type": "string"}},
+                "required": ["entity_query"],
+            },
+            fn=box.tool_graph_query,
+        ),
+        "timeline": ToolSpec(
+            name="timeline",
+            description=(
+                "Return a CORRECT, pre-sorted, cited chronology of dated events "
+                "(conveyances, mortgages, liens, judgments, lis pendens, "
+                "insurance, litigation) for a property/entity. Use for 'what "
+                "happened and when' / flow-of-funds. The dates are authoritative "
+                "— do not reorder."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"},
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 60},
+                },
+                "required": ["query"],
+            },
+            fn=box.tool_timeline,
+        ),
+        "evidence_packet": ToolSpec(
+            name="evidence_packet",
+            description=(
+                "Build a court-ready evidence bundle for a property: every linked "
+                "document with custody (source file + SHA + pages), grounded facts, "
+                "the timeline, and findings. Use when asked to assemble proof / an "
+                "exhibit for a property."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            fn=box.tool_evidence_packet,
+        ),
+        "decompose_search": ToolSpec(
+            name="decompose_search",
+            description=(
+                "Split a compound/multi-part question into sub-questions and run "
+                "an entity fan-out for EACH part, merging results. Use FIRST for "
+                "questions with several asks (e.g. 'list David's LLCs, the "
+                "properties they own, and each one's latest title status')."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            fn=box.tool_decompose_search,
+        ),
+        "flow_of_funds": ToolSpec(
+            name="flow_of_funds",
+            description=(
+                "Money-movement / asset-tracing view for a property or entity: "
+                "dated monetary events (conveyances, mortgages, liens, judgments) "
+                "with parsed amounts, in order. Use for flow-of-funds questions."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            fn=box.tool_flow_of_funds,
+        ),
         "search": ToolSpec(
             name="search",
             description=(
                 "Run a hybrid retrieval (vector + BM25 + filename) over the "
-                "entire corpus. Use this as your default lookup. Returns "
-                "the new chunks (with [#N] indices) and their snippets. "
-                "Re-search with different phrasing if the first result is poor."
+                "entire corpus. Use for keyword/topic lookups that do NOT name a "
+                "specific entity (for entity questions prefer search_entity_cluster). "
+                "Returns the new chunks (with [#N] indices) and their snippets."
             ),
             input_schema={
                 "type": "object",

@@ -72,6 +72,7 @@ except ImportError as exc:  # pragma: no cover
     ) from exc
 
 from src.rag.retriever import RetrievedChunk
+from src.rag.normalize_values import all_money, money_matches, normalize_money
 from src.utils.logger import logger
 
 
@@ -229,7 +230,10 @@ def _heal_month(match: "re.Match[str]") -> str:
 # Each pattern extracts strings from the quote that must also appear,
 # after normalisation, in the cited chunk's normalised text. If ANY
 # required token is missing, the fact fails regardless of fuzzy score.
-_CURRENCY_RE = re.compile(r"\$\s*[\d,]+(?:\.\d+)?")
+# Currency, incl. shorthand multipliers ($1.45M, $250K) so the token carries
+# its true magnitude into money reconciliation.
+_CURRENCY_RE = re.compile(
+    r"\$\s*[\d,]+(?:\.\d+)?\s*(?:thousand|million|billion|mm|k|b|m)?\b", re.I)
 # Year-only matches (1900-2099)
 _YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
 # Month names (full and abbreviated) for date detection.
@@ -315,6 +319,20 @@ def _extract_critical_tokens(raw_quote: str) -> List[str]:
     return found
 
 
+def _currency_reconciles(tok: str, chunk_amounts: List[float]) -> bool:
+    """A currency token may be stated differently than the source ($2,300 vs
+    2,300.00 vs 1.45M vs 1,450,000) without being WRONG. When the exact
+    normalised substring isn't found, accept the token iff its parsed value
+    reconciles with some amount in the chunk within a *formatting-only*
+    tolerance — i.e. equal to the dollar. This forgives comma/cents/$/K-M-B
+    formatting but still rejects a genuinely different figure ($450,000 vs
+    $405,000), so the critical-token guarantee holds."""
+    v = normalize_money(tok)
+    if v is None:
+        return False
+    return any(money_matches(v, a, rel_tol=0.0, abs_tol=1.0) for a in chunk_amounts)
+
+
 def _check_critical_tokens(
     raw_quote: str,
     chunk_norm: str,
@@ -327,11 +345,17 @@ def _check_critical_tokens(
     Year-only tokens (e.g. "2023") are tolerated if some other date
     token in the same quote already matched — that way we don't double-
     fail when the full date is present.
+
+    Currency tokens get a formatting-tolerant money reconciliation fallback
+    (Sprint 7.6 normalization wired into the verifier) so that e.g. "$2,300"
+    verifies against an OCR/source "2,300.00" — without loosening the guard
+    against a materially different amount.
     """
     tokens = _extract_critical_tokens(raw_quote)
     if not tokens:
         return None
 
+    chunk_amounts: Optional[List[float]] = None  # computed lazily, once
     matched_dates = 0
     for tok in tokens:
         tok_norm = _normalize(tok)
@@ -342,6 +366,15 @@ def _check_critical_tokens(
             if any(tok in other and other != tok for other in tokens):
                 continue
         if tok_norm not in chunk_norm:
+            # Currency fallback: a $-amount may be formatted differently in
+            # the source. Reconcile by value (formatting-tolerant) before
+            # failing. Non-currency tokens (dates, case/parcel numbers) still
+            # require an exact normalised match.
+            if "$" in tok:
+                if chunk_amounts is None:
+                    chunk_amounts = all_money(chunk_norm)
+                if _currency_reconciles(tok, chunk_amounts):
+                    continue
             return (
                 f"critical token {tok!r} required by the verbatim quote is "
                 f"missing from the cited chunk"

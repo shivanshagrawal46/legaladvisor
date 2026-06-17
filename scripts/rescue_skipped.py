@@ -174,10 +174,10 @@ def main() -> int:
     configure_logger(settings.logs_dir)
     mongo = MongoClientWrapper(settings.mongo_uri, settings.mongo_db_name)
 
-    # Arm the Claude Vision spend guard for image re-OCR (small budget,
-    # only ~50 images this pass).
+    # Arm the Claude Vision spend guard for image re-OCR + TNEF-embedded
+    # scanned PDFs. Larger budget now that we unwrap winmail.dat documents.
     from src.extractor.claude_ocr import init_spend_guard
-    init_spend_guard(min(20.0, settings.ocr_vision_budget_usd))
+    init_spend_guard(min(150.0, settings.ocr_vision_budget_usd))
 
     mongo.ping()
     v2_coll = mongo.db[V2_COLLECTION]

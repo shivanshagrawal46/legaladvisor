@@ -423,6 +423,60 @@ def _ocr_page_via_claude(
 
 
 # ------------------------------------------------------------------------
+# High-quality second-model fallback: OpenAI GPT vision
+# ------------------------------------------------------------------------
+# When Claude's OUTPUT content-filter false-positives on a legal page (common
+# on scanned forms / signatures), we transcribe that page with a DIFFERENT
+# frontier vision model instead of dropping to RapidOCR. Same verbatim-OCR
+# prompt. Best-effort: returns text or None (None -> caller's RapidOCR path).
+_OPENAI_OCR_MODEL = os.environ.get("OPENAI_OCR_MODEL", "gpt-5")
+
+
+def _ocr_page_via_openai(img: "Image.Image") -> Optional[str]:
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return None
+    try:
+        media_type, b64 = _image_to_jpeg_b64(img)
+        client = OpenAI(api_key=api_key)
+        # NOTE: gpt-5 only supports the default temperature (1); passing 0
+        # returns a 400. Omit it entirely — fine for verbatim OCR.
+        # gpt-5 is a REASONING model: without explicit room it can burn the
+        # whole completion budget on reasoning and return EMPTY content (while
+        # still billing us). minimal effort + large cap fixes that for OCR.
+        resp = client.chat.completions.create(
+            model=_OPENAI_OCR_MODEL,
+            reasoning_effort="minimal",
+            max_completion_tokens=16384,
+            messages=[
+                {"role": "system", "content": _OCR_SYSTEM_PROMPT},
+                {"role": "user", "content": [
+                    {"type": "text", "text": "Transcribe this page."},
+                    {"type": "image_url",
+                     "image_url": {"url": f"data:{media_type};base64,{b64}"}},
+                ]},
+            ],
+        )
+        ch = resp.choices[0]
+        txt = (ch.message.content or "").strip()
+        if not txt:
+            # NEVER fail silently — this exact path hid 154 empty responses.
+            logger.warning(
+                f"  OpenAI vision returned EMPTY content "
+                f"(finish_reason={ch.finish_reason}, refusal={getattr(ch.message, 'refusal', None)})"
+            )
+            return None
+        return txt
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(f"  OpenAI vision OCR fallback failed: {str(exc)[:160]}")
+        return None
+
+
+# ------------------------------------------------------------------------
 # Public batch API
 # ------------------------------------------------------------------------
 
@@ -498,10 +552,26 @@ def ocr_pages_via_claude(
             err = str(exc)
             if "low_credit" in err or "credit" in err.lower():
                 _disable_vision_for_run("Anthropic credit balance exhausted")
-            logger.warning(f"  page {page_no}: Claude vision failed: {err[:160]}")
-            pages_out[slot] = VisionPage(
-                page_no=page_no, text="", method="vision_failed", ocr_confidence=0.0
+                pages_out[slot] = VisionPage(
+                    page_no=page_no, text="", method="vision_failed", ocr_confidence=0.0
+                )
+                return
+            # Per-page failure (esp. content_filter false-positive): try a
+            # DIFFERENT frontier vision model before giving up to RapidOCR, so
+            # legal content is never garbled or dropped.
+            logger.warning(
+                f"  page {page_no}: Claude vision failed: {err[:120]} — trying OpenAI vision fallback"
             )
+            alt = _ocr_page_via_openai(img)
+            if alt:
+                logger.info(f"  page {page_no}: recovered via OpenAI vision ({len(alt)} chars)")
+                pages_out[slot] = VisionPage(
+                    page_no=page_no, text=alt, method="openai_vision", ocr_confidence=0.95
+                )
+            else:
+                pages_out[slot] = VisionPage(
+                    page_no=page_no, text="", method="vision_failed", ocr_confidence=0.0
+                )
 
     n_workers = max(1, min(max_concurrency, len(images)))
     with ThreadPoolExecutor(max_workers=n_workers) as pool:

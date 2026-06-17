@@ -154,6 +154,73 @@ def parent_document_expand(
     )
 
 
+def neighbor_expand(
+    mongo: MongoClientWrapper,
+    *,
+    retrieved_chunks: Sequence[Dict[str, Any]],
+    window: int = 1,
+    max_added: int = 40,
+    per_parent_cap: int = 8,
+) -> List[Dict[str, Any]]:
+    """Pull the immediate neighbors (chunk_index ±window) of EVERY retrieved
+    chunk from the same parent document.
+
+    Unlike `parent_document_expand` (which needs 2+ hits from one doc to fire),
+    this fires on a SINGLE hit — closing the "a fact got split across the chunk
+    boundary and only one half was retrieved" gap (e.g. a lien amount whose
+    body continued into the next chunk). Cheap, additive, fail-safe: neighbors
+    are appended after the originals; the downstream evidence cap trims if
+    needed. Pure read.
+    """
+    if not retrieved_chunks:
+        return list(retrieved_chunks)
+    seen = {str(c.get("_id")) for c in retrieved_chunks}
+    # parent key -> (the field used, the value, set of wanted neighbor indices)
+    wanted_by_parent: Dict[str, Dict[str, Any]] = {}
+    for c in retrieved_chunks:
+        ci = c.get("chunk_index")
+        if ci is None:
+            continue
+        pk = c.get("attachment_id") or c.get("document_id")
+        field = "attachment_id" if c.get("attachment_id") else "document_id"
+        if pk is None:
+            continue
+        key = f"{field}:{pk}"
+        slot = wanted_by_parent.setdefault(key, {"field": field, "value": pk, "idx": set()})
+        for d in range(-window, window + 1):
+            if d != 0 and ci + d >= 0:
+                slot["idx"].add(ci + d)
+
+    added: List[Dict[str, Any]] = []
+    for slot in wanted_by_parent.values():
+        if len(added) >= max_added:
+            break
+        want = sorted(slot["idx"])
+        if not want:
+            continue
+        try:
+            rows = mongo.chunks.find(
+                {slot["field"]: slot["value"], "chunk_index": {"$in": want}},
+                _PROJECTION,
+            ).limit(per_parent_cap * 2)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"neighbor_expand query failed: {exc}")
+            continue
+        cnt = 0
+        for r in rows:
+            cid = str(r.get("_id"))
+            if cid in seen:
+                continue
+            added.append(r)
+            seen.add(cid)
+            cnt += 1
+            if cnt >= per_parent_cap or len(added) >= max_added:
+                break
+    if added:
+        logger.debug(f"neighbor_expand added {len(added)} boundary-neighbor chunks")
+    return list(retrieved_chunks) + added
+
+
 def _per_parent_budget(n_parents: int, *, single_budget: int = 8000) -> int:
     """
     Per-parent token budget, scaled to the number of hot parents.
@@ -189,6 +256,7 @@ _PROJECTION: Dict[str, Any] = {
     "source_type": 1,
     "email_id": 1,
     "attachment_id": 1,
+    "document_id": 1,
     "filename": 1,
     "page_start": 1,
     "page_end": 1,
@@ -198,6 +266,13 @@ _PROJECTION: Dict[str, Any] = {
     "subject": 1,
     "folder_path": 1,
     "chunk_index": 1,
+    "sha256": 1,
+    "latest_date": 1,
+    "occurrences": 1,
+    # evidentiary spine (so the provenance footer stays correct on expanded chunks)
+    "corpus": 1,
+    "privilege_status": 1,
+    "doc_source_type": 1,
 }
 
 
