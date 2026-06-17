@@ -6,6 +6,7 @@ import Chat from "./Chat";
 import PortfolioGrid from "./PortfolioGrid";
 import FindingsDashboard from "./FindingsDashboard";
 import PropertyDetail from "./PropertyDetail";
+import HowToAsk from "./HowToAsk";
 import { getMe } from "./api";
 
 export default function App() {
@@ -70,6 +71,7 @@ export default function App() {
           <Route element={<Shell user={user} />}>
             <Route path="/portfolio" element={<PortfolioGrid />} />
             <Route path="/findings" element={<FindingsDashboard />} />
+            <Route path="/how-to-ask" element={<HowToAsk />} />
             <Route path="/properties/:propertyId" element={<PropertyDetail />} />
           </Route>
           <Route path="*" element={<Navigate to="/portfolio" replace />} />
@@ -101,6 +103,7 @@ function Shell({ user }) {
           <NavLink to="/portfolio" style={navItem}>Portfolio</NavLink>
           <NavLink to="/findings" style={navItem}>Findings</NavLink>
           <NavLink to="/chat" style={navItem}>Investigate (Chat)</NavLink>
+          <NavLink to="/how-to-ask" style={navItem}>How to Ask</NavLink>
         </nav>
         <div style={{ marginLeft: "auto", fontSize: 13, color: "#5b5f6e" }}>
           {user?.name || user?.email}
