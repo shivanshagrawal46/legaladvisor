@@ -74,6 +74,13 @@ async def portfolio_properties(
 
 
 # ── property detail ──────────────────────────────────────────────────────────
+def _fmt(dt):
+    try:
+        return dt.strftime("%Y-%m-%d")
+    except Exception:  # noqa: BLE001
+        return None
+
+
 @router.get("/properties/{property_id}")
 async def property_detail(property_id: str, _: User = Depends(get_current_user)):
     m = get_mongo()
@@ -81,12 +88,75 @@ async def property_detail(property_id: str, _: User = Depends(get_current_user))
     if not doss:
         raise HTTPException(404, "property not found")
     doss.pop("_id", None)
+    docs = m.db["documents"]
+
+    title_ids = (doss.get("title") or {}).get("doc_ids") or []
+    ins_ids = (doss.get("insurance") or {}).get("doc_ids") or []
+    eq_ids = (doss.get("equity") or {}).get("doc_ids") or []
+    lit_ids = (doss.get("litigation") or {}).get("doc_ids") or []
+
+    # Title reports — full + update searches, dated, vendor, latest flagged.
+    title_reports = []
+    for d in docs.find({"_id": {"$in": title_ids}}):
+        title_reports.append({
+            "doc_id": d["_id"], "vendor": d.get("vendor"),
+            "type": "update search" if d.get("is_update") else "full search",
+            "date": _fmt(d.get("completed_date") or d.get("search_date")),
+            "effective_date": _fmt(d.get("effective_date")),
+            "order_number": d.get("order_number"),
+            "pages": d.get("page_count"),
+            "is_latest": bool(d.get("is_latest")),
+            "sha256": (d.get("custody") or {}).get("sha256"),
+        })
+    title_reports.sort(key=lambda r: (r["date"] or "", r["is_latest"]), reverse=True)
+
+    # Insurance policies / evidence-of-coverage.
+    insurance_reports = []
+    for d in docs.find({"_id": {"$in": ins_ids}}):
+        insurance_reports.append({
+            "doc_id": d["_id"], "insurer": d.get("insurer"),
+            "named_insured": d.get("named_insured"),
+            "policy_year": d.get("policy_year"),
+            "effective_date": _fmt(d.get("effective_date")),
+            "expiration_date": _fmt(d.get("expiration_date")),
+            "is_cancellation": bool(d.get("is_cancellation")),
+        })
+    insurance_reports.sort(key=lambda r: (r["effective_date"] or ""), reverse=True)
+
+    # Chain-of-custody document list (every source doc behind this property).
+    documents = []
+    for d in docs.find({"_id": {"$in": title_ids + ins_ids + eq_ids + lit_ids}},
+                       {"source_type": 1, "custody": 1, "page_count": 1, "vendor": 1}):
+        cust = d.get("custody") or {}
+        documents.append({
+            "doc_id": d["_id"], "source_type": d.get("source_type"),
+            "source_file": cust.get("source_file") or (cust.get("source_files") or [None])[0],
+            "sha256": cust.get("sha256"), "pages": d.get("page_count"),
+            "vendor": d.get("vendor"),
+        })
+
+    # Bitemporal ownership history (as_of → until per owner).
+    from src.graph.bitemporal import ownership_intervals
+    ents = m.db["entities"]
+    ivs = ownership_intervals(m.db["relationships"], property_id)
+    nm = {e["_id"]: e.get("canonical_name") or e["_id"]
+          for e in ents.find({"_id": {"$in": [iv["owner"] for iv in ivs]}},
+                             {"canonical_name": 1})}
+    ownership = [{"owner": nm.get(iv["owner"], iv["owner"]),
+                  "as_of": _fmt(iv["as_of"]), "until": _fmt(iv["until"]),
+                  "amount": iv.get("amount"), "source_quote": iv.get("source_quote")}
+                 for iv in ivs]
+
     findings = list(m.db["findings"].find({"property_id": property_id}))
     for f in findings:
         f["id"] = f.pop("_id")
     return {
         "property_id": property_id,
-        "dossier": doss,
+        "dossier": doss,                      # includes grounded_facts + fact_counts_scoped
+        "title_reports": title_reports,
+        "insurance_reports": insurance_reports,
+        "documents": documents,
+        "ownership": ownership,
         "timeline": timeline_for(m, property_id=property_id, limit=300),
         "flow_of_funds": flow_of_funds(m, property_id=property_id),
         "findings": findings,

@@ -70,14 +70,6 @@ export default function HowToAsk() {
         </ul>
       </div>
 
-      <div style={card}>
-        <h3 style={{ ...h, fontSize: 19, marginTop: 0 }}>6. Two modes</h3>
-        <ul style={{ margin: "4px 0 0", paddingLeft: 20 }}>
-          <li style={li}><b>Analysis</b> — internal work; sees everything.</li>
-          <li style={li}><b>Clean</b> — for anything you share with the trustee or court; hides our privileged emails, keeps David’s own admissions.</li>
-        </ul>
-      </div>
-
       <div style={{ ...card, background: "#234a52", border: "none" }}>
         <p style={{ margin: 0, color: "#fff", fontSize: 15.5, fontWeight: 600 }}>
           Remember: <span style={{ color: "#ffe2a8" }}>Name the exact property → ask for “all, with sources” → one topic per question.</span>

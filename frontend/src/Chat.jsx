@@ -11,6 +11,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useWebSocket } from "./useWebSocket";
+import { exportAnswerPdf } from "./exportAnswerPdf";
 import Sources from "./Sources";
 import Sidebar from "./Sidebar";
 import { getSessions, createSession, getSession } from "./api";
@@ -78,7 +79,7 @@ function TypingDots() {
   );
 }
 
-const AIMessage = memo(function AIMessage({ msg, isStreaming, onInterrupt }) {
+const AIMessage = memo(function AIMessage({ msg, isStreaming, onInterrupt, question }) {
   return (
     <EvidenceProvider sources={msg.sources} verification={msg.verification}>
       <div style={styles.aiRow} className="msg-in">
@@ -109,6 +110,16 @@ const AIMessage = memo(function AIMessage({ msg, isStreaming, onInterrupt }) {
             </div>
           ) : (
             (msg.agent && isStreaming) ? null : <TypingDots />
+          )}
+          {/* Export this answer (+ its cited sources) as an official-style PDF */}
+          {!isStreaming && msg.content && (
+            <div style={{ marginTop: 10 }}>
+              <Button size="small"
+                onClick={() => exportAnswerPdf({ question, answer: msg.content, sources: msg.sources })}
+                style={{ background: "#fff", color: "#234a52", borderColor: "#234a52", fontWeight: 600, fontSize: 12 }}>
+                ⬇ Export answer (PDF)
+              </Button>
+            </div>
           )}
           {msg.sources && <Sources items={msg.sources} />}
         </div>
@@ -516,7 +527,8 @@ export default function Chat({ user }) {
             {active.messages.map((m, i) =>
               m.role === "user"
                 ? <UserMessage key={i} content={m.content} />
-                : <AIMessage key={i} msg={m} isStreaming={false} />
+                : <AIMessage key={i} msg={m} isStreaming={false}
+                    question={i > 0 ? active.messages[i - 1]?.content : ""} />
             )}
 
             {/* Streaming bubble — ONLY on the active session if it's streaming.
