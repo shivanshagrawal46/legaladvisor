@@ -70,8 +70,12 @@ def main() -> int:
     ents, docs, rels = m.db["entities"], m.db["documents"], m.db["relationships"]
     doss = m.db[COLLECTION]
 
-    props = list(ents.find({"kind": "property"}))
-    logger.info(f"building dossiers for {len(props)} properties")
+    # Skip retired/merged properties (is_active=False) so a merged-away
+    # duplicate never gets its dossier rebuilt back into the grid.
+    props = list(ents.find({"kind": "property", "is_active": {"$ne": False}}))
+    doss.delete_many({"_id": {"$in": [e["_id"] for e in
+                     ents.find({"kind": "property", "is_active": False}, {"_id": 1})]}})
+    logger.info(f"building dossiers for {len(props)} active properties")
     n = 0
     agg_gf = 0
     for p in props:

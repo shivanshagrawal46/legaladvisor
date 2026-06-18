@@ -24,7 +24,6 @@ export function exportAnswerPdf({ question, answer, sources }) {
 
   // ── Header ──
   write("LEGAL ADVISOR — ANSWER EXPORT", { size: 15, bold: true, color: [35, 74, 82] });
-  if (question) write("Question: " + question, { size: 11, bold: true, gap: 5 });
   write("Generated " + new Date().toLocaleString(), { size: 8.5, color: [120, 120, 130], gap: 8 });
   rule();
 

@@ -12,7 +12,7 @@ export default function PortfolioGrid() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
-  const [scope, setScope] = useState("David");
+  const [scope, setScope] = useState("All");
   const [adhoc, setAdhoc] = useState([]); // [{question, cells:{pid:{status,answer,basis}}}]
 
   const addColumn = async (question) => {

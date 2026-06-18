@@ -63,43 +63,102 @@ export default function PropertyDetail() {
     message.success("Evidence packet (JSON) exported");
   };
 
-  const exportPacketPdf = async () => {
-    const r = await getEvidencePacket(propertyId);
-    const p = r.data || {};
+  // Full property dossier PDF — every section the page shows, then a
+  // numbered "References & Sources" (chain of custody) at the very end.
+  const exportPacketPdf = () => {
+    const p = d || {};
+    const ds0 = p.dossier || {}, eq0 = ds0.equity || {}, gf0 = ds0.grounded_facts || {};
     const doc = new jsPDF({ unit: "pt", format: "a4" });
-    const M = 40, W = doc.internal.pageSize.getWidth() - M * 2, PH = doc.internal.pageSize.getHeight();
+    const M = 44, W = doc.internal.pageSize.getWidth() - M * 2, PH = doc.internal.pageSize.getHeight();
     let y = M;
     const ensure = (hh) => { if (y + hh > PH - M) { doc.addPage(); y = M; } };
-    const line = (text, { size = 10, bold = false, gap = 4, color = [28, 30, 42] } = {}) => {
-      doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+    const line = (text, { size = 10, bold = false, gap = 4, color = [28, 30, 42], indent = 0, font = "times" } = {}) => {
+      doc.setFont(font, bold ? "bold" : "normal"); doc.setFontSize(size);
       doc.setTextColor(color[0], color[1], color[2]);
-      doc.splitTextToSize(String(text ?? ""), W).forEach((w) => { ensure(size + gap); doc.text(w, M, y); y += size + gap; });
+      doc.splitTextToSize(String(text ?? ""), W - indent).forEach((w) => { ensure(size + gap); doc.text(w, M + indent, y); y += size + gap; });
     };
-    const heading = (t) => { y += 8; ensure(22); line(t, { size: 13, bold: true, color: [35, 74, 82] }); doc.setDrawColor(231, 226, 214); doc.line(M, y, M + W, y); y += 8; };
-    line("EVIDENCE PACKET — COURT-READY", { size: 16, bold: true, color: [35, 74, 82] });
-    line(p.address || p.property_id || propertyId, { size: 12, bold: true });
-    line(`Parcel ${p.parcel_id || "—"}  ·  Side: ${p.side || "—"}  ·  Generated ${p.generated_at || ""}`, { size: 9, color: [91, 95, 110] });
-    heading("Documents & chain of custody");
-    (p.documents || []).forEach((dd, i) => {
-      line(`${i + 1}. [${dd.source_type || "doc"}] ${dd.source_file || dd.doc_id}`, { bold: true });
-      line(`SHA-256: ${dd.sha256 || "—"}   ·   pages: ${dd.pages ?? "—"}   ·   vendor: ${dd.vendor || "—"}`, { size: 8.5, color: [91, 95, 110] });
-    });
-    if ((p.ownership_intervals || []).length) {
-      heading("Ownership timeline (bitemporal)");
-      p.ownership_intervals.forEach((iv) => line(`${iv.as_of || "?"} → ${iv.until || "present"}   ·   ${iv.owner_name || iv.owner}` + (iv.amount ? `   ·   ${iv.amount}` : ""), { size: 9.5 }));
-    }
+    const heading = (t) => { y += 9; ensure(24); line(t, { size: 13, bold: true, color: [35, 74, 82] }); doc.setDrawColor(231, 226, 214); doc.line(M, y, M + W, y); y += 8; };
+    const quote = (q) => { if (q) line(`“${q}”`, { size: 8.5, color: [95, 95, 110], indent: 14, gap: 3 }); };
+    const none = () => line("None on record.", { size: 9.5, color: [120, 120, 130] });
+
+    // Header
+    line("PROPERTY EVIDENCE DOSSIER — COURT-READY", { size: 15, bold: true, color: [35, 74, 82] });
+    line(ds0.canonical_address || propertyId, { size: 12, bold: true });
+    line(`Parcel ${ds0.parcel_id || "—"}  ·  ${ds0.county || ""}  ·  Side: ${ds0.side || "—"}  ·  Generated ${new Date().toLocaleString()}`, { size: 9, color: [91, 95, 110], gap: 6 });
+
+    // Identification & ownership
+    heading("Identification & ownership");
+    line(`Owner(s): ${(ds0.owners || []).map(o => o.name).join(", ") || "—"}`);
+    line(`Owner since: ${ds0.current_owner_since || "—"}   ·   Side: ${ds0.side || "—"}`);
+
+    // Financial & status
+    heading("Financial & status");
+    const M$ = (v) => (typeof v === "number" ? "$" + v.toLocaleString() : (v || "—"));
+    line(`Equity: ${M$(eq0.equity)}   ·   Market value: ${M$(eq0.mkt_value)}   ·   Mortgage: ${M$(eq0.mortgage_amount)}`);
+    line(`Lender: ${eq0.lender || "—"}   ·   RE taxes owed: ${M$(eq0.re_taxes_owed)}`);
+    line(`Foreclosure: ${eq0.active_foreclosure || "—"}   ·   Lis pendens: ${eq0.lis_pendens || "—"}`);
+    line(`Insurance: ${ds0.insurance?.in_force ? "In force — " + (ds0.insurance.insurers || []).join(", ") : "None on file"}`);
+
+    // Ownership history
+    heading("Ownership history");
+    if ((p.ownership || []).length) p.ownership.forEach((o) => line(`${o.as_of || "?"} → ${o.until || "present"}   ·   ${o.owner}` + (o.amount ? `   ·   ${o.amount}` : "")));
+    else none();
+
+    // Title reports
+    heading("Title reports (full & update searches)");
+    if ((p.title_reports || []).length) p.title_reports.forEach((t) => line(`${t.date || "?"}  ·  ${t.type}${t.is_latest ? " (LATEST)" : ""}  ·  ${t.vendor || ""}  ·  order ${t.order_number || "—"}  ·  ${t.pages || "?"} pp`));
+    else none();
+
+    // Chain of title
+    heading("Chain of title");
+    if ((gf0.chain_of_title || []).length) gf0.chain_of_title.forEach((c) => {
+      line(`${c.dated || c.recorded || "?"}  ·  ${c.grantor || "?"} → ${c.grantee || "?"}  ·  ${c.instrument_type || ""}  ${c.amount || ""}`, { bold: true, size: 9.5, gap: 3 });
+      quote(c.source_quote);
+    }); else none();
+
+    // Encumbrances
+    const factSection = (title, arr, fmt) => {
+      heading(title);
+      if ((arr || []).length) arr.forEach((x) => { line(fmt(x), { bold: true, size: 9.5, gap: 3 }); quote(x.source_quote); });
+      else none();
+    };
+    factSection("Mortgages", gf0.mortgages, (x) => `${x.dated || x.recorded || "?"}  ·  ${x.lender || "?"}  ·  borrower ${x.borrower || "?"}  ·  ${x.amount || ""}  ${x.satisfied ? "[satisfied]" : "[open]"}`);
+    factSection("Liens", gf0.liens, (x) => `${x.dated || "?"}  ·  ${x.lien_type || ""}  ·  ${x.creditor || "?"}  ·  ${x.amount || ""}`);
+    factSection("Judgments", gf0.judgments, (x) => `${x.entered || "?"}  ·  creditor ${x.creditor || "?"}  ·  debtor ${x.debtor || "?"}  ·  ${x.amount || ""}`);
+    factSection("Lis pendens", gf0.lis_pendens, (x) => `${x.filed || "?"}  ·  ${x.case || ""}  ·  plaintiff ${x.plaintiff || "?"}`);
+    factSection("Assignments", gf0.assignments, (x) => `${x.dated || "?"}  ·  ${x.assignor || "?"} → ${x.assignee || "?"}`);
+
+    // Insurance
+    heading("Insurance");
+    if ((p.insurance_reports || []).length) p.insurance_reports.forEach((i) => line(`${i.effective_date || "?"} → ${i.expiration_date || "?"}  ·  ${i.insurer || "?"}  ·  ${i.named_insured || ""}  ·  ${i.is_cancellation ? "CANCELLATION" : "coverage"}`));
+    else none();
+
+    // Timeline
     heading("Event timeline (cited)");
-    (p.timeline || []).forEach((ev) => {
-      line(`${ev.date || "?"}  [${ev.event_type || ""}]  ${ev.detail || ""}` + (ev.amount ? `  (${ev.amount})` : ""), { size: 9.5 });
-      if (ev.source_quote) line(`"${ev.source_quote}"`, { size: 8, color: [91, 95, 110] });
-    });
+    if ((p.timeline || []).length) p.timeline.forEach((ev) => { line(`${ev.date || "?"}  [${ev.event_type || ""}]  ${ev.detail || ""}` + (ev.amount ? `  (${ev.amount})` : ""), { size: 9.5, gap: 3 }); quote(ev.source_quote); });
+    else none();
+
+    // Flow of funds
+    heading("Flow of funds");
+    line(`${p.flow_of_funds?.n_events || 0} monetary events · total seen $${(p.flow_of_funds?.total_amount_seen || 0).toLocaleString()}`, { size: 9.5 });
+    (p.flow_of_funds?.flows || []).filter(f => f.amount).forEach((f) => line(`$${(f.amount).toLocaleString()}  ·  ${f.type}  ·  ${f.date}  —  ${f.detail || ""}`, { size: 9 }));
+
+    // Findings
     heading("Findings");
-    (p.findings || []).forEach((f) => {
-      line(`• [${(f.severity || "").toUpperCase()}] ${f.title || ""}  (${f.status || "pending"})`, { bold: true });
-      (f.evidence || []).forEach((e) => { if (e.quote) line(`"${e.quote}"`, { size: 8, color: [91, 95, 110] }); });
-    });
-    doc.save(`evidence_${propertyId}.pdf`);
-    message.success("Evidence packet (PDF) exported");
+    if ((p.findings || []).length) p.findings.forEach((f) => { line(`• [${(f.severity || "").toUpperCase()}] ${f.title || ""}  (${f.status || "pending"})`, { bold: true, size: 9.5, gap: 3 }); line(f.detail || "", { size: 9, indent: 12 }); (f.evidence || []).forEach((e) => quote(e.quote)); });
+    else none();
+
+    // References & Sources — chain of custody at the very end
+    heading("REFERENCES & SOURCES (chain of custody)");
+    if ((p.documents || []).length) p.documents.forEach((dd, i) => {
+      line(`[${i + 1}]  [${dd.source_type || "doc"}]  ${dd.source_file || dd.doc_id}`, { bold: true, size: 9.5, gap: 3 });
+      line(`SHA-256: ${dd.sha256 || "—"}   ·   pages: ${dd.pages ?? "—"}   ·   vendor: ${dd.vendor || "—"}`, { size: 8.5, color: [110, 110, 120], indent: 14 });
+    }); else none();
+    y += 8; ensure(18);
+    line("Every fact above is grounded in a cited source. Generated by the Mango Tree Evidence Engine.", { size: 8, color: [140, 140, 150] });
+
+    doc.save(`property_dossier_${propertyId}.pdf`);
+    message.success("Property dossier (PDF) exported");
   };
 
   if (loading) return <Spin />;
