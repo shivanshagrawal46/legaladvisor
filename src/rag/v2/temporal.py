@@ -306,6 +306,17 @@ def _authority_score(doc: Dict[str, Any]) -> float:
     finalised order isn't demoted just because some copy of it was labelled
     "draft" in one email's metadata.
     """
+    # Document-type authority stamped at ingest (schema.authority_for):
+    # title_report=1.15, closing_statement=1.15, deed/mortgage tiers, etc.
+    # This is the source of truth for structured docs and was previously
+    # ignored here, so title/recorded instruments got no boost in the hybrid
+    # path (only in graph fan-out). Use it as an authority floor.
+    try:
+        dtype = float(doc.get("doc_authority_score") or 0.0)
+    except (TypeError, ValueError):
+        dtype = 0.0
+    dtype = min(dtype, 1.30)  # clamp to the same ceiling as filename tiers
+
     candidate_names: List[str] = []
     fname = (doc.get("filename") or "").lower()
     if fname:
@@ -316,8 +327,10 @@ def _authority_score(doc: Dict[str, Any]) -> float:
             candidate_names.append(occ_name)
 
     if not candidate_names:
-        # Plain emails get the neutral default.
-        return _AUTHORITY_DEFAULT
+        # Structured docs (title reports, deeds) carry doc_authority_score but
+        # no email filename — honour their stamped authority. Plain emails fall
+        # back to the neutral default.
+        return max(_AUTHORITY_DEFAULT, dtype)
 
     # `_AUTHORITY_PATTERNS` is ordered draft-first then highest-tier first.
     # We want the HIGHEST multiplier across all candidate names, but if
@@ -326,7 +339,7 @@ def _authority_score(doc: Dict[str, Any]) -> float:
     # remaining matches.
     draft_pat, draft_mult = _AUTHORITY_PATTERNS[0]
     if all(draft_pat.search(n) for n in candidate_names):
-        # Every occurrence is labelled as a draft → demote.
+        # Every occurrence is labelled as a draft → demote (overrides doc type).
         return draft_mult
 
     best = _AUTHORITY_DEFAULT
@@ -336,7 +349,8 @@ def _authority_score(doc: Dict[str, Any]) -> float:
                 if mult > best:
                     best = mult
                 break
-    return best
+    # Honour the stamped document-type authority as a floor.
+    return max(best, dtype)
 
 
 def _exact_match_score(

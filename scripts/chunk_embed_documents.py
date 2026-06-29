@@ -78,6 +78,8 @@ def main() -> int:
                     help="re-do docs even if already chunked")
     ap.add_argument("--doc-id", default=None,
                     help="re-chunk/embed ONLY this document _id (scoped, cheap)")
+    ap.add_argument("--shard", default=None,
+                    help="k/N disjoint worker shard by hash(_id), e.g. 0/4")
     args = ap.parse_args()
     s = Settings.load()
     now = datetime.now(timezone.utc)
@@ -103,6 +105,12 @@ def main() -> int:
     elif not args.reembed:
         q["chunked_at"] = {"$exists": False}
     pending = list(docs.find(q, {"_id": 1}).sort("_id", ASCENDING))
+    if args.shard:
+        import hashlib
+        sk, sn = (int(x) for x in args.shard.split("/"))
+        pending = [r for r in pending
+                   if int(hashlib.md5(str(r["_id"]).encode()).hexdigest(), 16) % sn == sk]
+        logger.info(f"shard {sk}/{sn}: {len(pending)} docs in this worker")
     if args.limit:
         pending = pending[: args.limit]
     total_docs = docs.count_documents({"source_type": {"$in": TARGET_TYPES}})

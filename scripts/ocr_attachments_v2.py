@@ -107,6 +107,7 @@ def _process_one(
     sha256: str,
     rows: List[Dict[str, Any]],
     settings: Settings,
+    force_vision: bool = False,
 ) -> Dict[str, Any]:
     """OCR one unique binary and insert one v2 row per source attachment_id."""
     import gc
@@ -127,12 +128,16 @@ def _process_one(
                 "filename": filename, "size": size}
 
     t0 = time.time()
+    # force_vision: set the text-layer threshold impossibly high so EVERY page
+    # is treated as "needs OCR" and goes through Claude Sonnet 4.6 Vision
+    # (-> GPT-5 vision -> RapidOCR on failure). No born-digital text layer is used.
+    ocr_min = 10_000_000 if force_vision else settings.ocr_text_layer_min_chars
     try:
         result = extract_from_bytes(
             data,
             filename,
             ocr_lang=settings.ocr_lang,
-            ocr_min_chars=settings.ocr_text_layer_min_chars,
+            ocr_min_chars=ocr_min,
             ocr_dpi=settings.ocr_dpi,
             enable_ocr=True,
             vision_enabled=settings.ocr_vision_enabled,
@@ -223,6 +228,9 @@ def main() -> int:
                    help="Only process attachments at least this big")
     p.add_argument("--force", action="store_true",
                    help="Re-OCR even sha256s already present in attachments_v2")
+    p.add_argument("--force-vision", action="store_true",
+                   help="Send EVERY page to Claude Sonnet 4.6 Vision (no "
+                        "born-digital text layer). Fallback: GPT-5 vision -> RapidOCR.")
     args = p.parse_args()
 
     settings = Settings.load()
@@ -292,8 +300,8 @@ def main() -> int:
             f"  Unique attachments to OCR:   {total:,}\n"
             f"  Workers (file-level):        {args.workers}\n"
             f"  Vision model:                {settings.ocr_vision_model}\n"
-            f"  Vision min pages threshold:  {settings.ocr_vision_min_pages} "
-            f"(every OCR-needed page goes to Vision)\n"
+            f"  FORCE VISION (no born-digital): {args.force_vision} "
+            f"(every page -> Sonnet 4.6 Vision -> GPT-5 -> RapidOCR)\n"
             f"  Spend cap (whole run):       ${settings.ocr_vision_budget_usd:.2f}"
         )
         if total == 0:
@@ -311,6 +319,7 @@ def main() -> int:
             return _process_one(
                 mongo, v2_coll,
                 sha256=g["_id"], rows=g["rows"], settings=settings,
+                force_vision=args.force_vision,
             )
 
         with ThreadPoolExecutor(max_workers=args.workers) as pool:

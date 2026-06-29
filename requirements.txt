@@ -62,3 +62,21 @@ tiktoken>=0.7
 
 # Retry / backoff for API calls
 tenacity>=8.3
+
+# =====================================================================
+# Phase 4 — Gmail API ingestion (Sprint 1)
+# =====================================================================
+# Read-only Gmail pull (OAuth installed-app flow). Used to backfill emails
+# at both ends of the timeline and keep the corpus live. Read-only scope only.
+google-api-python-client>=2.100
+google-auth>=2.23
+google-auth-oauthlib>=1.1
+# Pin cryptography to a version with working prebuilt Windows wheels for
+# Python 3.9. The 42.x/43.x line ships a _rust binding that fails to load on
+# this box ("DLL load failed while importing _rust"); 41.0.7 is the last fully
+# compatible release and is also fine for python-jose (JWT auth).
+cryptography==41.0.7
+# pyOpenSSL must match cryptography 41: the old 22.0.0 calls a legacy OpenSSL
+# symbol (OpenSSL_add_all_algorithms) removed from cryptography 41's bundled
+# OpenSSL 3.x, which breaks pymongo's TLS import. 23.3.0 is the matching release.
+pyOpenSSL==23.3.0

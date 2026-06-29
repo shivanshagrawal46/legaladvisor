@@ -1,0 +1,1437 @@
+[
+  {
+    "folder": "10 Heritage Ln Wheatley Heights Ny",
+    "addr_core": "10 heritage",
+    "property_id": "ent_prop_0100015000700021000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "10 Heritage Ln Wheatley Heights Ny\\10 Heritage Lane_Update Search.pdf",
+        "sha": "a307b38ab019",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "1082 Connetquot Ave Central Islip Ny",
+    "addr_core": "1082 connetquot",
+    "property_id": "ent_prop_0500143000400062000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "1082 Connetquot Ave Central Islip Ny\\1082 Connetquot Ave_Update Search 2026.pdf",
+        "sha": "5da0e26264f0",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "1091 Gardiner Dr Bay Shore Ny",
+    "addr_core": "1091 gardiner",
+    "property_id": "ent_prop_0500364000200033000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "1091 Gardiner Dr Bay Shore Ny\\1091 Gardiner Dr_Update Search.pdf",
+        "sha": "9d36386cba49",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "10947 N Bayview Rd Southold Ny",
+    "addr_core": "10947 north bayview",
+    "property_id": "ent_prop_1000079000500020011",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "10947 N Bayview Rd Southold Ny\\10947 N Bayview Road_Update Search.pdf",
+        "sha": "97868f272000",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "1140 Flanders Rd Riverhead Ny",
+    "addr_core": "1140 flanders",
+    "property_id": "ent_prop_0900168000100007000",
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "1140 Flanders Rd Riverhead Ny\\1140 Flanders Road_Update Search 2026.pdf",
+        "sha": "1c4d792891b2",
+        "new": true
+      },
+      {
+        "file": "1140 Flanders Rd Riverhead Ny\\1140 Flanders Road_Update Search.pdf",
+        "sha": "9ed4bfbd82a3",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "1154 Shoemaker Rd Mohawk Ny",
+    "addr_core": "1154 shoemaker",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "1154 Shoemaker Rd Mohawk Ny\\1154 Shoemaker Rd_Search Package.pdf",
+        "sha": "94b09b070604",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "119 Hidden Ponds Cir Smithtown Ny",
+    "addr_core": "119 hidden",
+    "property_id": "ent_prop_0800132020100119000",
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "119 Hidden Ponds Cir Smithtown Ny\\119 Hidden Ponds Circle_Update Search 2026.pdf",
+        "sha": "61d8efe59a7c",
+        "new": true
+      },
+      {
+        "file": "119 Hidden Ponds Cir Smithtown Ny\\119 Hidden Ponds Circle_Update Search.pdf",
+        "sha": "158459e25832",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "12 Mallard Path Coram Ny",
+    "addr_core": "12 mallard",
+    "property_id": "ent_prop_0200316000900027000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "12 Mallard Path Coram Ny\\12 Mallard Path_Update Search.pdf",
+        "sha": "cd0d5e732efe",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "12793 Route 23A Prattsville Ny",
+    "addr_core": "12793 route",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "12793 Route 23A Prattsville Ny\\12793 Route 23A_Search Package.pdf",
+        "sha": "964e0aa487d0",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "13 Pine St Elmont Ny",
+    "addr_core": "13 pine",
+    "property_id": "ent_prop_a_13_pine",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "13 Pine St Elmont Ny\\13 Pine ST.pdf",
+        "sha": "874d8066af38",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "132 W 130Th St New York Ny",
+    "addr_core": "132 west 130th",
+    "property_id": "ent_prop_1914146",
+    "n_docfiles": 2,
+    "new": 1,
+    "dup": 1,
+    "files": [
+      {
+        "file": "132 W 130Th St New York Ny\\132 West 130th Street - NEW.pdf",
+        "sha": "7c5274c83b2b",
+        "new": false
+      },
+      {
+        "file": "132 W 130Th St New York Ny\\132 West 130th Street_Search Package.pdf",
+        "sha": "cf13ab78058b",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "135 Raspberry Ct Melville Ny",
+    "addr_core": "135 raspberry",
+    "property_id": "ent_prop_0400267010100083000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "135 Raspberry Ct Melville Ny\\135 Raspberry Court_Update Search.pdf",
+        "sha": "751f11ade962",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "142 Main Ave Wheatley Heights Ny",
+    "addr_core": "142 main",
+    "property_id": "ent_prop_0100013000300037000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "142 Main Ave Wheatley Heights Ny\\142 Main Avenue_Update Search.pdf",
+        "sha": "398cd804de9d",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "159 Woodland Dr Mastic Beach Ny",
+    "addr_core": "159 woodland",
+    "property_id": "ent_prop_0200977000500014000",
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "159 Woodland Dr Mastic Beach Ny\\159 Woodland Drive_Update Search 2026.pdf",
+        "sha": "e1b424c9c585",
+        "new": true
+      },
+      {
+        "file": "159 Woodland Dr Mastic Beach Ny\\159 Woodland Dr_Update Search'.pdf",
+        "sha": "44dd640fa520",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "15Midwoodavenesconsetny11767",
+    "addr_core": "15midwoodavenesconsetny11767",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "15Midwoodavenesconsetny11767\\15 MIDWOOD AVE.pdf",
+        "sha": "85fcc5492ea8",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "166Artistlakedr Middleisland Ny",
+    "addr_core": "166artistlakedr middleisland",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "166Artistlakedr Middleisland Ny\\166 ARTIST LAKE DR.pdf",
+        "sha": "9d4712f94809",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "169 Southfield Rd Baiting Hollow Ny",
+    "addr_core": "169 southfield",
+    "property_id": "ent_prop_0600061000300004000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "169 Southfield Rd Baiting Hollow Ny\\169 Southfield Rd_Update Search.pdf",
+        "sha": "1bf1f1f69752",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "170 W Tiana Rd Hampton Bays Ny",
+    "addr_core": "170 west tiana",
+    "property_id": "ent_prop_0900319000600010000",
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "170 W Tiana Rd Hampton Bays Ny\\170 West Tiana Rd_Update Search 2026.pdf",
+        "sha": "ca4f1e7409cd",
+        "new": true
+      },
+      {
+        "file": "170 W Tiana Rd Hampton Bays Ny\\170 West Tiana Rd_Update Search.pdf",
+        "sha": "4e98bb5d4ec9",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "170Wtianard Hamptonbays Ny",
+    "addr_core": "170wtianard hamptonbays",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "170Wtianard Hamptonbays Ny\\170 W TIANA RD HAMPTON BAYS NY - NEW.pdf",
+        "sha": "766a0e02e6bd",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "182 Laurelton Dr Mastic Beach Ny",
+    "addr_core": "182 laurelton",
+    "property_id": "ent_prop_0200982000900024000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "182 Laurelton Dr Mastic Beach Ny\\182 Laurelton Dr_Update Search.pdf",
+        "sha": "fa7f4869e5f9",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "19 Saint Andrews Dr Brentwood Ny",
+    "addr_core": "19 saint",
+    "property_id": "ent_prop_0500114000100103000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "19 Saint Andrews Dr Brentwood Ny\\19 Saint Andrews Drive_Update Search.pdf",
+        "sha": "fd459ab4927a",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "20 Whitman Ave Islip Ny",
+    "addr_core": "20 whitman",
+    "property_id": "ent_prop_0500319000100064004",
+    "n_docfiles": 3,
+    "new": 2,
+    "dup": 1,
+    "files": [
+      {
+        "file": "20 Whitman Ave Islip Ny\\20 Whitman Ave Islip NY - NEW.pdf",
+        "sha": "66211f388ae3",
+        "new": false
+      },
+      {
+        "file": "20 Whitman Ave Islip Ny\\20 Whitman Ave_Update Search 2026.pdf",
+        "sha": "cbd48c7205ca",
+        "new": true
+      },
+      {
+        "file": "20 Whitman Ave Islip Ny\\20 Whitman Ave_Update Search.pdf",
+        "sha": "e7bc716187c9",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "2006 County St Dighton Ma",
+    "addr_core": "2006 county",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "2006 County St Dighton Ma\\2006 County St_Search Package.pdf",
+        "sha": "9e7d2fb7f8a8",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "230 Ralph Ave Babylon Ny",
+    "addr_core": "230 ralph",
+    "property_id": "ent_prop_0102002000200081000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "230 Ralph Ave Babylon Ny\\230 Ralph_Update Search 2026.pdf",
+        "sha": "e47b2a0bf4c5",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "230 Ralph Babylon Ny",
+    "addr_core": "230 ralph",
+    "property_id": "ent_prop_0102002000200081000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "230 Ralph Babylon Ny\\230 Ralph_Update Search.pdf",
+        "sha": "2138aad2f2d0",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "238N Oak St Massapequa Ny",
+    "addr_core": "238n oak",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "238N Oak St Massapequa Ny\\238 N Oak ST.pdf",
+        "sha": "6b31e5bb5d47",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "24 Long View Dr Wading River Ny",
+    "addr_core": "24 long",
+    "property_id": "ent_prop_0600032000100015000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "24 Long View Dr Wading River Ny\\24 Long View Drive_Update Search.pdf",
+        "sha": "ad44c686a532",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "250 Saint Marks Ave Freeport Ny",
+    "addr_core": "250 saint",
+    "property_id": "ent_prop_a_250_saint",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "250 Saint Marks Ave Freeport Ny\\250 Saint Marks Ave_Update Search Package.pdf",
+        "sha": "07a45d79bb0d",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "26 Appel Dr E Shirley Ny",
+    "addr_core": "26 east appel",
+    "property_id": "ent_prop_0200974600400065000",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "26 Appel Dr E Shirley Ny\\26 Appel Dr E Shirley NY - NEW.pdf",
+        "sha": "9efaa575b343",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "266 Pine Acre Blvd Dix Hills Ny",
+    "addr_core": "266 pine",
+    "property_id": "ent_prop_0400281000200066001",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "266 Pine Acre Blvd Dix Hills Ny\\266 Pine Acres Blvd_Update Search 2026.pdf",
+        "sha": "b6b1be9142e7",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "266 Pine Acres Blvd Dix Hills Ny",
+    "addr_core": "266 pine",
+    "property_id": "ent_prop_0400281000200066001",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "266 Pine Acres Blvd Dix Hills Ny\\266 Pine Acres Blvd_Update Search.pdf",
+        "sha": "d91e0a68af49",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "27 W Smith St Amityville Ny",
+    "addr_core": "27 west smith",
+    "property_id": "ent_prop_0100165000100092000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "27 W Smith St Amityville Ny\\27 West Smith Street_Update Search.pdf",
+        "sha": "abb99a52f43a",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "279 Southaven Ave Medford Ny",
+    "addr_core": "279 southaven",
+    "property_id": "ent_prop_0200841000500019000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "279 Southaven Ave Medford Ny\\279 Southaven Avenue_Search Package.pdf",
+        "sha": "1459fcda15e0",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "294 Leaf",
+    "addr_core": "294 leaf",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "294 Leaf\\Title Report 294 Leaf.pdf",
+        "sha": "861d774667a6",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "30 Steele Brook Rd Watertown Ct",
+    "addr_core": "30 steele",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "30 Steele Brook Rd Watertown Ct\\30 Steele Brook Rd_Search Package.pdf",
+        "sha": "f3cc4230db5e",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "30 Truxton Rd Island Park Ny",
+    "addr_core": "30 truxton",
+    "property_id": "ent_prop_0043000270000024",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "30 Truxton Rd Island Park Ny\\30 Truxton Road_Search Package.pdf",
+        "sha": "6580ea50472a",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "30170 Main Rd Cutchogue Ny",
+    "addr_core": "30170 main",
+    "property_id": "ent_prop_1000102000300008000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "30170 Main Rd Cutchogue Ny\\30170 Main Road_Search Package.pdf",
+        "sha": "83623977e0e4",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "306 Dogwood Rd W Mastic Beach Ny",
+    "addr_core": "306 west dogwood",
+    "property_id": "ent_prop_0200982000900050000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "306 Dogwood Rd W Mastic Beach Ny\\306 Dogwood Road W_Search Package.pdf",
+        "sha": "e26a22c1e59d",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "31 Fort Hill Dr Lloyd Harbor Ny",
+    "addr_core": "31 fort",
+    "property_id": "ent_prop_0403006000200032002",
+    "n_docfiles": 3,
+    "new": 3,
+    "dup": 0,
+    "files": [
+      {
+        "file": "31 Fort Hill Dr Lloyd Harbor Ny\\31 Fort Hill Dr_Search Package.pdf",
+        "sha": "6f2e1484d201",
+        "new": true
+      },
+      {
+        "file": "31 Fort Hill Dr Lloyd Harbor Ny\\31 Fort Hill Dr_Update Search 2026.pdf",
+        "sha": "a34e2dd278d4",
+        "new": true
+      },
+      {
+        "file": "31 Fort Hill Dr Lloyd Harbor Ny\\31 Fort Hill Dr_Update Search.pdf",
+        "sha": "900fdca9fa49",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "31 Pineview",
+    "addr_core": "31 pineview",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "31 Pineview\\Title Report 31 Pineview.pdf",
+        "sha": "6ad65405473f",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "31 Pineview Blvd Central Islip Ny",
+    "addr_core": "31 pineview",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "31 Pineview Blvd Central Islip Ny\\31 Pineview Blvd, Central Islip, NY.pdf",
+        "sha": "4da5b4e84d05",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "31F0",
+    "addr_core": "31f0",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "31F0\\31F0 - Index.pdf",
+        "sha": "9bd44721333d",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "31Fo",
+    "addr_core": "31fo",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "31Fo\\31FO - Index.pdf",
+        "sha": "30341c6b9131",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "33 Olive St Huntington Station Ny",
+    "addr_core": "33 olive",
+    "property_id": "ent_prop_0400099000100052000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "33 Olive St Huntington Station Ny\\33 Olive St_Search Package.pdf",
+        "sha": "5fb6fc46d34e",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "38 Parkside Ave Miller Pl Ny",
+    "addr_core": "38 parkside",
+    "property_id": "ent_prop_0200099000200015000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "38 Parkside Ave Miller Pl Ny\\38 Parkside Avenue_Search Package.pdf",
+        "sha": "a407ec8f5190",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "38 Warren St Whippany Nj",
+    "addr_core": "38 warren",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "38 Warren St Whippany Nj\\38 Warren St_Search Package.pdf",
+        "sha": "29762a06bb2f",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "39 Pilgrim Path Huntington Ny",
+    "addr_core": "39 pilgrim",
+    "property_id": "ent_prop_0400065000300040000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "39 Pilgrim Path Huntington Ny\\39 Pilgrim Path_Search Package.pdf",
+        "sha": "5580c9031bf2",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "4 Calverton Ct Calverton Ny",
+    "addr_core": "4 calverton",
+    "property_id": "ent_prop_0600115010100016000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "4 Calverton Ct Calverton Ny\\4 Calverton Ct_Search Package.pdf",
+        "sha": "db4cff3bd1b0",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "40 Dollard Dr N Babylon Ny",
+    "addr_core": "40 north dollard",
+    "property_id": "ent_prop_0100112000400006000",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "40 Dollard Dr N Babylon Ny\\40 Dollard Dr N. Babylon NY - NEW.pdf",
+        "sha": "3e63f41a2fb2",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "41 Hartman Hill Rd Huntington Ny",
+    "addr_core": "41 hartman",
+    "property_id": "ent_prop_472689189373",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "41 Hartman Hill Rd Huntington Ny\\41 HARTMAN HILL RD.pdf",
+        "sha": "cd12988e7277",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "45 Sarah Dr Farmingdale Ny",
+    "addr_core": "45 sarah",
+    "property_id": "ent_prop_0100007000100013000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "45 Sarah Dr Farmingdale Ny\\45 Sarah Drive_Update Search 2026.pdf",
+        "sha": "654fb7a0159e",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "45 Willow St Central Islip Ny",
+    "addr_core": "45 willow",
+    "property_id": "ent_prop_0500143000200062000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "45 Willow St Central Islip Ny\\45 Willow Street_Search Package.pdf",
+        "sha": "1b5dae44c7c6",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "47 Wilson Ave Middle Island Ny",
+    "addr_core": "47 wilson",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "47 Wilson Ave Middle Island Ny\\47 Wilson Ave title report Jan 23, 2024.pdf",
+        "sha": "14c8be8730d4",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "487 Wicks Rd Brentwood Ny",
+    "addr_core": "487 wicks",
+    "property_id": "ent_prop_0500049000100001000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "487 Wicks Rd Brentwood Ny\\487 Wicks Road_Search Package.pdf",
+        "sha": "66b650f56411",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "4991 Express Dr N Ronkonkoma Ny",
+    "addr_core": "4991 north express",
+    "property_id": "ent_prop_0200762000400035000",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "4991 Express Dr N Ronkonkoma Ny\\4991 Express DR N.pdf",
+        "sha": "0044031447b5",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "49Tulipgroverd Lakegrove Ny",
+    "addr_core": "49tulipgroverd lakegrove",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "49Tulipgroverd Lakegrove Ny\\49 Tulip Grove DR.pdf",
+        "sha": "b2e12b9f15df",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "5161 Granny White Pike Nashville Tn",
+    "addr_core": "5161 granny",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "5161 Granny White Pike Nashville Tn\\5161 Granny White.pdf",
+        "sha": "c2f34f64b466",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "58 Pine Hollow Rd Oysterbayny",
+    "addr_core": "58 pine",
+    "property_id": "ent_prop_2489240008410",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "58 Pine Hollow Rd Oysterbayny\\58 Pine Hollow Rd.pdf",
+        "sha": "3ef2391f6597",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "59 Beecher Ave E Islip Ny",
+    "addr_core": "59 east beecher",
+    "property_id": "ent_prop_0500322000100012000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "59 Beecher Ave E Islip Ny\\59 Beecher Avenue_Search Package.pdf",
+        "sha": "510c2f2ed296",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "59 Whittier Dr Mastic Beach Ny",
+    "addr_core": "59 whittier",
+    "property_id": "ent_prop_0200979100900012000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "59 Whittier Dr Mastic Beach Ny\\59 Whittier Drive_Search Package.pdf",
+        "sha": "015437978ca1",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "6 Vineyard Way Mt Sinai Ny",
+    "addr_core": "6 vineyard",
+    "property_id": "ent_prop_0200094000600005000",
+    "n_docfiles": 3,
+    "new": 2,
+    "dup": 1,
+    "files": [
+      {
+        "file": "6 Vineyard Way Mt Sinai Ny\\6 Vineyard Way - NEW.pdf",
+        "sha": "1f89a5eafe59",
+        "new": false
+      },
+      {
+        "file": "6 Vineyard Way Mt Sinai Ny\\6 Vineyard Way_Search Package.pdf",
+        "sha": "c81670c4eef5",
+        "new": true
+      },
+      {
+        "file": "6 Vineyard Way Mt Sinai Ny\\6 Vineyard Way_Update Search 2026.pdf",
+        "sha": "ee72c94fd1ef",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "60 Central Park Huntington Ny",
+    "addr_core": "60 central",
+    "property_id": "ent_prop_0400095000300068000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "60 Central Park Huntington Ny\\60 Central Pkwy_Search Package.pdf",
+        "sha": "5bdb45d4ac19",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "60 Central Pkwy Huntington Ny",
+    "addr_core": "60 central",
+    "property_id": "ent_prop_0400095000300068000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "60 Central Pkwy Huntington Ny\\60 Central Pkwy_Update Search 2026.pdf",
+        "sha": "535ed6facda4",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "63 Grape Ln Hicksville Ny",
+    "addr_core": "63 grape",
+    "property_id": "ent_prop_a_63_grape",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "63 Grape Ln Hicksville Ny\\63 Grape LN.pdf",
+        "sha": "e17a93ae7b31",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "633 W End Dr Medford Ny",
+    "addr_core": "633 west end",
+    "property_id": "ent_prop_0200630200100633000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "633 W End Dr Medford Ny\\633 West End Drive_Search Package.pdf",
+        "sha": "9e1962d9cb64",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "633Westenddrmedfordny",
+    "addr_core": "633westenddrmedfordny",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "633Westenddrmedfordny\\633 West End Drive Medford NY - NEW.pdf",
+        "sha": "a759b9c7818f",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "64 N 16Th St Wheatley Heights Ny",
+    "addr_core": "64 north 16th",
+    "property_id": "ent_prop_0100039000200131001",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "64 N 16Th St Wheatley Heights Ny\\64 North 16th Street_Search Package.pdf",
+        "sha": "db6b8e4ccf51",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "64 N 16Th St Wyandanch Ny",
+    "addr_core": "64 north 16th",
+    "property_id": "ent_prop_0100039000200131001",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "64 N 16Th St Wyandanch Ny\\64 N 16Th St_Search Package.pdf",
+        "sha": "2b2bb30acbf9",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "724 Old Post Rd New Paltz Ny",
+    "addr_core": "724 old",
+    "property_id": "ent_prop_220007100200020422000000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "724 Old Post Rd New Paltz Ny\\724 Old Post Road_Search Package.pdf",
+        "sha": "0d228c2cde11",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "79 Philip St Riverhead Ny",
+    "addr_core": "79 philip",
+    "property_id": "ent_prop_0600106000100021000",
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "79 Philip St Riverhead Ny\\79 Philip St - NEW.pdf",
+        "sha": "bde8f7d44fff",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "79 Philips St Riverhead Ny",
+    "addr_core": "79 philips",
+    "property_id": "ent_prop_0600106000100021000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "79 Philips St Riverhead Ny\\79 Philips Street_Search Package.pdf",
+        "sha": "0e352f05608a",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "7Filmore Ave Coram Ny",
+    "addr_core": "7filmore coram",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "7Filmore Ave Coram Ny\\7 Filmore AVE.pdf",
+        "sha": "c280d01b7260",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "8 Goose Hill Rd Cold Spring Harbor Ny",
+    "addr_core": "8 goose",
+    "property_id": "ent_prop_0400017000200026000",
+    "n_docfiles": 4,
+    "new": 2,
+    "dup": 2,
+    "files": [
+      {
+        "file": "8 Goose Hill Rd Cold Spring Harbor Ny\\8 Goose Hill Rd Cold Spring Harbor NY - NEW.pdf",
+        "sha": "c8b09fcd3617",
+        "new": false
+      },
+      {
+        "file": "8 Goose Hill Rd Cold Spring Harbor Ny\\8 Goose Hill Rd_Search Package.pdf",
+        "sha": "7db6c7eed831",
+        "new": true
+      },
+      {
+        "file": "8 Goose Hill Rd Cold Spring Harbor Ny\\8 Goose Hill Road_Update Search 2026.pdf",
+        "sha": "acfa1d5cdcf0",
+        "new": true
+      },
+      {
+        "file": "8 Goose Hill Rd Cold Spring Harbor Ny\\Title Report 8 Goose Hill - 1st page.pdf",
+        "sha": "8a82fd80664e",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "8 Heron Path Coram Ny",
+    "addr_core": "8 heron",
+    "property_id": "ent_prop_0200316000800014000",
+    "n_docfiles": 3,
+    "new": 2,
+    "dup": 1,
+    "files": [
+      {
+        "file": "8 Heron Path Coram Ny\\8 Heron Path Coram NY - NEW.pdf",
+        "sha": "bc922e50f339",
+        "new": false
+      },
+      {
+        "file": "8 Heron Path Coram Ny\\8 Heron Path_Search Package.pdf",
+        "sha": "fabf704df2b1",
+        "new": true
+      },
+      {
+        "file": "8 Heron Path Coram Ny\\8 Heron Path_Update Search 2026.pdf",
+        "sha": "a363fd87155a",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "8 Sheridan Rd Babylon Ny",
+    "addr_core": "8 sheridan",
+    "property_id": "ent_prop_0100231000300063000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "8 Sheridan Rd Babylon Ny\\8 Sheridan Road_Search Package.pdf",
+        "sha": "6a16c697c617",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "8 Stanley Dr Shirley Ny",
+    "addr_core": "8 stanley",
+    "property_id": "ent_prop_0200983300800009000",
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "8 Stanley Dr Shirley Ny\\8 Stanley Drive_Search Package.pdf",
+        "sha": "8f0c647b79fe",
+        "new": true
+      },
+      {
+        "file": "8 Stanley Dr Shirley Ny\\8 Stanley Drive_Update Search 2026.pdf",
+        "sha": "f082df09b530",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "82 Powell Ave Southampton Ny",
+    "addr_core": "82 powell",
+    "property_id": "ent_prop_0904009000200034000",
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "82 Powell Ave Southampton Ny\\82 Powell Avenue_Search Package.pdf",
+        "sha": "1afef3f64007",
+        "new": true
+      },
+      {
+        "file": "82 Powell Ave Southampton Ny\\82 Powell Avenue_Update Search 2026.pdf",
+        "sha": "947d288f46ec",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "83 Ann Dr S Freeport Ny",
+    "addr_core": "83 south ann",
+    "property_id": "ent_prop_6220351",
+    "n_docfiles": 3,
+    "new": 2,
+    "dup": 1,
+    "files": [
+      {
+        "file": "83 Ann Dr S Freeport Ny\\83 Ann Dr S_Update Search.pdf",
+        "sha": "8aba106f674a",
+        "new": true
+      },
+      {
+        "file": "83 Ann Dr S Freeport Ny\\83 Ann Drive S - NEW.pdf",
+        "sha": "4d496723f230",
+        "new": false
+      },
+      {
+        "file": "83 Ann Dr S Freeport Ny\\83 S Ann Drive_Update Search 2026.pdf",
+        "sha": "828606c785f1",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "83 Ann Dr S S Freeport Ny",
+    "addr_core": "83 south ann",
+    "property_id": "ent_prop_6220351",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "83 Ann Dr S S Freeport Ny\\83 Ann Dr S #S_Search Package.pdf",
+        "sha": "98b0638f0826",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "83 S Ann Dr Freeport Ny",
+    "addr_core": "83 south ann",
+    "property_id": "ent_prop_6220351",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "83 S Ann Dr Freeport Ny\\83 S Ann Drive_Search Package.pdf",
+        "sha": "ef71a8540eca",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "85 Hudson St Kingston Ny",
+    "addr_core": "85 hudson",
+    "property_id": "ent_prop_080005605000020080000000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "85 Hudson St Kingston Ny\\85 Hudson Street_Search Package.pdf",
+        "sha": "02404baaf283",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "9 Marshall Ave Mohawk Ny",
+    "addr_core": "9 marshall",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "9 Marshall Ave Mohawk Ny\\9 Marshall Ave_Search Package.pdf",
+        "sha": "df69ffc930da",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "904Bayshoredr Terraceia Fl",
+    "addr_core": "904bayshoredr terraceia",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 0,
+    "dup": 1,
+    "files": [
+      {
+        "file": "904Bayshoredr Terraceia Fl\\904 Bayshore Dr.pdf",
+        "sha": "f652d194ba12",
+        "new": false
+      }
+    ]
+  },
+  {
+    "folder": "91 Gordon Ave W Babylon Ny",
+    "addr_core": "91 west gordon",
+    "property_id": "ent_prop_0100103000100062000",
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "91 Gordon Ave W Babylon Ny\\91 Gordon Avenue_Update Search 2026.pdf",
+        "sha": "2437a3014f66",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "91 W Shore Rd Huntington Ny",
+    "addr_core": "91 west shore",
+    "property_id": "ent_prop_0400026000200048000",
+    "n_docfiles": 3,
+    "new": 3,
+    "dup": 0,
+    "files": [
+      {
+        "file": "91 W Shore Rd Huntington Ny\\91 W Shore Rd_Search Package.pdf",
+        "sha": "06d1fa81aee3",
+        "new": true
+      },
+      {
+        "file": "91 W Shore Rd Huntington Ny\\91 West Shore Road_Search Package.pdf",
+        "sha": "bb38f8bea6ef",
+        "new": true
+      },
+      {
+        "file": "91 W Shore Rd Huntington Ny\\91 West Shore Road_Update Search 2026.pdf",
+        "sha": "de62cae461e7",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "County Highway 9 Schenevus Ny",
+    "addr_core": "county highway",
+    "property_id": null,
+    "n_docfiles": 2,
+    "new": 2,
+    "dup": 0,
+    "files": [
+      {
+        "file": "County Highway 9 Schenevus Ny\\122600-009-000-0001-037-110_Search Package.pdf",
+        "sha": "c5952ec9146d",
+        "new": true
+      },
+      {
+        "file": "County Highway 9 Schenevus Ny\\122600-009-000-0001-037-120_Search Package.pdf",
+        "sha": "301333d695a3",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "Loft Rd Maryland Ny",
+    "addr_core": "loft maryland",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "Loft Rd Maryland Ny\\Loft Rd_Search Package.pdf",
+        "sha": "4e26edd741c6",
+        "new": true
+      }
+    ]
+  },
+  {
+    "folder": "Parker Rd Edmeston Ny",
+    "addr_core": "parker edmeston",
+    "property_id": null,
+    "n_docfiles": 1,
+    "new": 1,
+    "dup": 0,
+    "files": [
+      {
+        "file": "Parker Rd Edmeston Ny\\Parker Rd_Search Package.pdf",
+        "sha": "0ada3149570f",
+        "new": true
+      }
+    ]
+  }
+]

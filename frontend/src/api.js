@@ -28,6 +28,7 @@ export const getDashboard = () => api.get("/api/dashboard/stats");
 export const getProperties = (params = {}) =>
   api.get("/api/portfolio/properties", { params });
 export const getProperty = (id) => api.get(`/api/properties/${id}`);
+export const getPropertyGraph = (id) => api.get(`/api/properties/${id}/graph`);
 export const getEvidencePacket = (id) =>
   api.get(`/api/properties/${id}/evidence-packet`);
 export const getFindings = (params = {}) => api.get("/api/findings", { params });

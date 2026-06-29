@@ -212,6 +212,13 @@ _VISION_DISABLED_FOR_RUN = False
 _VISION_DISABLED_REASON = ""
 _DISABLE_LOCK = threading.Lock()
 
+# When Claude credits are exhausted we DO NOT drop to RapidOCR — we switch the
+# whole run to the GPT-5 frontier vision model so OCR stays frontier-only
+# (Claude Sonnet 4.6 -> GPT-5). This is the user's hard requirement for
+# court-grade documents (title reports etc.).
+_PREFER_OPENAI_FOR_RUN = False
+_PREFER_OPENAI_REASON = ""
+
 
 def _disable_vision_for_run(reason: str) -> None:
     global _VISION_DISABLED_FOR_RUN, _VISION_DISABLED_REASON
@@ -223,6 +230,24 @@ def _disable_vision_for_run(reason: str) -> None:
                 f"Claude Vision disabled for the rest of this run: {reason}. "
                 f"All remaining OCR pages will use RapidOCR."
             )
+
+
+def _prefer_openai_for_run(reason: str) -> None:
+    """Switch the run to GPT-5 vision (frontier) for all remaining pages instead
+    of disabling vision / dropping to RapidOCR."""
+    global _PREFER_OPENAI_FOR_RUN, _PREFER_OPENAI_REASON
+    with _DISABLE_LOCK:
+        if not _PREFER_OPENAI_FOR_RUN:
+            _PREFER_OPENAI_FOR_RUN = True
+            _PREFER_OPENAI_REASON = reason
+            logger.warning(
+                f"Switching OCR to GPT-5 frontier vision for the rest of this run: "
+                f"{reason}. Frontier-only policy preserved (no RapidOCR)."
+            )
+
+
+def prefer_openai_active() -> bool:
+    return _PREFER_OPENAI_FOR_RUN
 
 
 def is_vision_disabled() -> Tuple[bool, str]:
@@ -448,29 +473,43 @@ def _ocr_page_via_openai(img: "Image.Image") -> Optional[str]:
         # gpt-5 is a REASONING model: without explicit room it can burn the
         # whole completion budget on reasoning and return EMPTY content (while
         # still billing us). minimal effort + large cap fixes that for OCR.
-        resp = client.chat.completions.create(
-            model=_OPENAI_OCR_MODEL,
-            reasoning_effort="minimal",
-            max_completion_tokens=16384,
-            messages=[
-                {"role": "system", "content": _OCR_SYSTEM_PROMPT},
-                {"role": "user", "content": [
-                    {"type": "text", "text": "Transcribe this page."},
-                    {"type": "image_url",
-                     "image_url": {"url": f"data:{media_type};base64,{b64}"}},
-                ]},
-            ],
-        )
-        ch = resp.choices[0]
-        txt = (ch.message.content or "").strip()
-        if not txt:
+        # If a dense page still hits finish_reason='length' with empty output,
+        # we retry with a progressively larger token cap so a Claude-rejected
+        # page is NEVER silently dropped to RapidOCR.
+        for cap in (16384, 32768, 65536):
+            resp = client.chat.completions.create(
+                model=_OPENAI_OCR_MODEL,
+                reasoning_effort="minimal",
+                max_completion_tokens=cap,
+                messages=[
+                    {"role": "system", "content": _OCR_SYSTEM_PROMPT},
+                    {"role": "user", "content": [
+                        {"type": "text", "text": "Transcribe this page."},
+                        {"type": "image_url",
+                         "image_url": {"url": f"data:{media_type};base64,{b64}"}},
+                    ]},
+                ],
+            )
+            ch = resp.choices[0]
+            txt = (ch.message.content or "").strip()
+            if txt:
+                return txt
+            # Empty: if we ran out of room (finish_reason='length'), bump the
+            # cap and try again; any other finish_reason won't be helped by it.
+            if ch.finish_reason == "length" and cap != 65536:
+                logger.warning(
+                    f"  OpenAI vision empty (finish_reason=length) at cap={cap}; "
+                    f"retrying with a larger token cap"
+                )
+                continue
             # NEVER fail silently — this exact path hid 154 empty responses.
             logger.warning(
                 f"  OpenAI vision returned EMPTY content "
-                f"(finish_reason={ch.finish_reason}, refusal={getattr(ch.message, 'refusal', None)})"
+                f"(finish_reason={ch.finish_reason}, "
+                f"refusal={getattr(ch.message, 'refusal', None)})"
             )
             return None
-        return txt
+        return None
     except Exception as exc:  # noqa: BLE001
         logger.warning(f"  OpenAI vision OCR fallback failed: {str(exc)[:160]}")
         return None
@@ -523,6 +562,16 @@ def ocr_pages_via_claude(
     pages_out: List[Optional[VisionPage]] = [None] * len(images)
 
     def _worker(slot: int, page_no: int, img: Image.Image) -> None:
+        # If the run already switched to GPT-5 (Claude credits exhausted), use
+        # the frontier OpenAI model directly — never RapidOCR.
+        if prefer_openai_active():
+            alt = _ocr_page_via_openai(img)
+            pages_out[slot] = VisionPage(
+                page_no=page_no, text=(alt or ""),
+                method=("openai_vision" if alt else "vision_failed"),
+                ocr_confidence=(0.95 if alt else 0.0),
+            )
+            return
         # Re-check the disable flag (another worker may have just tripped it).
         disabled, _ = is_vision_disabled()
         if disabled:
@@ -551,9 +600,16 @@ def ocr_pages_via_claude(
         except Exception as exc:
             err = str(exc)
             if "low_credit" in err or "credit" in err.lower():
-                _disable_vision_for_run("Anthropic credit balance exhausted")
+                # Claude credits exhausted -> switch the whole run to GPT-5
+                # frontier vision (NOT RapidOCR) and transcribe this page now.
+                _prefer_openai_for_run("Anthropic credit balance exhausted")
+                alt = _ocr_page_via_openai(img)
+                if alt:
+                    logger.info(f"  page {page_no}: transcribed via GPT-5 vision ({len(alt)} chars)")
                 pages_out[slot] = VisionPage(
-                    page_no=page_no, text="", method="vision_failed", ocr_confidence=0.0
+                    page_no=page_no, text=(alt or ""),
+                    method=("openai_vision" if alt else "vision_failed"),
+                    ocr_confidence=(0.95 if alt else 0.0),
                 )
                 return
             # Per-page failure (esp. content_filter false-positive): try a

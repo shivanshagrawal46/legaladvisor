@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from api.auth import User, get_current_user
 from api.rag_singleton import get_mongo
-from src.timeline.builder import timeline_for, flow_of_funds, evidence_packet
+from src.timeline.builder import timeline_for, flow_of_funds, evidence_packet, property_graph
 
 router = APIRouter(prefix="/api", tags=["sprint8"])
 
@@ -166,6 +166,14 @@ async def property_detail(property_id: str, _: User = Depends(get_current_user))
             "high": sum(1 for f in findings if f.get("severity") == "high"),
         },
     }
+
+
+@router.get("/properties/{property_id}/graph")
+async def property_graph_view(property_id: str, _: User = Depends(get_current_user)):
+    """Interactive property-map payload: mortgages/encumbrances/conveyances by
+    year, title-report version chain, every linked doc, the money-records graph,
+    ownership intervals and the cited event timeline."""
+    return property_graph(get_mongo(), property_id=property_id)
 
 
 @router.get("/properties/{property_id}/evidence-packet")

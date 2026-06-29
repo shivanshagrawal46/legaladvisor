@@ -2,7 +2,7 @@
 Anthropic Contextual Retrieval — per-chunk summary generator.
 
 For each chunk of a document, we ask Claude Sonnet 4.6 to write a short
-(50-100 token) summary explaining what the chunk is about and how it
+(100-150 token) summary explaining what the chunk is about and how it
 fits in the overall document. This summary is prepended to the chunk
 text before embedding, which gives the embedder enough context to
 embed the chunk in *roughly the right semantic neighbourhood* even if
@@ -24,7 +24,7 @@ Public API
       chunk_texts=["<chunk1>", "<chunk2>", ...],
   )
   # ctx_strings is a list of strings the same length as chunk_texts.
-  # Each is ~50-100 tokens of plain text. Empty string on failure.
+  # Each is ~100-150 tokens of plain text. Empty string on failure.
 
 Failure mode
 ------------
@@ -79,7 +79,7 @@ _SYSTEM_PROMPT = (
 _CHUNK_INSTRUCTION = (
     "Above is the full document. Below is one chunk from it.\n\n"
     "<chunk>\n{chunk_text}\n</chunk>\n\n"
-    "Write a 50-100 token context that situates this chunk within the "
+    "Write a 100-150 token context that situates this chunk within the "
     "document. Include any of the following that are present and "
     "relevant: document type (email, contract, settlement, court "
     "filing, voicemail transcript, spreadsheet, etc.), date or "

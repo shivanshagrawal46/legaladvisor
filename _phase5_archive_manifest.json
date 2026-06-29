@@ -1,0 +1,1574 @@
+{
+ "files": [
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\10 Panorama Dr, Huntington Settlement Sheet   MT.xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\10 Panorama Dr, Huntington Settlement Sheet   MT.xls",
+   "ext": ".xls",
+   "size": 29696,
+   "sha256": "db6fdc2721ad37f46bc8a831504baca066525d6ae96bb6096f1e8d7c90fe14cc",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\10 Panorama, Huntington.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\10 Panorama, Huntington.pdf",
+   "ext": ".pdf",
+   "size": 286367,
+   "sha256": "ff1d74e9acc07efe4ba502f6666ebc0e20c0d8fc7b644d770cf43f6cac6e5919",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\118 Stuyvesant Dr, Port Jefferson Sta Settlement Sheet   MT.xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\118 Stuyvesant Dr, Port Jefferson Sta Settlement Sheet   MT.xls",
+   "ext": ".xls",
+   "size": 27648,
+   "sha256": "0e17b31b410b9c3e9722f9c0e9a9b87836b2db738f6f2abf1b087010e1a9a9ff",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\118 Stuyvesant, Port Jefferson.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\118 Stuyvesant, Port Jefferson.pdf",
+   "ext": ".pdf",
+   "size": 288872,
+   "sha256": "4eb11c7a937e877022f0b3a87ceea24dcd20cbd5728e7e557e3b771f6552b1f7",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\1308 Utica Ave, Brooklyn Settlement Sheet       Mangotree.xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\1308 Utica Ave, Brooklyn Settlement Sheet       Mangotree.xls",
+   "ext": ".xls",
+   "size": 31232,
+   "sha256": "13a077e22a75d90ba9b2365d0f791cf4350e51d773769679f9f5fd64199f1d83",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\1308 Utica Ave, Brooklyn.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\1308 Utica Ave, Brooklyn.pdf",
+   "ext": ".pdf",
+   "size": 288318,
+   "sha256": "86e295612701aa68b5c73ccf8d202e6706fa58f63657079e75b74298cedb9c33",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\145 Hunters Dr, Syosset Settlement Sheet   MT .xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\145 Hunters Dr, Syosset Settlement Sheet   MT .xls",
+   "ext": ".xls",
+   "size": 27648,
+   "sha256": "fd9d575f3ca251cf678b0dc519e4f5997eac03aa99984534b02f6f5a9fa8b5d8",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\145 Hunters Dr, Syosset.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\145 Hunters Dr, Syosset.pdf",
+   "ext": ".pdf",
+   "size": 289733,
+   "sha256": "bec2b630e7d2e67abeddb7a82f81399a73a20a2a20e5f4673d13d7677b14ab1c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\162 N Coates Ave, Holbrook Settlement Sheet       Mangotree.xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\162 N Coates Ave, Holbrook Settlement Sheet       Mangotree.xls",
+   "ext": ".xls",
+   "size": 33792,
+   "sha256": "c01d748c162becf28f51d2b8405bf816ef6882ade5be6e19f2b623a8d7b99434",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\162 N Coates Ave, Holbrook.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\162 N Coates Ave, Holbrook.pdf",
+   "ext": ".pdf",
+   "size": 286691,
+   "sha256": "277e95a63f2a66b08d839a2cf53a459a2f4f118219509afe72965868f7e682e6",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\22-21 120th St, College Point Settlement Sheet   MT .xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\22-21 120th St, College Point Settlement Sheet   MT .xls",
+   "ext": ".xls",
+   "size": 27136,
+   "sha256": "c689330b5e8e9707c6b9871027688f1116792ba6aed551d52007cff801ba960f",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\22-21 120th St, College Point.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\22-21 120th St, College Point.pdf",
+   "ext": ".pdf",
+   "size": 286216,
+   "sha256": "91505f43d7f52932739df2a3421511497c113f8261875eaebceea465bbd71f4c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\2458 Florin Ct, Bellmore Settlement Sheet   MT.xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\2458 Florin Ct, Bellmore Settlement Sheet   MT.xls",
+   "ext": ".xls",
+   "size": 26624,
+   "sha256": "0e376794ae085a5a4bd11e212e6aeacc16337b60bff5efb346b01188cedcadf7",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\2458 Florin Ct, Bellmore.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\2458 Florin Ct, Bellmore.pdf",
+   "ext": ".pdf",
+   "size": 289930,
+   "sha256": "0f17087a35b03d80b2c037c2047c951fa92f746b90853f2f8b2a79829609366d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\289 Dales Bridge Settlement Sheet.xlsx",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\289 Dales Bridge Settlement Sheet.xlsx",
+   "ext": ".xlsx",
+   "size": 13191,
+   "sha256": "c32a19a07875594be2af6c11f93a4de2e3629189ed802eba3de62f121a7f6c5f",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\32 Hamlet, Hauppauge  _2    Settlement Sheet  MT.xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\32 Hamlet, Hauppauge  _2    Settlement Sheet  MT.xls",
+   "ext": ".xls",
+   "size": 27648,
+   "sha256": "162f82bcd2ce213cd60bf06f7c0e6ff4681dd7f9e273cec8d62793585da54a7a",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\32 Hamlet, Hauppauge.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\32 Hamlet, Hauppauge.pdf",
+   "ext": ".pdf",
+   "size": 283158,
+   "sha256": "6588356fab8d77b5c6f98bf33cffd9cb7df5c3a2d2b9ce209bb65ea4e421332f",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\33 Bedford St Wyandanch Settlement Sheet   MT .pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\33 Bedford St Wyandanch Settlement Sheet   MT .pdf",
+   "ext": ".pdf",
+   "size": 80042,
+   "sha256": "c7cc122b458ba03713e077fc68cd71901930e1d050a57c15dcefbcfd0944e336",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\33 Bedford St, Wyandanch.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\33 Bedford St, Wyandanch.pdf",
+   "ext": ".pdf",
+   "size": 283958,
+   "sha256": "b1dea4ac3d32ad033e9e2e27b51d16fc57c4ac00805597e079c8fa3f8fa8e04d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\38 Thomas Ln E Setauket Settlement Sheet   MT  (002).xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\38 Thomas Ln E Setauket Settlement Sheet   MT  (002).xls",
+   "ext": ".xls",
+   "size": 25600,
+   "sha256": "f260868b03bb6980a4af2420e2c391f811405595ed86f38df331e05ce4d849c1",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\38 Thomas Ln, E Setauket.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\38 Thomas Ln, E Setauket.pdf",
+   "ext": ".pdf",
+   "size": 284164,
+   "sha256": "8f7c16f71482ffdc5b76442e4b8d1120467946c8f893be94a668e9e7553b857a",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\51 Valentine Glen Cove Settlement Sheet   MT  (002).xls",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\51 Valentine Glen Cove Settlement Sheet   MT  (002).xls",
+   "ext": ".xls",
+   "size": 25600,
+   "sha256": "afea6ad5c5da683cb952c29b3a4c086f9480ff9728ca5f86152fcf26f5fbc7e7",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\Settlement sheets with email\\Settlement sheets with email\\51 Valentine Glen Cove.pdf",
+   "rel": "Settlement sheets with email.rar/Settlement sheets with email\\51 Valentine Glen Cove.pdf",
+   "ext": ".pdf",
+   "size": 283297,
+   "sha256": "4a3b0fbcaf87207610522d5870e0a838e53e83fefd29962148c8a3a50103fac4",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0000_Recorded Deed into 436OF LLC.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/C. 436 OCEANFRONT LONG BEACH NY /Recorded Deed into 436OF LLC.pdf",
+   "ext": ".pdf",
+   "size": 102784,
+   "sha256": "3df4d6c1f445f8cb08a98d09b26f9f47bf2cb17ff14a8eddd84654dadea6ec7a",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0001_DeRosa - Purchase Money Mortgage Old Post (_20).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/E. 724 OLD POST /DeRosa - Purchase Money Mortgage Old Post (_20).pdf",
+   "ext": ".pdf",
+   "size": 82710,
+   "sha256": "710bdcb09601079e18c07adaa4f17ae21f33649ac8e77d0bb2e2cb355a8e6949",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0002_DeRosa Mortgage Note (_20) Old Post.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/E. 724 OLD POST /DeRosa Mortgage Note (_20) Old Post.pdf",
+   "ext": ".pdf",
+   "size": 66888,
+   "sha256": "037d1ae347f295c21e29887fe2c1a9b82b46750ffb52efdf6aca4ed4533d1787",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0003_ExecAOM (30 Truxton).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/D. OPPORTUNITY ZONE PROPERTIES /ExecAOM (30 Truxton).pdf",
+   "ext": ".pdf",
+   "size": 99825,
+   "sha256": "f6a97ff8d49d6120056621c2d573a242e8816977da57b5718b27b2c4993cf672",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0004_ExecDeed (8 Sheridan).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/D. OPPORTUNITY ZONE PROPERTIES /ExecDeed (8 Sheridan).pdf",
+   "ext": ".pdf",
+   "size": 101230,
+   "sha256": "b39ce18fccadb5dc3d836dfb6d3f05d3729c3e7f8829ee674b7516ec19761a37",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0005_1 - 1184 Lakeland, Bohemia Settlement Sheet Original Mangotree.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/B. 1184 LAKELAND /1 - 1184 Lakeland, Bohemia Settlement Sheet Original Mangotree.xls",
+   "ext": ".xls",
+   "size": 25088,
+   "sha256": "9646c932be10c6fd4c3723095b044127e6134a8edbb44b6e0ecbe04dd0bb3e4c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0006_3 - 32 Hamlet, Hauppauge Settlement Sheet actual paid by Brian        MT.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/B. 1184 LAKELAND /3 - 32 Hamlet, Hauppauge Settlement Sheet actual paid by Brian        MT.xls",
+   "ext": ".xls",
+   "size": 26624,
+   "sha256": "a6df16119b44907f0ce0de921127cc8089c4151b32b1076e87dd50f7a091c529",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0007_1 - 32 Hamlet Hauppauge  Original  Settlement Sheet  MT.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/B. 1184 LAKELAND /1 - 32 Hamlet Hauppauge  Original  Settlement Sheet  MT.xls",
+   "ext": ".xls",
+   "size": 27648,
+   "sha256": "28d30fd86555a77c13386853b6dfa7000223b63cfe08ecce887c54d9c9ad1ee5",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0008_3 -1184 Lakeland, Bohemia Settlement Sheet Actual paid by Brian     MT.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/B. 1184 LAKELAND /3 -1184 Lakeland, Bohemia Settlement Sheet Actual paid by Brian     MT.xls",
+   "ext": ".xls",
+   "size": 25088,
+   "sha256": "cd376b1796ba440d76b0544fcf01039618e802be89beb6761959416e40e9aa29",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0009_6 Valentine Farm Ct, Old Brookville Settlement Sheet  MT    Revised 2-24-21.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /6 Valentine Farm Ct, Old Brookville Settlement Sheet  MT    Revised 2-24-21.xls",
+   "ext": ".xls",
+   "size": 36352,
+   "sha256": "260d46631eddf232d8b8dedd4f361e37478ce6dc15a3d65c1205910783f78295",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0010_20191205_TITLE CLOSING INVOICE 6 valentine.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /20191205_TITLE CLOSING INVOICE 6 valentine.pdf",
+   "ext": ".pdf",
+   "size": 126519,
+   "sha256": "d536e222c44798811c83b3720ae41f088a7119e9bb504be798404925d1ca74e2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0011_Brokers commision (6 Valentine).docx",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /Brokers commision (6 Valentine).docx",
+   "ext": ".docx",
+   "size": 12538,
+   "sha256": "81a619f9ca57844ad68bda3e6ffea1998c0b3066858b3b498e49d058f036d5c8",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0012_REV Closing Statement Sale (6 Valentine).doc",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /REV Closing Statement Sale (6 Valentine).doc",
+   "ext": ".doc",
+   "size": 42496,
+   "sha256": "c415be15f10dec60856849d35320af124d4fbefb271125472ecd49f20cf1b1c5",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0013_ExecClosing Stmt (Handwritten).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/ExecClosing Stmt (Handwritten).pdf",
+   "ext": ".pdf",
+   "size": 51355,
+   "sha256": "693b96c366f3c6781deb4f34ece00bf3ee5a886d21f154d62864977da6faacc7",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0014_2656 Peconic Ave, Seaford Settlement Sheet     MT.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/2656 Peconic Ave, Seaford Settlement Sheet     MT.xls",
+   "ext": ".xls",
+   "size": 27136,
+   "sha256": "d2ad0f1efe17fcb8694f8edadbd32609c3fdaad8392badc0ebd0e906d18717f3",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0015_6 valentine water bill.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /6 valentine water bill.pdf",
+   "ext": ".pdf",
+   "size": 1024904,
+   "sha256": "af9d87b658bd8d28b8ad55bbe26647cf78c257e4790b579db055c116bedfcd0c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0016_deed 2656 peconic ave, seaford.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/deed 2656 peconic ave, seaford.pdf",
+   "ext": ".pdf",
+   "size": 191668,
+   "sha256": "68642875a61b4964dffab091de06d2731e192968eaf8c85a55b34c15a4000c60",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0017_Transfer Docs - 51 Gaymore.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Transfer Docs - 51 Gaymore.pdf",
+   "ext": ".pdf",
+   "size": 331764,
+   "sha256": "a0039aeb60a6ce60b5345e91746a392c1ee03844f8c02c03a6acd92cb67e5369",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0018_IPE Realty Commission (2656 Peconic).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/IPE Realty Commission (2656 Peconic).pdf",
+   "ext": ".pdf",
+   "size": 40812,
+   "sha256": "173464d233f479d54bcb2cbf1b7fa466a4f71a844ea94d9eda9f34920647d6c2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0019_ExecClosingStatement (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/ExecClosingStatement (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 39359,
+   "sha256": "a5f3a591fd3418c6f198c0894d177a443c44230540113e95cb62fec8408d4031",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0020_Transfer Docs - 2656 Peconic.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/Transfer Docs - 2656 Peconic.pdf",
+   "ext": ".pdf",
+   "size": 316848,
+   "sha256": "46596a3b97ed8daff8f2893b43a1e2d32f0d31ae8bfc3ae2223bad7fb67d6846",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0021_Recorded Deed - 6 Valentine.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /Recorded Deed - 6 Valentine.pdf",
+   "ext": ".pdf",
+   "size": 184565,
+   "sha256": "ff55d7c6fd867ef2f0af4af3ded8578a6aaccd913fdb7e67c005776ee0d67f57",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0022_IPE Realty Broker InvDisclosure (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/IPE Realty Broker InvDisclosure (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 20681,
+   "sha256": "d6d3d56ff4d282ac9d02a75b8024d4069887a47f72feca1384fc397e159f2204",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0023_ExecCOS (6 Valentine).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /ExecCOS (6 Valentine).pdf",
+   "ext": ".pdf",
+   "size": 2164062,
+   "sha256": "cb6e8b8d9333fc69af5d4d513c6cac4e0d80f2b0a0de36406675c9fffdb9318b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0024_02052101.PDF",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/E. 724 OLD POST /02052101.PDF",
+   "ext": ".pdf",
+   "size": 2661581,
+   "sha256": "e3461803fb5a28757dc6fd96ee24c3c31856db66ea23cd4c4b96cf86bf28d5a2",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0025_51 Gaymore Rd, Pt Jefferson Sta Settlement Sheet    MT.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/51 Gaymore Rd, Pt Jefferson Sta Settlement Sheet    MT.xls",
+   "ext": ".xls",
+   "size": 28672,
+   "sha256": "b9fd068346347264d34f0dfbcbd7f67e1e7c7f1f488e58bb2eb43454c6a1418d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0026_deed 51 gaymore rd, port jefferson.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/deed 51 gaymore rd, port jefferson.pdf",
+   "ext": ".pdf",
+   "size": 429321,
+   "sha256": "77743c91c57ceaa0a3878aef59c866d904dc1620fa2e82a8c8a4ca43a3946349",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0027_Initialed_ExecCOS (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Initialed_ExecCOS (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 689264,
+   "sha256": "bc132ee488722d4594081734b022c3d6a2c9a8cf3c82e2c40d24a6fd73910026",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0028_Realty Connect.jpg",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Realty Connect.jpg",
+   "ext": ".jpg",
+   "size": 1914182,
+   "sha256": "9d97e1a974202374ef7ac651b405486fa31c87927644685d7a22ca46648154a3",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0029_Property Output Table.xlsx",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/FH SWAP /Property Output Table.xlsx",
+   "ext": ".xlsx",
+   "size": 10209,
+   "sha256": "bf47cbf5f485276d21385b829fdd8bfa525df63ef8247e98dfbf65c1086d27e6",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0030_ST20-0039 N Amended Title bill 1 26 21.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/ST20-0039 N Amended Title bill 1 26 21.pdf",
+   "ext": ".pdf",
+   "size": 500010,
+   "sha256": "246ebaa5e68b3eef4d099b4c64635c1c31070131c45c26fd543401348df7bbab",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0031_DEED 2034.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/DEED 2034.pdf",
+   "ext": ".pdf",
+   "size": 201603,
+   "sha256": "6cd63d657ca8ba4a8ec12729494af17f47d6ec48ae1bceec292d546d7caa247b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0032_2656 Peconic Closing Statement.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/2656 Peconic Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 435423,
+   "sha256": "66b2aef500f6617d93c598fc68fa65353506a64a0ad4de536ee5ad10d0b13dfa",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0033_TRANSFER DOCS - 2034.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/TRANSFER DOCS - 2034.pdf",
+   "ext": ".pdf",
+   "size": 507747,
+   "sha256": "67862cc00bbf70fd7422cf04c127ae54afe515206c4e9d590cd4f75fee9f8d0c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0034_51 Gaymore Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/51 Gaymore Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 267067,
+   "sha256": "c48a6af0e0dc26629aa96bb707bfcf5bf9fa597075d3d9c03f5e9108cea5dd81",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0035_TransDocs (9 Roda).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /TransDocs (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 315897,
+   "sha256": "dc640073c9cae7907a9946886d5d1167b63a0ef001ba94fae7ba61295e12f77b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0036_ExecCOS wDownPay(2656 Peconic).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/ExecCOS wDownPay(2656 Peconic).pdf",
+   "ext": ".pdf",
+   "size": 1919725,
+   "sha256": "c68926d7a67688d0b8a93d6d5586ff1a179f069bcb15c8c48b1224b1a1bbe4b5",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0037_3 5 21 ExecAmendCOS (9 Roda).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /3 5 21 ExecAmendCOS (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 25513,
+   "sha256": "c95470bd0e450a4890822900fb05ee000fd38780c6f6556df72eaf2b5549cfc2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0038_Payoff Good Through 5 1 21 (9 Roda).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /Payoff Good Through 5 1 21 (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 34691,
+   "sha256": "614e991b7f5d30939b7c1059c23354baf1420ed732dd605c01f71eaffba32ed2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0039_Keller Williams Broker Inv 9 Roda DR.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /Keller Williams Broker Inv 9 Roda DR.pdf",
+   "ext": ".pdf",
+   "size": 65162,
+   "sha256": "bffbd2559797ae8c4fc261e50e2729553845c4bba9ad344cb98fbe9368cda928",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0040_IPE Broker Inv (9 Roda).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /IPE Broker Inv (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 23567,
+   "sha256": "d55a7beae323418f3a3b64073a80c6cc363044422684d2aa6d78f8e5f906ce9d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0041_ExecClosingState (9 Roda) (00369988xBDBF4).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /ExecClosingState (9 Roda) (00369988xBDBF4).pdf",
+   "ext": ".pdf",
+   "size": 32354,
+   "sha256": "0dde30a319e8ebe7c18dfee2d8bea88d5359390af5e8de26d9210af7861e2445",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0042_Title Inv _ Check (2034 Route 44).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/Title Inv _ Check (2034 Route 44).pdf",
+   "ext": ".pdf",
+   "size": 515120,
+   "sha256": "cc8e1d8ce14d970889d0f14c467ab3b226e49875fcaef181764299d6f3875c0b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0043_51 Gaymore Closing Statement.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/51 Gaymore Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 217280,
+   "sha256": "78a1949f95dbe62ece5fd8013d30282907e555858e3597ca0026de7776041b70",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0044_ExecCOS to Fuentes (9 Roda) (00369990xBDBF4).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /ExecCOS to Fuentes (9 Roda) (00369990xBDBF4).pdf",
+   "ext": ".pdf",
+   "size": 1061970,
+   "sha256": "f93deed45472ab1134c6694ace9b633adcd4e977513a893ad75c9af8181d691e",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0045_deed 9 roda drive, mastic.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /deed 9 roda drive, mastic.pdf",
+   "ext": ".pdf",
+   "size": 426498,
+   "sha256": "6d7796595da518cf1d7f4456dbe8b0fdf1759352736e9e4df3d6a56cdcdd96ec",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0046_Title Bill (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Title Bill (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 476557,
+   "sha256": "c56b3d737f92d1c2687094578823fc896cb369608554710208b2f7c5fc8a7730",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0047_2656 Peconic Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/2656 Peconic Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 267841,
+   "sha256": "3e54815aa88dc3fe382b55b3d9d75424a35e1c534baf1bc03191e38a1ef42c45",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0048_9 Roda Dr, Mastic Settlement Sheet     MT (00369992xBDBF4).xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /9 Roda Dr, Mastic Settlement Sheet     MT (00369992xBDBF4).xls",
+   "ext": ".xls",
+   "size": 26112,
+   "sha256": "d64dd50298be688a72e89f5104843c4b0395a8c9edd3a47f6bb23202b7d3d6b9",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0049_9 Roda Island Closing Statement.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /9 Roda Island Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 214301,
+   "sha256": "866cf738353fffb00559cdd70a8c6ff22350f7f1d639f8bc44a2e272105d9176",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0050_2034 Rt 44 Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/2034 Rt 44 Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 284336,
+   "sha256": "db5a26a194124cc024eb31a3f66520f4f0f3bf16de5297b50e8df790c6da7d03",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0051_20210714171145094 (1).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/FH SWAP /20210714171145094 (1).pdf",
+   "ext": ".pdf",
+   "size": 2602546,
+   "sha256": "fd0a9d88197066ba6db3a423077ca27a65cb35847ab1f4e1ba760aa66cc3ca66",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0052_ExecCOS $570,191 (2034 Rte 44).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/ExecCOS $570,191 (2034 Rte 44).pdf",
+   "ext": ".pdf",
+   "size": 1190557,
+   "sha256": "21d1fa9a5be1870cf4666d336270851d02cdbb2588f15f5b287d0dda8b315b9e",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0053_Amended Title Inv (9 Roda).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /Amended Title Inv (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 108674,
+   "sha256": "98b0cd3852ad85ea1ca788e551ecb5212b95d1228e0a03b2aa7248d74e87ce5b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0054_ExecClosingStatement (227 West Neck).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /ExecClosingStatement (227 West Neck).pdf",
+   "ext": ".pdf",
+   "size": 30948,
+   "sha256": "7e4efbb5815a39a070b71a1d344ca301ef3e53242a976a0b00d84055a3f99e01",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0055_9 Roda Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /9 Roda Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 268910,
+   "sha256": "e254dcafefbeeba7b043f816de978344cc6a5bda6f067c70accccbc0f2763f54",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0056_Transfer Docs - 227 W Neck.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /Transfer Docs - 227 W Neck.pdf",
+   "ext": ".pdf",
+   "size": 307978,
+   "sha256": "755a581177ef90399d50bc9a9df68c024a9423a452819b0bac3ad2ed56e403dd",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0057_227 West Neck Rd, Huntington Settlement Sheet     MT.xls",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 West Neck Rd, Huntington Settlement Sheet     MT.xls",
+   "ext": ".xls",
+   "size": 35328,
+   "sha256": "67390f1c60fe581e17231212227ebad3b406391e4774fce8ec2602beb145c7b3",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0058_Closing Docs From Title Co (6 Valentine) (003).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /Closing Docs From Title Co (6 Valentine) (003).pdf",
+   "ext": ".pdf",
+   "size": 2871779,
+   "sha256": "d8a76b81ab7236d44b397fac5faf9024bf795434f4a79ba7f5f4005ceeffdbca",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0059_2034 Rt 44 Closing Statement _ HUD.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/2034 Rt 44 Closing Statement _ HUD.pdf",
+   "ext": ".pdf",
+   "size": 1490338,
+   "sha256": "a06eb61192fa0c22382192f698d91cee1794fdfc5fd9a47b49246356eec12ffb",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0060_227 West Neck Closing Statement.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 West Neck Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 406658,
+   "sha256": "19a48522d6335b7f52ad8e673ec442cffd3524b6a46bc0218b1c43674c2cea7d",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0061_227 West Neck Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 West Neck Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 268053,
+   "sha256": "b4ac49772a587e0aac895d92b7620dccc47cd24779ac947b908f4fd8c76ad45d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0062_ExecDDD COS wRepair Rider (227 West Neck).pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /ExecDDD COS wRepair Rider (227 West Neck).pdf",
+   "ext": ".pdf",
+   "size": 710776,
+   "sha256": "25a7d0bf263cdd18ac41e283197d69cdb7e6ac042e6fa08aaec0f713f2b8629d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0063_Closing Statement 2034 Rt 44.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/Closing Statement 2034 Rt 44.pdf",
+   "ext": ".pdf",
+   "size": 405188,
+   "sha256": "f21a4b28be1ef1e209d1e1b4ca36002c60c264494489152c56d88d75a67f8219",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0064_Title Bill 11-16-2020.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /Title Bill 11-16-2020.pdf",
+   "ext": ".pdf",
+   "size": 492157,
+   "sha256": "41db700db7628cb87182882deb7ee04bb8b15396188784354a2ea33be8887402",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0065_deed 227 west neck road, huntington.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /deed 227 west neck road, huntington.pdf",
+   "ext": ".pdf",
+   "size": 556258,
+   "sha256": "e410f5a96f084d8e48562805d8d5ac967134a0539926bff0c82bc5fd478c07cd",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210720T114943Z-001\\0066_227 W Neck Rd.pdf",
+   "rel": "MANGOTREE-20210720T114943Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 W Neck Rd.pdf",
+   "ext": ".pdf",
+   "size": 3661772,
+   "sha256": "6826fdcc6fc918a3eecd57b9b648a031ed4987e10b13c48342c7ce947f655000",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0000_ExecDeed (8 Sheridan).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/D. OPPORTUNITY ZONE PROPERTIES /ExecDeed (8 Sheridan).pdf",
+   "ext": ".pdf",
+   "size": 101230,
+   "sha256": "b39ce18fccadb5dc3d836dfb6d3f05d3729c3e7f8829ee674b7516ec19761a37",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0001_ExecAOM (30 Truxton).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/D. OPPORTUNITY ZONE PROPERTIES /ExecAOM (30 Truxton).pdf",
+   "ext": ".pdf",
+   "size": 99825,
+   "sha256": "f6a97ff8d49d6120056621c2d573a242e8816977da57b5718b27b2c4993cf672",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0002_Recorded Deed into 436OF LLC.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/C. 436 OCEANFRONT LONG BEACH NY /Recorded Deed into 436OF LLC.pdf",
+   "ext": ".pdf",
+   "size": 102784,
+   "sha256": "3df4d6c1f445f8cb08a98d09b26f9f47bf2cb17ff14a8eddd84654dadea6ec7a",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0003_1 - 32 Hamlet Hauppauge  Original  Settlement Sheet  MT.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/B. 1184 LAKELAND /1 - 32 Hamlet Hauppauge  Original  Settlement Sheet  MT.xls",
+   "ext": ".xls",
+   "size": 27648,
+   "sha256": "28d30fd86555a77c13386853b6dfa7000223b63cfe08ecce887c54d9c9ad1ee5",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0004_3 - 32 Hamlet, Hauppauge Settlement Sheet actual paid by Brian        MT.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/B. 1184 LAKELAND /3 - 32 Hamlet, Hauppauge Settlement Sheet actual paid by Brian        MT.xls",
+   "ext": ".xls",
+   "size": 26624,
+   "sha256": "a6df16119b44907f0ce0de921127cc8089c4151b32b1076e87dd50f7a091c529",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0005_3 -1184 Lakeland, Bohemia Settlement Sheet Actual paid by Brian     MT.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/B. 1184 LAKELAND /3 -1184 Lakeland, Bohemia Settlement Sheet Actual paid by Brian     MT.xls",
+   "ext": ".xls",
+   "size": 25088,
+   "sha256": "cd376b1796ba440d76b0544fcf01039618e802be89beb6761959416e40e9aa29",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0006_DeRosa Mortgage Note (_20) Old Post.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/E. 724 OLD POST /DeRosa Mortgage Note (_20) Old Post.pdf",
+   "ext": ".pdf",
+   "size": 66888,
+   "sha256": "037d1ae347f295c21e29887fe2c1a9b82b46750ffb52efdf6aca4ed4533d1787",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0007_DeRosa - Purchase Money Mortgage Old Post (_20).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/E. 724 OLD POST /DeRosa - Purchase Money Mortgage Old Post (_20).pdf",
+   "ext": ".pdf",
+   "size": 82710,
+   "sha256": "710bdcb09601079e18c07adaa4f17ae21f33649ac8e77d0bb2e2cb355a8e6949",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0008_1 - 1184 Lakeland, Bohemia Settlement Sheet Original Mangotree.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/B. 1184 LAKELAND /1 - 1184 Lakeland, Bohemia Settlement Sheet Original Mangotree.xls",
+   "ext": ".xls",
+   "size": 25088,
+   "sha256": "9646c932be10c6fd4c3723095b044127e6134a8edbb44b6e0ecbe04dd0bb3e4c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0009_Property Output Table.xlsx",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/FH SWAP /Property Output Table.xlsx",
+   "ext": ".xlsx",
+   "size": 10209,
+   "sha256": "bf47cbf5f485276d21385b829fdd8bfa525df63ef8247e98dfbf65c1086d27e6",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0010_ExecClosingState (9 Roda) (00369988xBDBF4).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /ExecClosingState (9 Roda) (00369988xBDBF4).pdf",
+   "ext": ".pdf",
+   "size": 32354,
+   "sha256": "0dde30a319e8ebe7c18dfee2d8bea88d5359390af5e8de26d9210af7861e2445",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0011_IPE Broker Inv (9 Roda).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /IPE Broker Inv (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 23567,
+   "sha256": "d55a7beae323418f3a3b64073a80c6cc363044422684d2aa6d78f8e5f906ce9d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0012_Payoff Good Through 5 1 21 (9 Roda).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /Payoff Good Through 5 1 21 (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 34691,
+   "sha256": "614e991b7f5d30939b7c1059c23354baf1420ed732dd605c01f71eaffba32ed2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0013_9 Roda Dr, Mastic Settlement Sheet     MT (00369992xBDBF4).xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /9 Roda Dr, Mastic Settlement Sheet     MT (00369992xBDBF4).xls",
+   "ext": ".xls",
+   "size": 26112,
+   "sha256": "d64dd50298be688a72e89f5104843c4b0395a8c9edd3a47f6bb23202b7d3d6b9",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0014_Keller Williams Broker Inv 9 Roda DR.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /Keller Williams Broker Inv 9 Roda DR.pdf",
+   "ext": ".pdf",
+   "size": 65162,
+   "sha256": "bffbd2559797ae8c4fc261e50e2729553845c4bba9ad344cb98fbe9368cda928",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0015_deed 2656 peconic ave, seaford.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/deed 2656 peconic ave, seaford.pdf",
+   "ext": ".pdf",
+   "size": 191668,
+   "sha256": "68642875a61b4964dffab091de06d2731e192968eaf8c85a55b34c15a4000c60",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0016_3 5 21 ExecAmendCOS (9 Roda).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /3 5 21 ExecAmendCOS (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 25513,
+   "sha256": "c95470bd0e450a4890822900fb05ee000fd38780c6f6556df72eaf2b5549cfc2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0017_2656 Peconic Ave, Seaford Settlement Sheet     MT.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/2656 Peconic Ave, Seaford Settlement Sheet     MT.xls",
+   "ext": ".xls",
+   "size": 27136,
+   "sha256": "d2ad0f1efe17fcb8694f8edadbd32609c3fdaad8392badc0ebd0e906d18717f3",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0018_ExecClosing Stmt (Handwritten).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/ExecClosing Stmt (Handwritten).pdf",
+   "ext": ".pdf",
+   "size": 51355,
+   "sha256": "693b96c366f3c6781deb4f34ece00bf3ee5a886d21f154d62864977da6faacc7",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0019_Transfer Docs - 2656 Peconic.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/Transfer Docs - 2656 Peconic.pdf",
+   "ext": ".pdf",
+   "size": 316848,
+   "sha256": "46596a3b97ed8daff8f2893b43a1e2d32f0d31ae8bfc3ae2223bad7fb67d6846",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0020_Amended Title Inv (9 Roda).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /Amended Title Inv (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 108674,
+   "sha256": "98b0cd3852ad85ea1ca788e551ecb5212b95d1228e0a03b2aa7248d74e87ce5b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0021_IPE Realty Commission (2656 Peconic).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/IPE Realty Commission (2656 Peconic).pdf",
+   "ext": ".pdf",
+   "size": 40812,
+   "sha256": "173464d233f479d54bcb2cbf1b7fa466a4f71a844ea94d9eda9f34920647d6c2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0022_ExecCOS to Fuentes (9 Roda) (00369990xBDBF4).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /ExecCOS to Fuentes (9 Roda) (00369990xBDBF4).pdf",
+   "ext": ".pdf",
+   "size": 1061970,
+   "sha256": "f93deed45472ab1134c6694ace9b633adcd4e977513a893ad75c9af8181d691e",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0023_deed 9 roda drive, mastic.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /deed 9 roda drive, mastic.pdf",
+   "ext": ".pdf",
+   "size": 426498,
+   "sha256": "6d7796595da518cf1d7f4456dbe8b0fdf1759352736e9e4df3d6a56cdcdd96ec",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0024_20210714171145094 (1).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/FH SWAP /20210714171145094 (1).pdf",
+   "ext": ".pdf",
+   "size": 2602546,
+   "sha256": "fd0a9d88197066ba6db3a423077ca27a65cb35847ab1f4e1ba760aa66cc3ca66",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0025_02052101.PDF",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/E. 724 OLD POST /02052101.PDF",
+   "ext": ".pdf",
+   "size": 2661581,
+   "sha256": "e3461803fb5a28757dc6fd96ee24c3c31856db66ea23cd4c4b96cf86bf28d5a2",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0026_DEED 2034.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/DEED 2034.pdf",
+   "ext": ".pdf",
+   "size": 201603,
+   "sha256": "6cd63d657ca8ba4a8ec12729494af17f47d6ec48ae1bceec292d546d7caa247b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0027_Title Inv _ Check (2034 Route 44).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/Title Inv _ Check (2034 Route 44).pdf",
+   "ext": ".pdf",
+   "size": 515120,
+   "sha256": "cc8e1d8ce14d970889d0f14c467ab3b226e49875fcaef181764299d6f3875c0b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0028_Recorded Deed - 6 Valentine.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /Recorded Deed - 6 Valentine.pdf",
+   "ext": ".pdf",
+   "size": 184565,
+   "sha256": "ff55d7c6fd867ef2f0af4af3ded8578a6aaccd913fdb7e67c005776ee0d67f57",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0029_20191205_TITLE CLOSING INVOICE 6 valentine.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /20191205_TITLE CLOSING INVOICE 6 valentine.pdf",
+   "ext": ".pdf",
+   "size": 126519,
+   "sha256": "d536e222c44798811c83b3720ae41f088a7119e9bb504be798404925d1ca74e2",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0030_ExecCOS wDownPay(2656 Peconic).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/ExecCOS wDownPay(2656 Peconic).pdf",
+   "ext": ".pdf",
+   "size": 1919725,
+   "sha256": "c68926d7a67688d0b8a93d6d5586ff1a179f069bcb15c8c48b1224b1a1bbe4b5",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0031_ST20-0039 N Amended Title bill 1 26 21.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/ST20-0039 N Amended Title bill 1 26 21.pdf",
+   "ext": ".pdf",
+   "size": 500010,
+   "sha256": "246ebaa5e68b3eef4d099b4c64635c1c31070131c45c26fd543401348df7bbab",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0032_REV Closing Statement Sale (6 Valentine).doc",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /REV Closing Statement Sale (6 Valentine).doc",
+   "ext": ".doc",
+   "size": 42496,
+   "sha256": "c415be15f10dec60856849d35320af124d4fbefb271125472ecd49f20cf1b1c5",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0033_Closing Statement 2034 Rt 44.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/Closing Statement 2034 Rt 44.pdf",
+   "ext": ".pdf",
+   "size": 405188,
+   "sha256": "f21a4b28be1ef1e209d1e1b4ca36002c60c264494489152c56d88d75a67f8219",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0034_6 Valentine Farm Ct, Old Brookville Settlement Sheet  MT    Revised 2-24-21.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /6 Valentine Farm Ct, Old Brookville Settlement Sheet  MT    Revised 2-24-21.xls",
+   "ext": ".xls",
+   "size": 36352,
+   "sha256": "260d46631eddf232d8b8dedd4f361e37478ce6dc15a3d65c1205910783f78295",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0035_9 Roda Island Closing Statement.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /9 Roda Island Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 214301,
+   "sha256": "866cf738353fffb00559cdd70a8c6ff22350f7f1d639f8bc44a2e272105d9176",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0036_ExecCOS $570,191 (2034 Rte 44).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/ExecCOS $570,191 (2034 Rte 44).pdf",
+   "ext": ".pdf",
+   "size": 1190557,
+   "sha256": "21d1fa9a5be1870cf4666d336270851d02cdbb2588f15f5b287d0dda8b315b9e",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0037_ExecClosingStatement (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/ExecClosingStatement (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 39359,
+   "sha256": "a5f3a591fd3418c6f198c0894d177a443c44230540113e95cb62fec8408d4031",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0038_9 Roda Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /9 Roda Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 268910,
+   "sha256": "e254dcafefbeeba7b043f816de978344cc6a5bda6f067c70accccbc0f2763f54",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0039_Brokers commision (6 Valentine).docx",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /Brokers commision (6 Valentine).docx",
+   "ext": ".docx",
+   "size": 12538,
+   "sha256": "81a619f9ca57844ad68bda3e6ffea1998c0b3066858b3b498e49d058f036d5c8",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0040_51 Gaymore Rd, Pt Jefferson Sta Settlement Sheet    MT.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/51 Gaymore Rd, Pt Jefferson Sta Settlement Sheet    MT.xls",
+   "ext": ".xls",
+   "size": 28672,
+   "sha256": "b9fd068346347264d34f0dfbcbd7f67e1e7c7f1f488e58bb2eb43454c6a1418d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0041_deed 51 gaymore rd, port jefferson.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/deed 51 gaymore rd, port jefferson.pdf",
+   "ext": ".pdf",
+   "size": 429321,
+   "sha256": "77743c91c57ceaa0a3878aef59c866d904dc1620fa2e82a8c8a4ca43a3946349",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0042_Transfer Docs - 51 Gaymore.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Transfer Docs - 51 Gaymore.pdf",
+   "ext": ".pdf",
+   "size": 331764,
+   "sha256": "a0039aeb60a6ce60b5345e91746a392c1ee03844f8c02c03a6acd92cb67e5369",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0043_2034 Rt 44 Closing Statement _ HUD.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/2034 Rt 44 Closing Statement _ HUD.pdf",
+   "ext": ".pdf",
+   "size": 1490338,
+   "sha256": "a06eb61192fa0c22382192f698d91cee1794fdfc5fd9a47b49246356eec12ffb",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0044_2034 Rt 44 Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/2034 Rt 44 Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 284336,
+   "sha256": "db5a26a194124cc024eb31a3f66520f4f0f3bf16de5297b50e8df790c6da7d03",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0045_2656 Peconic Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/2656 Peconic Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 267841,
+   "sha256": "3e54815aa88dc3fe382b55b3d9d75424a35e1c534baf1bc03191e38a1ef42c45",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0046_2656 Peconic Closing Statement.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /4. 2656 PECONIC/2656 Peconic Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 435423,
+   "sha256": "66b2aef500f6617d93c598fc68fa65353506a64a0ad4de536ee5ad10d0b13dfa",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0047_6 valentine water bill.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /6 valentine water bill.pdf",
+   "ext": ".pdf",
+   "size": 1024904,
+   "sha256": "af9d87b658bd8d28b8ad55bbe26647cf78c257e4790b579db055c116bedfcd0c",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0048_IPE Realty Broker InvDisclosure (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/IPE Realty Broker InvDisclosure (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 20681,
+   "sha256": "d6d3d56ff4d282ac9d02a75b8024d4069887a47f72feca1384fc397e159f2204",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0049_51 Gaymore Closing Statement.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/51 Gaymore Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 217280,
+   "sha256": "78a1949f95dbe62ece5fd8013d30282907e555858e3597ca0026de7776041b70",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0050_Initialed_ExecCOS (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Initialed_ExecCOS (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 689264,
+   "sha256": "bc132ee488722d4594081734b022c3d6a2c9a8cf3c82e2c40d24a6fd73910026",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0051_Realty Connect.jpg",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Realty Connect.jpg",
+   "ext": ".jpg",
+   "size": 1914182,
+   "sha256": "9d97e1a974202374ef7ac651b405486fa31c87927644685d7a22ca46648154a3",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0052_51 Gaymore Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/51 Gaymore Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 267067,
+   "sha256": "c48a6af0e0dc26629aa96bb707bfcf5bf9fa597075d3d9c03f5e9108cea5dd81",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0053_ExecClosingStatement (227 West Neck).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /ExecClosingStatement (227 West Neck).pdf",
+   "ext": ".pdf",
+   "size": 30948,
+   "sha256": "7e4efbb5815a39a070b71a1d344ca301ef3e53242a976a0b00d84055a3f99e01",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0054_ExecCOS (6 Valentine).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /ExecCOS (6 Valentine).pdf",
+   "ext": ".pdf",
+   "size": 2164062,
+   "sha256": "cb6e8b8d9333fc69af5d4d513c6cac4e0d80f2b0a0de36406675c9fffdb9318b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0055_227 West Neck Rd, Huntington Settlement Sheet     MT.xls",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 West Neck Rd, Huntington Settlement Sheet     MT.xls",
+   "ext": ".xls",
+   "size": 35328,
+   "sha256": "67390f1c60fe581e17231212227ebad3b406391e4774fce8ec2602beb145c7b3",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0056_Transfer Docs - 227 W Neck.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /Transfer Docs - 227 W Neck.pdf",
+   "ext": ".pdf",
+   "size": 307978,
+   "sha256": "755a581177ef90399d50bc9a9df68c024a9423a452819b0bac3ad2ed56e403dd",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0057_deed 227 west neck road, huntington.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /deed 227 west neck road, huntington.pdf",
+   "ext": ".pdf",
+   "size": 556258,
+   "sha256": "e410f5a96f084d8e48562805d8d5ac967134a0539926bff0c82bc5fd478c07cd",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0058_Title Bill 11-16-2020.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /Title Bill 11-16-2020.pdf",
+   "ext": ".pdf",
+   "size": 492157,
+   "sha256": "41db700db7628cb87182882deb7ee04bb8b15396188784354a2ea33be8887402",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0059_Title Bill (51 Gaymore).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /2. 51 Gaymore/Title Bill (51 Gaymore).pdf",
+   "ext": ".pdf",
+   "size": 476557,
+   "sha256": "c56b3d737f92d1c2687094578823fc896cb369608554710208b2f7c5fc8a7730",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0060_227 West Neck Settlement Sheet.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 West Neck Settlement Sheet.pdf",
+   "ext": ".pdf",
+   "size": 268053,
+   "sha256": "b4ac49772a587e0aac895d92b7620dccc47cd24779ac947b908f4fd8c76ad45d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0061_227 West Neck Closing Statement.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 West Neck Closing Statement.pdf",
+   "ext": ".pdf",
+   "size": 406658,
+   "sha256": "19a48522d6335b7f52ad8e673ec442cffd3524b6a46bc0218b1c43674c2cea7d",
+   "in_db": true,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0062_227 W Neck Rd.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /227 W Neck Rd.pdf",
+   "ext": ".pdf",
+   "size": 3661772,
+   "sha256": "6826fdcc6fc918a3eecd57b9b648a031ed4987e10b13c48342c7ce947f655000",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0063_Closing Docs From Title Co (6 Valentine) (003).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /1. 6 VALENTINE /Closing Docs From Title Co (6 Valentine) (003).pdf",
+   "ext": ".pdf",
+   "size": 2871779,
+   "sha256": "d8a76b81ab7236d44b397fac5faf9024bf795434f4a79ba7f5f4005ceeffdbca",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0064_ExecDDD COS wRepair Rider (227 West Neck).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /5. 227 W NECK /ExecDDD COS wRepair Rider (227 West Neck).pdf",
+   "ext": ".pdf",
+   "size": 710776,
+   "sha256": "25a7d0bf263cdd18ac41e283197d69cdb7e6ac042e6fa08aaec0f713f2b8629d",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0065_TransDocs (9 Roda).pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /6. 9 RODA /TransDocs (9 Roda).pdf",
+   "ext": ".pdf",
+   "size": 315897,
+   "sha256": "dc640073c9cae7907a9946886d5d1167b63a0ef001ba94fae7ba61295e12f77b",
+   "in_db": false,
+   "from_archive": true
+  },
+  {
+   "matter": "ipa_litigation",
+   "path": "phase5_staging\\MANGOTREE-20210731T112058Z-001\\0066_TRANSFER DOCS - 2034.pdf",
+   "rel": "MANGOTREE-20210731T112058Z-001.zip/MANGOTREE/A. PROPERTIES THAT HAVE BEEN SOLD /3. 2034 ROUTE 44/TRANSFER DOCS - 2034.pdf",
+   "ext": ".pdf",
+   "size": 507747,
+   "sha256": "67862cc00bbf70fd7422cf04c127ae54afe515206c4e9d590cd4f75fee9f8d0c",
+   "in_db": false,
+   "from_archive": true
+  }
+ ]
+}

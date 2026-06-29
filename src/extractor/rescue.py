@@ -961,6 +961,210 @@ def extract_office_zip(data: bytes, filename: str) -> ExtractionResult:
 
 
 # =========================================================================
+# 8d. Outlook message (.msg)  via extract_msg
+# =========================================================================
+
+def extract_msg_outlook(data: bytes, filename: str) -> ExtractionResult:
+    """Parse an Outlook .msg (OLE2 MAPI) file: headers + body, and recurse
+    into every embedded attachment (PDF / Word / Excel / image / nested .msg)
+    so documents *inside* the message are not lost. Falls back to MAPI string
+    mining if the extract_msg library can't open the file."""
+    try:
+        import extract_msg  # type: ignore
+    except ImportError:
+        # Library missing — still salvage text via raw MAPI string mining.
+        return extract_mapi_blob(data, filename)
+
+    tmp_path: Optional[str] = None
+    msg = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=".msg", delete=False, prefix="rescue_msg_"
+        ) as tmp:
+            tmp.write(data)
+            tmp_path = tmp.name
+        msg = extract_msg.openMsg(tmp_path)
+
+        parts: List[str] = []
+        for label, val in (
+            ("From", getattr(msg, "sender", None)),
+            ("To", getattr(msg, "to", None)),
+            ("Cc", getattr(msg, "cc", None)),
+            ("Subject", getattr(msg, "subject", None)),
+            ("Date", getattr(msg, "date", None)),
+        ):
+            if val:
+                parts.append(f"{label}: {val}")
+        parts.append("")
+
+        body = (getattr(msg, "body", None) or "").strip()
+        if not body:
+            hb = getattr(msg, "htmlBody", None)
+            if hb:
+                try:
+                    from bs4 import BeautifulSoup  # type: ignore
+                    raw = hb.decode("utf-8", "ignore") if isinstance(hb, bytes) else hb
+                    soup = BeautifulSoup(raw, "html.parser")
+                    for t in soup(["script", "style"]):
+                        t.decompose()
+                    body = soup.get_text(separator="\n").strip()
+                except Exception:  # noqa: BLE001
+                    body = ""
+        if body:
+            parts.append(body)
+
+        # Recurse into embedded attachments.
+        for att in (getattr(msg, "attachments", None) or []):
+            try:
+                aname = (getattr(att, "longFilename", None)
+                         or getattr(att, "shortFilename", None)
+                         or "attachment")
+                adata = getattr(att, "data", None)
+            except Exception:  # noqa: BLE001
+                continue
+            if adata is None:
+                continue
+            header = f"[Embedded: {aname}]"
+            if isinstance(adata, (bytes, bytearray)):
+                try:
+                    sub = extract_from_bytes(bytes(adata), aname)
+                    if sub.method == "skipped":
+                        sub = rescue_extract(bytes(adata), aname,
+                                             skipped_reason=sub.skipped_reason)
+                except Exception:  # noqa: BLE001
+                    sub = None
+                if sub and (sub.text or "").strip():
+                    parts.append(f"{header}\n{sub.text.strip()}")
+                else:
+                    parts.append(f"{header} (no extractable text)")
+            else:
+                # Embedded Outlook message object — pull its body text.
+                emb_body = (getattr(adata, "body", None) or "").strip()
+                emb_subj = getattr(adata, "subject", None)
+                if emb_subj:
+                    parts.append(f"{header} Subject: {emb_subj}")
+                if emb_body:
+                    parts.append(emb_body)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(f"  .msg parse failed for {filename!r}: {exc}; "
+                       f"falling back to MAPI string mining")
+        return extract_mapi_blob(data, filename)
+    finally:
+        try:
+            if msg is not None:
+                msg.close()
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
+        except Exception:  # noqa: BLE001
+            pass
+
+    text = "\n".join(p for p in parts if p is not None).strip()
+    if not text:
+        return extract_mapi_blob(data, filename)
+    return ExtractionResult(
+        text=text, method="msg",
+        pages=[PageResult(1, text, "msg")],
+        char_count=len(text),
+    )
+
+
+# =========================================================================
+# 8e. ZIP archive (.zip)  — unpack and recurse into every member
+# =========================================================================
+
+# Safety caps so a malicious/huge archive can't exhaust memory.
+_ZIP_MAX_MEMBERS = 200
+_ZIP_MAX_MEMBER_BYTES = 60 * 1024 * 1024     # 60 MB per member
+_ZIP_MAX_TOTAL_BYTES = 300 * 1024 * 1024     # 300 MB uncompressed total
+
+
+def extract_zip_archive(data: bytes, filename: str) -> ExtractionResult:
+    """Unpack a .zip and run every member back through the full extractor
+    (and rescue, for legacy members) so documents bundled inside an archive
+    are indexed individually. Best-effort, with anti-zip-bomb guards."""
+    import zipfile
+
+    try:
+        zf = zipfile.ZipFile(io.BytesIO(data))
+    except Exception as exc:  # noqa: BLE001
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason=f"zip_bad:{type(exc).__name__}")
+
+    # Extraction params for archive members: SCANNED PDF/image pages go to
+    # Claude/GPT vision (vision_min_pages=1), while BORN-DIGITAL PDF pages keep
+    # their exact embedded text layer (the ground truth — re-OCR'ing perfect
+    # digital text only risks introducing errors and is hugely slower on big
+    # docs). Mirrors the TNEF handler.
+    try:
+        from config.settings import Settings
+        st = Settings.load()
+        vparams = dict(
+            ocr_lang=st.ocr_lang, ocr_min_chars=st.ocr_text_layer_min_chars,
+            ocr_dpi=st.ocr_dpi, enable_ocr=True,
+            vision_enabled=True, vision_model=st.ocr_vision_model,
+            vision_min_pages=1, vision_dpi=st.ocr_vision_dpi,
+            vision_concurrency=st.ocr_vision_max_concurrency,
+        )
+    except Exception:  # noqa: BLE001
+        vparams = dict(enable_ocr=True, vision_enabled=True, vision_min_pages=1)
+
+    parts: List[str] = []
+    pages: List[PageResult] = []
+    pno = 1
+    total = 0
+    n_files = 0
+    n_text = 0
+    for info in zf.infolist():
+        if info.is_dir():
+            continue
+        if n_files >= _ZIP_MAX_MEMBERS:
+            parts.append(f"[ZIP truncated: >{_ZIP_MAX_MEMBERS} members]")
+            break
+        if info.file_size > _ZIP_MAX_MEMBER_BYTES:
+            parts.append(f"[Skipped oversized member: {info.filename} "
+                         f"({info.file_size} bytes)]")
+            continue
+        if total + info.file_size > _ZIP_MAX_TOTAL_BYTES:
+            parts.append("[ZIP truncated: total uncompressed size cap hit]")
+            break
+        n_files += 1
+        try:
+            member = zf.read(info.filename)
+        except Exception:  # noqa: BLE001
+            continue
+        total += len(member)
+        mname = info.filename.rsplit("/", 1)[-1]
+        header = f"[Archived: {info.filename}]"
+        try:
+            sub = extract_from_bytes(member, mname, **vparams)
+            if sub.method == "skipped":
+                sub = rescue_extract(member, mname,
+                                     skipped_reason=sub.skipped_reason)
+        except Exception:  # noqa: BLE001
+            sub = None
+        if sub and (sub.text or "").strip():
+            n_text += 1
+            parts.append(f"{header}\n{sub.text.strip()}")
+            pages.append(PageResult(pno, sub.text.strip(), f"zip:{sub.method}"))
+            pno += 1
+        else:
+            parts.append(f"{header} (no extractable text)")
+
+    text = "\n\n".join(p for p in parts if p).strip()
+    if not text:
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason=f"zip_no_content(members={n_files})")
+    return ExtractionResult(
+        text=text, method="zip",
+        pages=pages or [PageResult(1, text, "zip")],
+        char_count=len(text),
+    )
+
+
+# =========================================================================
 # 9. Dispatcher used by the orchestrator
 # =========================================================================
 
@@ -997,6 +1201,20 @@ def rescue_extract(
         return extract_html(data, filename)
     if ext == ".eml":
         return extract_eml(data, filename)
+    if ext == ".msg":
+        return extract_msg_outlook(data, filename)
+    if ext == ".zip":
+        return extract_zip_archive(data, filename)
+    if ext in (".ics", ".calendar", ".vcs", ".vcf"):
+        # iCalendar invite / vCard contact — plain text. Index verbatim.
+        cal = _decode_text_bytes(data).strip()
+        if not cal:
+            return ExtractionResult(text="", method="skipped",
+                                    skipped_reason="ics_empty")
+        tag = "vcard" if ext == ".vcf" else "ics"
+        return ExtractionResult(text=cal, method=tag,
+                                pages=[PageResult(1, cal, tag)],
+                                char_count=len(cal))
     if ext in _AUDIO_EXTS:
         return extract_audio_via_whisper(data, filename)
     if ext == "":
@@ -1011,8 +1229,14 @@ def rescue_extract(
         # way, give it to Claude Vision now.
         return re_ocr_image_via_vision(data, filename)
 
-    # Unhandled: e.g. .gif animations, .emz, exotic formats. We leave
-    # these as-skipped so the orchestrator can log them.
+    # Unknown / mangled extension (e.g. a MIME-encoded ".pdf?=" filename, a
+    # ".vcf" vCard, or a misnamed blob). Sniff the magic bytes and route by
+    # actual content type — this recovers real PDFs/images/text hiding behind
+    # a bad extension. Genuine non-text blobs (.emz/.dwg/.mso) still come back
+    # skipped, which is correct.
+    sniffed = extract_no_ext_via_sniff(data, filename)
+    if sniffed.method != "skipped":
+        return sniffed
     return ExtractionResult(
         text="", method="skipped",
         skipped_reason=f"rescue_unsupported_ext:{ext or 'none'}",

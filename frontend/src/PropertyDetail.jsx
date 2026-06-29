@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Spin, Tag, Card, Timeline, Descriptions, Button, Tabs, Table, Tooltip, Empty, message } from "antd";
 import jsPDF from "jspdf";
-import { getProperty, getEvidencePacket } from "./api";
+import { getProperty, getEvidencePacket, getPropertyGraph } from "./api";
+import PropertyGraphView from "./PropertyGraphView";
 
 const SEV_COLOR = { critical: "red", high: "volcano", medium: "gold", info: "default" };
 const EVENT_COLOR = {
@@ -48,11 +49,22 @@ export default function PropertyDetail() {
   const nav = useNavigate();
   const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [graph, setGraph] = useState(null);
+  const [graphLoading, setGraphLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    setGraph(null);
+    setGraphLoading(true);
     getProperty(propertyId).then(r => setD(r.data)).finally(() => setLoading(false));
+    getPropertyGraph(propertyId).then(r => setGraph(r.data)).finally(() => setGraphLoading(false));
   }, [propertyId]);
+
+  const loadGraph = () => {
+    if (graph || graphLoading) return;
+    setGraphLoading(true);
+    getPropertyGraph(propertyId).then(r => setGraph(r.data)).finally(() => setGraphLoading(false));
+  };
 
   const exportPacket = async () => {
     const r = await getEvidencePacket(propertyId);
@@ -247,6 +259,9 @@ export default function PropertyDetail() {
   const rows = (key) => (gf[key] || []).map((x) => ({ ...x }));
 
   const tabs = [
+    { key: "map", label: "◆ Property map", children: (
+      graphLoading && !graph ? <Spin /> : <PropertyGraphView data={graph} />
+    ) },
     { key: "overview", label: "Overview", children: (
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <Card size="small" title="Identification & ownership" style={cardStyle}>
@@ -382,7 +397,8 @@ export default function PropertyDetail() {
         <Button onClick={exportPacket} style={{ background: "#fff", color: "#234a52", borderColor: "#234a52" }}>⬇ Evidence packet (JSON)</Button>
       </div>
 
-      <Tabs items={tabs} />
+      <Tabs items={tabs} defaultActiveKey="map"
+        onChange={(k) => { if (k === "map") loadGraph(); }} />
     </div>
   );
 }

@@ -1,0 +1,65 @@
+sha256,filename,size_bytes,skipped_reason,char_count
+bb571daf5eb1d4dddbb608ad8d13c0b085294a4ba35e252e128448188a6532dc,ATT00001.htm,216,unsupported_ext:.htm,0
+9ab8be0fb84b7fffebefd86c45ce8a7531925656ae73ba0d6707773cea441408,part.text.calendar,1664,unsupported_ext:.calendar,0
+bc6bbabed5e27e499fad8e151dc4f86729237b2abeb9c8e8a5c3031b4c47eeb9,winmail.dat,3093,unsupported_ext:.dat,0
+5bf73b38b26ef38ce7df5a5cc388863c641bfdb55ea673f761813695d08ac65f,winmail.dat,3705,unsupported_ext:.dat,0
+40b29f2fed492eae9cf2ef690649cc5224144493db61902190ee82f1bc23d425,winmail.dat,4601,unsupported_ext:.dat,0
+8985702e38b552447d3ac90335fde25cec99bd315a4205437c4bcaf568d5ba16,winmail.dat,4763,unsupported_ext:.dat,0
+27510ce8bdb454f3155319fc9fdae009b1b962fb8ca4f322d8417e3a6728bed9,winmail.dat,5052,unsupported_ext:.dat,0
+4260a54e81fe6f8c23731c25a535366be0820c23d700bac92ee379fba94caa14,winmail.dat,5589,unsupported_ext:.dat,0
+04acd8c3a5b9ece6dd9d70dba7ad52dde498da18ec4db14924d077e3e8527578,winmail.dat,10458,unsupported_ext:.dat,0
+083556b6e46dbd1bab0c7b426d9b62403b36a3be440e63d1de4ce89ff4966c87,WIRING INSTRUCTIONS.DOC,23040,unsupported_ext:.doc,0
+5c691572b7c0a4f822e4c16cf114f3f9cd6c7d1a483ac5ed5fce65eda340edb1,Birthday List.xls,23040,unsupported_ext:.xls,0
+3869bb68d8a7a3d3256093215823811d01f8cd879a72d17ebf63447ee016151c,wiring instructions.JOSIE.doc,25600,unsupported_ext:.doc,0
+3f6bded81e9cdeecfedff5b50ba6e9411d7f209c5c534fc3b7ad5c247d1594ee,"225 Ruby Rd, Kingston    final Settlement Sheet     Mangotree.xls",25600,unsupported_ext:.xls,0
+95b6a7efa0e46bae64b82f1d37b11e855028d08599d515c202dc87726346d9c4,Group Mortgage Purchase Settlement Sheet   MT.xls,26112,unsupported_ext:.xls,0
+d64dd50298be688a72e89f5104843c4b0395a8c9edd3a47f6bb23202b7d3d6b9,"9 Roda Dr, Mastic Settlement Sheet     MT (00369992xBDBF4).xls",26112,unsupported_ext:.xls,0
+1316ef3ab046b4f6946e49dda88e58fc1c41b5ddb8b2a9dba2124e7354421ee3,Package of 20 Properties Settlement Sheet   MT.xls,26624,unsupported_ext:.xls,0
+76f6cff620f283675d0c9fa74ea855656c1464ae79b7edb66ea95e547e0ae77b,"45 Orchard, Brightwaters Settlement Sheet   MT  Revised.xls",26624,unsupported_ext:.xls,0
+0c7706f5af32b79cf961e506f2177a4ccc9c7e7b496455b47763fd511e4ded26,"115 Jefferson Ave, Wyandanch Settlement Sheet   MT.xls",26624,unsupported_ext:.xls,0
+f9f6ddc83f71a515be50efd73c0f28a386fc6cab180b44157c26b66df931fea1,"1248 G St, Valley Stream Settlement Sheet   MT.xls",26624,unsupported_ext:.xls,0
+8d62591cdf738ba7041e86e0e4b911603790732849b3e2f752d602ba1342ca56,"48 Winter Ave, Wyandanch Settlement Sheet    MT.xls",27136,unsupported_ext:.xls,0
+841a9e5926465ebc09bb6ae53ede6ff5a20a61ddaf7a90f1a7ca6286515de83c,"12 Jamaica, Wyandanch Settlement Sheet   MT.xls",27136,unsupported_ext:.xls,0
+c5aac31a284de9f22a5e76252cd3ad66767358413e85b4feac87e3a767c8e07c,"1000 Rt 213, Kingston Settlement Sheet   MT.xls",27136,unsupported_ext:.xls,0
+34ab334524d307b2fe2cf71fd2b0f15d706bae49600127411d93bee05becd33b,"94 Senix, Center Moriches Settlement Sheet    Adjusted MT.xls",27136,unsupported_ext:.xls,0
+6e00feb94cf0506a10f8a4991bd7179ca2bfb41438db0e56e8ef1073b6c55cf3,1 Uhl St Ronkonkoma Settlement Sheet   MT.xls,27648,unsupported_ext:.xls,0
+bee20af8c52fb80528f5333eb5d6e3931cadcc225e16b4db74b69f57f85bab55,"32 Hamlet, Hauppauge  #2    Settlement Sheet  MT.xls",27648,unsupported_ext:.xls,0
+f58cbdf17be13ab196789f4552a61b34be7cf337c4d981384daa5d103790eb4f,"2155 Delowe Dr, Georgia Settlement Sheet    MT.xls",28160,unsupported_ext:.xls,0
+8cc0db8643bcf6ed9bfbcb771d3cc76ad2fa0b5a36b91bdd33e4790bc04754dd,34 Property Package Settlement Sheet #1  Revised  MT.xls,28160,unsupported_ext:.xls,0
+7314bfcba94fecce7a9804a0257f93a1e4ab89a206cb23757a233b71d1071217,"14 E Booker, Wyandanch Settlement Sheet   MT.xls",28160,unsupported_ext:.xls,0
+dab94e48a8ba41032a306e64294a964a5e43a8521d91c42924e0c4df2fc3a880,34 Property Package Settlement Sheet #1    MT.xls,28160,unsupported_ext:.xls,0
+a3a58e8552c9575b873ba24142519e48115eff30fee8e8393b4bf81dcf310c6a,"2155 Delowe Dr, Georgia
+ Settlement Sheet    MT  Revised split.xls",28160,unsupported_ext:.xls,0
+c3f062f3042609bd84e3f78f5e2dbd610751ec2521ba0f7eb623a7832900861e,"100 Sycamore, Brentwood
+    Preliminary Settlement Sheet      MT.xls",28160,unsupported_ext:.xls,0
+2d6663e7f95d6eaa541da99ec8f1116bfda8698e93cd683bf1a482824dd61e71,"35 North 16th, Wheatley Heights
+ Settlement Sheet      MT  Preliminary.xls",28160,unsupported_ext:.xls,0
+1b2b5f3410643fe1327d5b867bf7ef0abac50140129eb389703df5839cce5f9f,21 North 12th St Wyandanch Settlement Sheet      MT  Final.xls,28160,unsupported_ext:.xls,0
+d5c0b079ee191902c317b9161e1026582ab44a9ca2b5ab756cb6fe35d51c91dd,"54 Smith, Amityville Settlement Sheet                    MT.xls",28160,unsupported_ext:.xls,0
+0bd9a084228f95c334ddabec59beae03af17e3ff9756910861111995e19b8157,"69 Twilight, Rocky Point Settlement Sheet  Revised  MT.xls",28672,unsupported_ext:.xls,0
+af6eadebcab8d11c5c8a1e8e28a6640ad58f99441767e8a1d51c71c6e1a60b91,"119 Washington, Wyandanch Settlement Sheet    MT.xls",28672,unsupported_ext:.xls,0
+cac9123d759e8e38f6714b8b7dbbe6e8aacd49ff211440c08e5f65338d1149ce,2347 7th St E Meadow Settlement Sheet   MT.xls,28672,unsupported_ext:.xls,0
+222cd19ac76cb638c6db51d57e9bdd1aa0ad7f2a0cd82c03e11fd4e320586a27,34 Property Package Settlement Sheet #1   MT.xls,28672,unsupported_ext:.xls,0
+778cd1bdc623ab64c0a5449f84f7a162c92716a8b1695c0892d24e0f324a5403,"46 Chateau Dr, Manorville Settlement Sheet    MT.xls",29184,unsupported_ext:.xls,0
+9e2797f55a773f5dcf947ca666fcc39eaf98b53ab1a82defc2d55600c7a1a3af,"119 Washington, Wyandanch Settlement Sheet   MT.xls",29184,unsupported_ext:.xls,0
+61c6111df347d896a2dd8785d29916aae587c46f8d244496a995edf920c56f9d,40 Highland Rd Rocky Point Settlement Sheet   MT.XLS,29184,unsupported_ext:.xls,0
+5b685a1f3cb824ce6a2940aaabd01470f93b9e6532bfebf9cc233875400d16c7,14 Walnut St Smithtown Settlement Sheet     MT.xls,29184,unsupported_ext:.xls,0
+8322bac910ed127e0cb4bf14acba378f0debb7dc94282f1cf42631e920e6848a,"8 Lexington Ave, Coram Settlement Sheet   MT.xls",31232,unsupported_ext:.xls,0
+9e34b91ff37c118f6e09f7f123666bb78be24f9b4e5e81b5cf61facb10637cd1,225 Ruby Rd Kingston Settlement Sheet    MT full deal (004).xls,36864,unsupported_ext:.xls,0
+1cade2a39a59c091ffda6a941d2d61d921427464f92c4f88aff59dd6d49d82ca,"225 Ruby Rd, Kingston Settlement Sheet   Mangotree  ALL EXPS &
+ PROCEEDS.xls",40960,unsupported_ext:.xls,0
+a91843b77aa326209b374ce339b5b043f741d8042c3ba23d63953ae0b38028b9,"3 225 Ruby Rd, Kingston  Settlement Sheet MT.xls",41472,unsupported_ext:.xls,0
+bd1ac2e0eeb3f4ad60acbbc69106b3683ed481bb6668d8b242693c8048aefccd,"5 225 Ruby Rd, Kingston  Lot 10  Settlement Sheet    MT.xls",41472,unsupported_ext:.xls,0
+c2d867c412d7a2d866202e6ecb1b7768e564fd48342ca6cfec4d268bd67d92a5,"1 225 Ruby Rd, Kingston Settlement Sheet MT - Rev 1.xls",47616,unsupported_ext:.xls,0
+b8cc869007d2f5db0cea63d02f6bc77faee22133a4ee83a67e07035386bfc8e2,Opportunity Zone Fund - Retainer Agreement (Amendment).doc,57856,unsupported_ext:.doc,0
+4ec599db7f924122ff95860b27248288048752b08d04a62c529086fdf4cfb83f,Opportunity Zone Fund - Retainer Agreement (Amendment).doc,57856,unsupported_ext:.doc,0
+e92761d8100752ec3db31e159c00d13b8dd8ec218ead4bb3951f0185a7f70ebc,"4 Calverton Operating Agreement-revised-11-24-21
+ (00388714-2xBDBF4).DOC",73728,unsupported_ext:.doc,0
+27b64106edf59cf45790c2aa3e11d4efb7d53ffad85ce47ba2bcefef3f231666,"4 225 Ruby Rd, Kingston Closing Statement 2nd Home  MT 1.xls",90624,unsupported_ext:.xls,0
+9266359847220ee316d2f24fa2e63ab320f3302cc3e6145e69c81e03cd2a5d66,4CA LLC OPERATING AGREEMENT 4828-3990-4756 v.1.doc,194560,unsupported_ext:.doc,0
+2ebbecaaa7b3e6471cb2925c499831f77d09164233fe607fd548e99934638143,"4CA LLC OPERATING AGREEMENT 4828-3990-4756 v.1 4830-0974-0276
+ v.1.doc",201216,unsupported_ext:.doc,0
+d30126aea84978e3a9eaaca2d7b864020f8b5dfc5a2d211d4499d7524a81b54b,1 Documents that David gave me.msg,358400,unsupported_ext:.msg,0
+c739cd70c8ed65c58265893425e52fda2127a73da254357e87de8fd6c8880385,Financing Evaluator.xls,1075712,unsupported_ext:.xls,0
+89f7c33f212e14491e59d060a44e2509cd22483410cd494462b5ca95c1c3a405,Foreclosure servicing.pptx,24333868,unsupported_ext:.pptx,0
+33c8d9696d14c832c7f421d0922421fc842da2d03ef931999e28591c01f724d4,Attachments.zip,26550187,unsupported_ext:.zip,0
