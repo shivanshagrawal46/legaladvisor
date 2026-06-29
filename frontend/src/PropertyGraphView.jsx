@@ -2,8 +2,9 @@ import { useMemo, useState } from "react";
 import { Card, Tag, Statistic, Row, Col, Empty, Tooltip, Segmented, Timeline } from "antd";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip as RTooltip, Legend, ScatterChart, Scatter, ZAxis, Cell,
+  Tooltip as RTooltip, Legend,
 } from "recharts";
+import DocumentViewer from "./DocumentViewer";
 
 // Brand palette (matches index.css / PropertyDetail)
 const C = {
@@ -28,10 +29,15 @@ const LANES = [
   ["judgment", "Judgments"], ["lis_pendens", "Lis pendens"], ["assignment", "Assignments"],
   ["title_search", "Title searches"], ["money", "Cheques / wires / settlements"],
 ];
+const LANE_ICON = {
+  conveyance: "⇄", mortgage: "$", lien: "▲", judgment: "§", lis_pendens: "⚖",
+  assignment: "→", title_search: "◆", money: "₵",
+};
 
 export default function PropertyGraphView({ data }) {
   const [view, setView] = useState("Financing");
   const [activeYear, setActiveYear] = useState(null);
+  const [openDoc, setOpenDoc] = useState(null);
   const g = data || {};
   const s = g.summary || {};
 
@@ -68,11 +74,6 @@ export default function PropertyGraphView({ data }) {
       `${mr.payer || "?"} → ${mr.payee || "?"} ${usd(mr.amount_value)}`, mr.source_quote, mr.doc_id));
     return pts;
   }, [g]);
-
-  const yearDomain = useMemo(() => {
-    const ys = scatter.map((p) => p.x).filter(Boolean);
-    return ys.length ? [Math.min(...ys) - 1, Math.max(...ys) + 1] : [2010, 2026];
-  }, [scatter]);
 
   if (!g.property_id) return <Empty description="No graph data." />;
 
@@ -134,29 +135,10 @@ export default function PropertyGraphView({ data }) {
         </Card>
       )}
 
-      {/* ── ACTIVITY MAP: everything across years in lanes ── */}
+      {/* ── ACTIVITY MAP: a friendly "story of the property" ── */}
       {view === "Activity map" && (
-        <Card size="small" title="Property activity map — every event across time"
-          style={cardStyle} extra={<span style={{ ...mono, fontSize: 11, color: C.mute }}>click a point</span>}>
-          <ResponsiveContainer width="100%" height={420}>
-            <ScatterChart margin={{ top: 10, right: 24, left: 60, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ece6d8" />
-              <XAxis type="number" dataKey="x" name="Year" domain={yearDomain}
-                allowDecimals={false} tick={{ fontSize: 12, fontFamily: "monospace" }} />
-              <YAxis type="number" dataKey="y" name="Type" domain={[-0.5, LANES.length - 0.5]}
-                ticks={LANES.map((_, i) => i)} tickFormatter={(i) => LANES[i] ? LANES[i][1] : ""}
-                tick={{ fontSize: 11 }} width={150} />
-              <ZAxis type="number" dataKey="z" range={[60, 600]} />
-              <RTooltip content={<DotTip />} cursor={{ strokeDasharray: "3 3" }} />
-              <Scatter data={scatter} onClick={(p) => setActiveYear(p?.x)}>
-                {scatter.map((p, i) => (
-                  <Cell key={i} fill={TYPE_COLOR[p.type] || C.brand} fillOpacity={0.78} />
-                ))}
-              </Scatter>
-            </ScatterChart>
-          </ResponsiveContainer>
-          {activeYear && <YearDetail year={activeYear} g={g} onClose={() => setActiveYear(null)} />}
-        </Card>
+        <ActivityMap scatter={scatter} g={g} onOpenDoc={setOpenDoc}
+          activeYear={activeYear} setActiveYear={setActiveYear} />
       )}
 
       {/* ── TITLE CHAIN: original → updates ── */}
@@ -166,8 +148,10 @@ export default function PropertyGraphView({ data }) {
             <div style={{ display: "flex", gap: 0, flexWrap: "wrap", alignItems: "stretch" }}>
               {g.title_versions.map((t, i) => (
                 <div key={t.doc_id} style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ border: `1px solid ${t.is_latest ? C.green : C.hair}`, borderRadius: 8,
-                    padding: "10px 14px", background: "#fff", minWidth: 180,
+                  <div onClick={() => t.doc_id && setOpenDoc(t.doc_id)}
+                    title="Open document"
+                    style={{ border: `1px solid ${t.is_latest ? C.green : C.hair}`, borderRadius: 8,
+                    padding: "10px 14px", background: "#fff", minWidth: 180, cursor: "pointer",
                     boxShadow: t.is_latest ? "0 0 0 2px rgba(46,125,50,.15)" : "none" }}>
                     <div style={{ ...mono, fontSize: 12, color: C.mute }}>{t.date || "undated"}</div>
                     <div style={{ fontWeight: 700, color: C.ink }}>
@@ -222,7 +206,11 @@ export default function PropertyGraphView({ data }) {
             <Row gutter={[12, 12]}>
               {g.documents.map((d) => (
                 <Col key={d.doc_id} xs={24} sm={12} md={8}>
-                  <div style={{ border: `1px solid ${C.hair}`, borderRadius: 8, padding: 12, background: "#fff", height: "100%" }}>
+                  <div onClick={() => setOpenDoc(d.doc_id)} title="Open document"
+                    style={{ border: `1px solid ${C.hair}`, borderRadius: 8, padding: 12, background: "#fff",
+                      height: "100%", cursor: "pointer", transition: "box-shadow .15s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 2px 10px rgba(35,74,82,.16)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}>
                     <Tag color={TYPE_COLOR[d.source_type] ? undefined : "default"}
                       style={{ borderColor: TYPE_COLOR[d.source_type], color: TYPE_COLOR[d.source_type] }}>
                       {d.source_type}
@@ -230,6 +218,7 @@ export default function PropertyGraphView({ data }) {
                     <div style={{ fontWeight: 600, color: C.ink, marginTop: 4 }}>{d.label}</div>
                     <div style={{ ...mono, fontSize: 12, color: C.mute }}>{d.date || "undated"} · {d.pages || "?"} pp</div>
                     {d.sha256 && <Tooltip title={d.sha256}><code style={{ fontSize: 10, color: C.mute }}>{d.sha256.slice(0, 14)}…</code></Tooltip>}
+                    <div style={{ ...mono, fontSize: 11, color: C.brand, marginTop: 6 }}>open ↗</div>
                   </div>
                 </Col>
               ))}
@@ -237,6 +226,8 @@ export default function PropertyGraphView({ data }) {
           )}
         </Card>
       )}
+
+      <DocumentViewer docId={openDoc} onClose={() => setOpenDoc(null)} />
     </div>
   );
 }
@@ -256,16 +247,152 @@ function MortTip({ active, payload, label }) {
   );
 }
 
-function DotTip({ active, payload }) {
-  if (!active || !payload?.length) return null;
-  const p = payload[0].payload;
+// ── Friendly activity map: a swimlane "when it happened" timeline + a readable
+//    year-by-year story. Replaces the old bare scatter-of-dots. ──
+const TYPE_LABEL = Object.fromEntries(LANES.map(([k, l]) => [k, l]));
+
+function ActivityMap({ scatter, g, activeYear, setActiveYear, onOpenDoc }) {
+  const years = scatter.map((p) => p.x).filter(Boolean);
+  const minY = years.length ? Math.min(...years) : null;
+  const maxY = years.length ? Math.max(...years) : null;
+  const span = Math.max(1, (maxY || 0) - (minY || 0));
+  const pos = (y) => (((y - minY) / span) * 100);
+
+  // lanes that actually have events, in canonical order
+  const lanes = LANES.filter(([k]) => scatter.some((p) => p.type === k));
+
+  // year axis ticks (distinct years that have activity)
+  const tickYears = Array.from(new Set(years)).sort((a, b) => a - b);
+
+  // chronological story: events grouped by year, newest first
+  const storyYears = useMemo(() => {
+    const by = {};
+    scatter.forEach((p) => { (by[p.x] = by[p.x] || []).push(p); });
+    return Object.keys(by).map(Number).sort((a, b) => b - a)
+      .map((y) => ({ year: y, items: by[y] }));
+  }, [scatter]);
+
+  if (!scatter.length) {
+    return (
+      <Card size="small" title="Property activity map" style={cardStyle}>
+        <Empty description="No dated activity (mortgages, conveyances, liens, payments) recorded for this property yet." />
+      </Card>
+    );
+  }
+
   return (
-    <div style={{ background: "#fff", border: `1px solid ${C.hair}`, borderRadius: 8, padding: 10, maxWidth: 300 }}>
-      <Tag color="default" style={{ borderColor: TYPE_COLOR[p.type], color: TYPE_COLOR[p.type] }}>{p.type}</Tag>
-      <span style={mono}> {p.x}</span>
-      <div style={{ fontWeight: 600, marginTop: 4 }}>{p.label}</div>
-      {p.quote && <div style={{ ...serif, fontStyle: "italic", fontSize: 12, color: C.mute, marginTop: 4 }}>“{String(p.quote).slice(0, 140)}”</div>}
-    </div>
+    <Card size="small" title="Property activity map — when everything happened"
+      style={cardStyle}
+      extra={<span style={{ ...mono, fontSize: 11, color: C.mute }}>click a year to expand</span>}>
+      {/* legend */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 14 }}>
+        {lanes.map(([k, label]) => (
+          <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: C.ink }}>
+            <span style={{ width: 11, height: 11, borderRadius: 3, background: TYPE_COLOR[k] || C.brand, display: "inline-block" }} />
+            {label}
+          </span>
+        ))}
+      </div>
+
+      {/* swimlanes: one row per type, markers placed by year */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {lanes.map(([k, label]) => {
+          // cluster this lane's events by year
+          const byY = {};
+          scatter.filter((p) => p.type === k).forEach((p) => { (byY[p.x] = byY[p.x] || []).push(p); });
+          const total = scatter.filter((p) => p.type === k).length;
+          return (
+            <div key={k} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 170, flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 22, height: 22, borderRadius: 6, background: TYPE_COLOR[k] || C.brand,
+                  color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13 }}>
+                  {LANE_ICON[k] || "•"}
+                </span>
+                <span style={{ fontSize: 13, color: C.ink }}>{label}</span>
+                <Tag style={{ marginLeft: "auto", marginRight: 0 }}>{total}</Tag>
+              </div>
+              <div style={{ position: "relative", flex: 1, height: 34, borderRadius: 6,
+                background: "#fff", border: `1px solid ${C.hair}` }}>
+                {/* baseline */}
+                <div style={{ position: "absolute", top: "50%", left: 8, right: 8, height: 2,
+                  background: "#f0ebdd", transform: "translateY(-50%)" }} />
+                {Object.entries(byY).map(([yr, evs]) => {
+                  const y = Number(yr);
+                  const sz = Math.min(26, 14 + evs.length * 3);
+                  const tip = (
+                    <div style={{ maxWidth: 260 }}>
+                      <b style={mono}>{yr}</b> · {label}
+                      {evs.slice(0, 6).map((e, i) => (
+                        <div key={i} style={{ fontSize: 12, marginTop: 3 }}>• {e.label}</div>
+                      ))}
+                      {evs.length > 6 && <div style={{ fontSize: 12, color: C.mute }}>+{evs.length - 6} more…</div>}
+                    </div>
+                  );
+                  return (
+                    <Tooltip key={yr} title={tip}>
+                      <div onClick={() => setActiveYear(y)}
+                        style={{ position: "absolute", top: "50%", left: `calc(${pos(y)}% )`,
+                          transform: "translate(-50%,-50%)", width: sz, height: sz, borderRadius: "50%",
+                          background: TYPE_COLOR[k] || C.brand, color: "#fff", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 11, fontWeight: 700, border: "2px solid #fff",
+                          boxShadow: activeYear === y ? `0 0 0 3px ${TYPE_COLOR[k]}55` : "0 1px 3px rgba(0,0,0,.18)" }}>
+                        {evs.length > 1 ? evs.length : ""}
+                      </div>
+                    </Tooltip>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+        {/* year axis */}
+        <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
+          <div style={{ width: 170, flexShrink: 0 }} />
+          <div style={{ position: "relative", flex: 1, height: 18 }}>
+            {tickYears.map((y) => (
+              <span key={y} style={{ position: "absolute", left: `${pos(y)}%`, transform: "translateX(-50%)",
+                ...mono, fontSize: 11, color: C.mute }}>{y}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* expanded year detail (click a marker) */}
+      {activeYear && <YearDetail year={activeYear} g={g} onClose={() => setActiveYear(null)} />}
+
+      {/* readable chronological story */}
+      <div style={{ marginTop: 18, borderTop: `1px solid ${C.hair}`, paddingTop: 12 }}>
+        <div style={{ ...serif, fontSize: 16, color: C.ink, marginBottom: 8 }}>Chronology</div>
+        {storyYears.map(({ year, items }) => (
+          <div key={year} style={{ display: "flex", gap: 14, marginBottom: 10 }}>
+            <div style={{ width: 56, flexShrink: 0, ...mono, fontWeight: 700, color: C.brand, fontSize: 14 }}>{year}</div>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+              {items.map((e, i) => (
+                <div key={i}
+                  onClick={() => e.docId && onOpenDoc && onOpenDoc(e.docId)}
+                  title={e.docId ? "Open document" : undefined}
+                  style={{ background: "#fff", borderRadius: "0 6px 6px 0",
+                    padding: "6px 10px", border: `1px solid ${C.hair}`,
+                    borderLeft: `3px solid ${TYPE_COLOR[e.type] || C.brand}`,
+                    cursor: e.docId ? "pointer" : "default" }}>
+                  <Tag style={{ borderColor: TYPE_COLOR[e.type], color: TYPE_COLOR[e.type], background: "transparent" }}>
+                    {TYPE_LABEL[e.type] || e.type}
+                  </Tag>
+                  <span style={{ color: C.ink }}>{e.label}</span>
+                  {e.docId && <span style={{ ...mono, fontSize: 11, color: C.brand, marginLeft: 6 }}>open ↗</span>}
+                  {e.quote && (
+                    <div style={{ ...serif, fontStyle: "italic", fontSize: 12.5, color: C.mute, marginTop: 3 }}>
+                      “{String(e.quote).slice(0, 160)}”
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 

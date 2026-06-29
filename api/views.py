@@ -5,9 +5,12 @@ UI is instant. JWT-protected via get_current_user.
 """
 from __future__ import annotations
 
+import mimetypes
+import os
+from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 
 from api.auth import User, get_current_user
@@ -179,6 +182,137 @@ async def property_graph_view(property_id: str, _: User = Depends(get_current_us
 @router.get("/properties/{property_id}/evidence-packet")
 async def property_evidence(property_id: str, _: User = Depends(get_current_user)):
     return evidence_packet(get_mongo(), property_id=property_id)
+
+
+# ── single document viewer (full transcript + original file) ─────────────────
+# Disk roots to resolve title/discovery source PDFs that aren't stored in the DB.
+_DISK_BASES = [Path(r"F:\Title reports"), Path("F:/"), Path("E:/")]
+
+
+def _doc_source_paths(doc: dict) -> List[str]:
+    out = []
+    for sf in (doc.get("custody") or {}).get("source_files") or []:
+        if isinstance(sf, dict):
+            p = sf.get("source_path") or sf.get("path") or sf.get("name")
+        else:
+            p = sf
+        if p:
+            out.append(str(p))
+    return out
+
+
+def _locate_on_disk(doc: dict) -> Optional[Path]:
+    for raw in _doc_source_paths(doc):
+        p = raw.replace("/", "\\")
+        cands: List[Path] = []
+        if os.path.isabs(p):
+            cands.append(Path(p))
+        else:
+            for b in _DISK_BASES:
+                cands.append(b / p)
+                # tolerate paths that already include the 'Title reports' anchor
+                low = p.lower()
+                if low.startswith("title reports\\"):
+                    cands.append(b / p[len("title reports\\"):])
+        for c in cands:
+            try:
+                if c.is_file():
+                    return c
+            except OSError:
+                continue
+    return None
+
+
+def _gridfs_file_doc(db, sha: Optional[str]):
+    if not sha:
+        return None
+    return db["attachment_files.files"].find_one({"metadata.sha256": sha})
+
+
+def _read_original(db, doc: dict):
+    """Return (bytes, filename) for the original document, or None.
+    Source priority: GridFS attachment_files (by sha) -> attachments_v2 gridfs_id
+    -> on-disk source_files (F:/E:)."""
+    sha = (doc.get("custody") or {}).get("sha256")
+    fdoc = _gridfs_file_doc(db, sha)
+    if fdoc:
+        from gridfs import GridFSBucket
+        b = GridFSBucket(db, bucket_name="attachment_files")
+        return b.open_download_stream(fdoc["_id"]).read(), (fdoc.get("filename") or "document")
+    if sha:
+        av = db["attachments_v2"].find_one({"sha256": sha})
+        if av and av.get("gridfs_id"):
+            from gridfs import GridFSBucket
+            for bn in ("attachment_files", "fs"):
+                try:
+                    b = GridFSBucket(db, bucket_name=bn)
+                    return (b.open_download_stream(av["gridfs_id"]).read(),
+                            (av.get("filename") or "document"))
+                except Exception:  # noqa: BLE001
+                    continue
+    p = _locate_on_disk(doc)
+    if p:
+        try:
+            return p.read_bytes(), p.name
+        except OSError:
+            return None
+    return None
+
+
+def _has_original(db, doc: dict) -> bool:
+    sha = (doc.get("custody") or {}).get("sha256")
+    if _gridfs_file_doc(db, sha):
+        return True
+    if sha and db["attachments_v2"].find_one({"sha256": sha}, {"_id": 1}):
+        return True
+    return _locate_on_disk(doc) is not None
+
+
+@router.get("/documents/{doc_id}")
+async def document_detail(doc_id: str, _: User = Depends(get_current_user)):
+    """Full single-document payload: metadata + the complete frontier-OCR
+    transcript (always available) + whether an original file can be served."""
+    db = _db()
+    d = db["documents"].find_one({"_id": doc_id})
+    if not d:
+        raise HTTPException(404, "document not found")
+    srcs = _doc_source_paths(d)
+    fname = None
+    if srcs:
+        fname = srcs[0].replace("/", "\\").split("\\")[-1]
+    return {
+        "doc_id": d["_id"],
+        "source_type": d.get("source_type"),
+        "vendor": d.get("vendor"),
+        "label": fname or d["_id"],
+        "date": _fmt(d.get("completed_date") or d.get("search_date")
+                     or d.get("effective_date") or d.get("created_at")),
+        "pages": d.get("page_count"),
+        "sha256": (d.get("custody") or {}).get("sha256"),
+        "order_number": d.get("order_number"),
+        "is_latest": bool(d.get("is_latest")),
+        "extraction_method": d.get("extraction_method"),
+        "property_address": d.get("property_address"),
+        "text": d.get("extracted_text") or "",
+        "has_original": _has_original(db, d),
+        "original_filename": fname,
+    }
+
+
+@router.get("/documents/{doc_id}/file")
+async def document_file(doc_id: str, _: User = Depends(get_current_user)):
+    """Stream the original document bytes (PDF/image/office) for inline viewing."""
+    db = _db()
+    d = db["documents"].find_one({"_id": doc_id}, {"custody": 1})
+    if not d:
+        raise HTTPException(404, "document not found")
+    res = _read_original(db, d)
+    if not res:
+        raise HTTPException(404, "original file not available")
+    data, fname = res
+    media = mimetypes.guess_type(fname)[0] or "application/octet-stream"
+    return Response(content=data, media_type=media,
+                    headers={"Content-Disposition": f'inline; filename="{fname}"'})
 
 
 # ── findings ─────────────────────────────────────────────────────────────────

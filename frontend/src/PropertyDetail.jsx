@@ -4,6 +4,7 @@ import { Spin, Tag, Card, Timeline, Descriptions, Button, Tabs, Table, Tooltip, 
 import jsPDF from "jspdf";
 import { getProperty, getEvidencePacket, getPropertyGraph } from "./api";
 import PropertyGraphView from "./PropertyGraphView";
+import DocumentViewer from "./DocumentViewer";
 
 const SEV_COLOR = { critical: "red", high: "volcano", medium: "gold", info: "default" };
 const EVENT_COLOR = {
@@ -51,6 +52,7 @@ export default function PropertyDetail() {
   const [loading, setLoading] = useState(true);
   const [graph, setGraph] = useState(null);
   const [graphLoading, setGraphLoading] = useState(false);
+  const [openDoc, setOpenDoc] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -234,7 +236,10 @@ export default function PropertyDetail() {
     qcol,
   ];
   const titleCols = [
-    { title: "Date", dataIndex: "date", width: 100, render: (v, r) => <span>{v || "?"}{r.is_latest && <Tag color="green" style={{ marginLeft: 6 }}>latest</Tag>}</span> },
+    { title: "Date", dataIndex: "date", width: 130, render: (v, r) => (
+      <a onClick={() => r.doc_id && setOpenDoc(r.doc_id)} style={{ color: "#234a52", fontWeight: 600 }}>
+        {v || "open"} ↗{r.is_latest && <Tag color="green" style={{ marginLeft: 6 }}>latest</Tag>}
+      </a>) },
     { title: "Type", dataIndex: "type", width: 120, render: (v) => <Tag color={v === "full search" ? "blue" : "default"}>{v}</Tag> },
     { title: "Vendor", dataIndex: "vendor" },
     { title: "Effective", dataIndex: "effective_date", width: 100 },
@@ -250,7 +255,10 @@ export default function PropertyDetail() {
     { title: "Status", dataIndex: "is_cancellation", width: 110, render: (v) => v ? <Tag color="volcano">cancellation</Tag> : <Tag color="green">coverage</Tag> },
   ];
   const docCols = [
-    { title: "Source file", dataIndex: "source_file", render: (v, r) => v || r.doc_id },
+    { title: "Source file", dataIndex: "source_file", render: (v, r) => (
+      <a onClick={() => setOpenDoc(r.doc_id)} style={{ color: "#234a52", fontWeight: 600 }}>
+        {v || r.doc_id} ↗
+      </a>) },
     { title: "Type", dataIndex: "source_type", width: 130 },
     { title: "Pages", dataIndex: "pages", width: 70, align: "center" },
     { title: "SHA-256", dataIndex: "sha256", width: 130, render: (v) => v ? <Tooltip title={v}><code style={{ fontSize: 11 }}>{v.slice(0, 12)}…</code></Tooltip> : "—" },
@@ -399,6 +407,8 @@ export default function PropertyDetail() {
 
       <Tabs items={tabs} defaultActiveKey="map"
         onChange={(k) => { if (k === "map") loadGraph(); }} />
+
+      <DocumentViewer docId={openDoc} onClose={() => setOpenDoc(null)} />
     </div>
   );
 }

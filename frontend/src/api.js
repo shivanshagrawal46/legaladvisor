@@ -31,6 +31,9 @@ export const getProperty = (id) => api.get(`/api/properties/${id}`);
 export const getPropertyGraph = (id) => api.get(`/api/properties/${id}/graph`);
 export const getEvidencePacket = (id) =>
   api.get(`/api/properties/${id}/evidence-packet`);
+export const getDocument = (id) => api.get(`/api/documents/${id}`);
+export const getDocumentFileBlob = (id) =>
+  api.get(`/api/documents/${id}/file`, { responseType: "blob" });
 export const getFindings = (params = {}) => api.get("/api/findings", { params });
 export const setFindingStatus = (id, status) =>
   api.patch(`/api/findings/${id}`, { status });
