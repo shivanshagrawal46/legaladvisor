@@ -104,6 +104,10 @@ def addr_hits(text: str, aidx: Dict[str, Set[str]]) -> Set[str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--sha-file", default=None,
+                    help="only (re)link chunks whose sha256 is listed in this file "
+                         "(one sha per line). Used for targeted re-enrichment after "
+                         "a scoped re-chunk.")
     args = ap.parse_args()
     now = datetime.now(timezone.utc)
     s = Settings.load()
@@ -123,8 +127,15 @@ def main() -> int:
                      "|".join(re.escape(p) for p in phrases) +
                      r")(?![a-z0-9])", re.IGNORECASE)
 
-    cur = chunks.find({}, {"_id": 1, "text": 1, "body": 1, "entity_refs": 1,
-                           "document_id": 1})
+    scope = {}
+    if args.sha_file:
+        from pathlib import Path as _P
+        shas = sorted({ln.strip() for ln in _P(args.sha_file).read_text(
+            encoding="utf-8").splitlines() if ln.strip()})
+        scope = {"sha256": {"$in": shas}}
+        logger.info(f"scoped to {len(shas)} sha from {args.sha_file}")
+    cur = chunks.find(scope, {"_id": 1, "text": 1, "body": 1, "entity_refs": 1,
+                              "document_id": 1})
     if args.limit:
         cur = cur.limit(args.limit)
     ops: List[UpdateOne] = []

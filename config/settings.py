@@ -143,6 +143,7 @@ class Settings:
     rag_v2_llm_reranker: bool
     rag_v2_llm_reranker_model: str
     rag_v2_llm_reranker_top_n: int
+    rag_v2_llm_reranker_effort: str        # adaptive-thinking effort for the judge
 
     # v2 tunables — channel-level retrieval
     rag_v2_max_alt_queries: int       # How many alternate phrasings to generate
@@ -287,6 +288,7 @@ class Settings:
             rag_v2_llm_reranker=_get_bool("RAG_V2_LLM_RERANKER", True),
             rag_v2_llm_reranker_model=_get("RAG_V2_LLM_RERANKER_MODEL", "claude-opus-4-8"),
             rag_v2_llm_reranker_top_n=_get_int("RAG_V2_LLM_RERANKER_TOP_N", 50),
+            rag_v2_llm_reranker_effort=_get("RAG_V2_LLM_RERANKER_EFFORT", "high"),
 
             # tunables — channels
             rag_v2_max_alt_queries=_get_int("RAG_V2_MAX_ALT_QUERIES", 3),

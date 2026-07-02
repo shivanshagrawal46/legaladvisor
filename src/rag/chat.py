@@ -361,6 +361,7 @@ class LegalAdvisorChat:
         agent_max_wall_clock_s: float = 1200.0,
         agent_model: str = "claude-opus-4-6",
         agent_max_tokens_per_call: int = 16384,
+        agent_effort: Optional[str] = None,
         agent_seed_with_initial_search: bool = True,
         agent_trace_log_db: Optional[Any] = None,
     ) -> None:
@@ -391,6 +392,7 @@ class LegalAdvisorChat:
         self.agent_max_wall_clock_s = agent_max_wall_clock_s
         self.agent_model = agent_model
         self.agent_max_tokens_per_call = agent_max_tokens_per_call
+        self.agent_effort = agent_effort
         self.agent_seed_with_initial_search = agent_seed_with_initial_search
         self.agent_trace_log_db = agent_trace_log_db
         # Hook for the WS layer to subscribe to live agent events.
@@ -412,7 +414,7 @@ class LegalAdvisorChat:
         timeline: Optional[bool] = None,
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
-        max_chunks_timeline: int = 50,
+        max_chunks_timeline: int = 120,
         mode: str = "analysis",
     ) -> Turn:
         # ---- Sprint 5.5: Clean mode — exclude privileged at the retrieval
@@ -475,6 +477,16 @@ class LegalAdvisorChat:
             agent_base_filter = clean_mode_filter()
         turn = self._ask_agent(question=question, initial_chunks=chunks,
                                base_filter=agent_base_filter)
+
+        # Surface a v2→v1 retrieval degrade (previously silent — thin
+        # answers with no visible cause).
+        retrieval_degraded = getattr(self.retriever, "last_degraded", None)
+        if retrieval_degraded and turn.answer:
+            turn.answer += (
+                "\n\n⚠ **Retrieval note** — enhanced (v2) retrieval degraded "
+                f"to basic search for this query ({retrieval_degraded}); "
+                "evidence coverage may be thinner than usual."
+            )
 
         # ---- Sprint 5.5/5.6/5.7: mode, provenance footer, isolation ------
         turn.mode = mode
@@ -540,7 +552,10 @@ class LegalAdvisorChat:
                 "agent_v2_pipeline missing; degrading to verified one-shot "
                 "for this query"
             )
-            return self._fallback_to_verified(question, initial_chunks)
+            return self._degraded_turn(
+                question, initial_chunks,
+                reason="agent pipeline not configured",
+            )
 
         from src.rag.v3 import AgentRunner, BudgetTracker
 
@@ -560,6 +575,7 @@ class LegalAdvisorChat:
             model=self.agent_model,
             max_tokens_per_call=self.agent_max_tokens_per_call,
             fuzzy_threshold=self.verifier_threshold,
+            effort=self.agent_effort,
         )
 
         # Conversation memory: give the agent the prior turns (verbatim recent
@@ -568,6 +584,7 @@ class LegalAdvisorChat:
         prior_messages = self._build_prior_messages()
 
         agent_result = None
+        crash_reason = None
         try:
             agent_result = runner.run(
                 question,
@@ -578,12 +595,16 @@ class LegalAdvisorChat:
                 base_filter=base_filter,
             )
         except Exception as exc:  # noqa: BLE001
+            crash_reason = f"agent loop crashed: {str(exc)[:200]}"
             logger.error(f"agent loop crashed; falling back to verified one-shot: {exc}")
         finally:
             self._current_budget = None
 
         if agent_result is None:
-            return self._fallback_to_verified(question, initial_chunks)
+            return self._degraded_turn(
+                question, initial_chunks,
+                reason=crash_reason or "agent returned no result",
+            )
 
         # Persist agent_trace if configured.
         if self.agent_trace_log_db is not None:
@@ -633,6 +654,37 @@ class LegalAdvisorChat:
             user_msg=user_msg,
             prior_messages=prior_messages,
         )
+
+    def _degraded_turn(
+        self,
+        question: str,
+        initial_chunks: List[RetrievedChunk],
+        *,
+        reason: str,
+    ) -> Turn:
+        """
+        Agent → one-shot degrade, made VISIBLE. Previously this fallback
+        was silent: the user got a much shallower answer, the reasoning
+        panel froze on "Investigating…", and the failure looked like a
+        model-quality problem. Now we (a) emit an `agent_degraded` event
+        so the UI can close the panel with an explicit status, and
+        (b) annotate the answer so the reader knows this response did
+        not go through the deep-investigation pipeline.
+        """
+        if self.on_agent_event is not None:
+            try:
+                self.on_agent_event("agent_degraded", {"reason": reason})
+            except Exception:  # noqa: BLE001
+                pass
+        turn = self._fallback_to_verified(question, initial_chunks)
+        note = (
+            "\n\n---\n⚠ **Degraded answer** — the deep-investigation agent "
+            f"was unavailable for this query ({reason}). This response used "
+            "the one-shot verified pipeline; re-ask to retry the full agent."
+        )
+        if turn.answer:
+            turn.answer = f"{turn.answer}{note}"
+        return turn
 
     def get_current_budget(self):
         """Expose the running BudgetTracker so the WS layer can set
@@ -686,12 +738,14 @@ class LegalAdvisorChat:
                 f"verified-answer pipeline crashed; falling back to "
                 f"plain answer: {exc}"
             )
-            response = self.client.messages.create(
+            # Streaming so max_tokens may exceed the ~21k non-streaming cap.
+            with self.client.messages.stream(
                 model=self.model,
                 max_tokens=self.max_tokens,
                 system=system_prompt,
                 messages=prior_messages + [{"role": "user", "content": user_msg}],
-            )
+            ) as _stream:
+                response = _stream.get_final_message()
             parts = [
                 b.text for b in response.content
                 if getattr(b, "type", None) == "text"

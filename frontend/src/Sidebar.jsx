@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Button, Tooltip, Modal, Typography, Badge } from "antd";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { Button, Tooltip, Modal, Typography, Input, message } from "antd";
 import {
   PlusOutlined,
   DeleteOutlined,
   MessageOutlined,
   LogoutOutlined,
-  ScissorOutlined,
+  EditOutlined,
+  SearchOutlined,
+  CheckOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
-import { deleteSession } from "./api";
+import { deleteSession, renameSession } from "./api";
 
 const { Text } = Typography;
 
@@ -22,8 +25,55 @@ function formatDate(iso) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete, userName }) {
+export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete, onRename, userName }) {
   const [deletingId, setDeletingId] = useState(null);
+  const [query, setQuery] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [savingId, setSavingId] = useState(null);
+  const editRef = useRef(null);
+
+  useEffect(() => {
+    if (editingId && editRef.current) {
+      editRef.current.focus({ cursor: "all" });
+    }
+  }, [editingId]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sessions;
+    return sessions.filter(s =>
+      (s.title || "New conversation").toLowerCase().includes(q)
+    );
+  }, [sessions, query]);
+
+  function startEdit(e, s) {
+    e.stopPropagation();
+    setEditingId(s.session_id);
+    setEditValue(s.title || "");
+  }
+
+  function cancelEdit(e) {
+    if (e) e.stopPropagation();
+    setEditingId(null);
+    setEditValue("");
+  }
+
+  async function saveEdit(e, id) {
+    if (e) e.stopPropagation();
+    const title = editValue.trim();
+    if (!title) { cancelEdit(); return; }
+    setSavingId(id);
+    try {
+      await renameSession(id, title);
+      onRename?.(id, title.slice(0, 80));
+      setEditingId(null);
+      setEditValue("");
+    } catch (_) {
+      message.error("Could not rename conversation");
+    }
+    setSavingId(null);
+  }
 
   function confirmDelete(e, id) {
     e.stopPropagation();
@@ -70,11 +120,25 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
         </Tooltip>
       </div>
 
+      {/* Search */}
+      <div style={styles.searchWrap}>
+        <Input
+          allowClear
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Search conversations"
+          prefix={<SearchOutlined style={{ color: "var(--muted-2)", fontSize: 13 }} />}
+          style={styles.searchInput}
+        />
+      </div>
+
       {/* Sessions */}
       <div style={styles.sectionLabel}>
         <span style={styles.sectionLabelText}>Conversations</span>
         {sessions.length > 0 && (
-          <span className="mono" style={styles.countBadge}>{sessions.length}</span>
+          <span className="mono" style={styles.countBadge}>
+            {query.trim() ? `${filtered.length}/${sessions.length}` : sessions.length}
+          </span>
         )}
       </div>
 
@@ -85,7 +149,15 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
             <Text style={{ color: "var(--muted-2)", fontSize: 12 }}>No conversations yet</Text>
           </div>
         )}
-        {sessions.map(s => (
+        {sessions.length > 0 && filtered.length === 0 && (
+          <div style={styles.emptyState}>
+            <SearchOutlined style={{ fontSize: 18, color: "var(--t5)", marginBottom: 8 }} />
+            <Text style={{ color: "var(--muted-2)", fontSize: 12 }}>No matches</Text>
+          </div>
+        )}
+        {filtered.map(s => {
+          const isEditing = editingId === s.session_id;
+          return (
           <div
             key={s.session_id}
             className="session-item"
@@ -93,28 +165,77 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
               ...styles.item,
               ...(s.session_id === activeId ? styles.itemActive : {}),
             }}
-            onClick={() => onSelect(s.session_id)}
+            onClick={() => { if (!isEditing) onSelect(s.session_id); }}
           >
             <div style={styles.itemIcon}>
               <MessageOutlined style={{ fontSize: 12, color: s.session_id === activeId ? "var(--river)" : "var(--muted-2)" }} />
             </div>
             <div style={styles.itemContent}>
-              <div style={styles.itemTitle}>{s.title || "New conversation"}</div>
-              <div style={styles.itemMeta} className="mono">{formatDate(s.updated_at)}</div>
+              {isEditing ? (
+                <Input
+                  ref={editRef}
+                  size="small"
+                  value={editValue}
+                  maxLength={80}
+                  onClick={e => e.stopPropagation()}
+                  onChange={e => setEditValue(e.target.value)}
+                  onPressEnter={e => saveEdit(e, s.session_id)}
+                  onKeyDown={e => { if (e.key === "Escape") cancelEdit(e); }}
+                  style={styles.editInput}
+                />
+              ) : (
+                <>
+                  <div style={styles.itemTitle}>{s.title || "New conversation"}</div>
+                  <div style={styles.itemMeta} className="mono">{formatDate(s.updated_at)}</div>
+                </>
+              )}
             </div>
-            <Tooltip title="Delete" placement="right">
-              <Button
-                type="text"
-                size="small"
-                className="session-del"
-                icon={<DeleteOutlined />}
-                loading={deletingId === s.session_id}
-                onClick={e => confirmDelete(e, s.session_id)}
-                style={styles.deleteBtn}
-              />
-            </Tooltip>
+            {isEditing ? (
+              <div style={styles.editActions} onClick={e => e.stopPropagation()}>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CheckOutlined />}
+                  loading={savingId === s.session_id}
+                  onClick={e => saveEdit(e, s.session_id)}
+                  style={styles.editBtn}
+                />
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CloseOutlined />}
+                  onClick={cancelEdit}
+                  style={styles.editBtn}
+                />
+              </div>
+            ) : (
+              <div style={styles.itemActions}>
+                <Tooltip title="Rename" placement="top">
+                  <Button
+                    type="text"
+                    size="small"
+                    className="session-del"
+                    icon={<EditOutlined />}
+                    onClick={e => startEdit(e, s)}
+                    style={styles.deleteBtn}
+                  />
+                </Tooltip>
+                <Tooltip title="Delete" placement="top">
+                  <Button
+                    type="text"
+                    size="small"
+                    className="session-del"
+                    icon={<DeleteOutlined />}
+                    loading={deletingId === s.session_id}
+                    onClick={e => confirmDelete(e, s.session_id)}
+                    style={styles.deleteBtn}
+                  />
+                </Tooltip>
+              </div>
+            )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* User footer */}
@@ -140,8 +261,8 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, onDelete,
 
 const styles = {
   aside: {
-    width: 264,
-    minWidth: 264,
+    width: 320,
+    minWidth: 320,
     background: "var(--surface-2)",
     borderRight: "1px solid var(--hair)",
     display: "flex",
@@ -196,8 +317,16 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
+  searchWrap: {
+    padding: "12px 16px 4px",
+  },
+  searchInput: {
+    borderRadius: "var(--r-sm)",
+    background: "var(--surface)",
+    fontSize: 13,
+  },
   sectionLabel: {
-    padding: "22px 20px 10px",
+    padding: "14px 20px 10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -268,6 +397,18 @@ const styles = {
     color: "var(--muted-2)",
     marginTop: 2,
   },
+  itemActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    flexShrink: 0,
+  },
+  editActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    flexShrink: 0,
+  },
   deleteBtn: {
     color: "var(--muted-2)",
     flexShrink: 0,
@@ -278,6 +419,22 @@ const styles = {
     justifyContent: "center",
     padding: 0,
     fontSize: 11,
+  },
+  editBtn: {
+    color: "var(--muted-2)",
+    flexShrink: 0,
+    width: 22,
+    height: 22,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 0,
+    fontSize: 11,
+  },
+  editInput: {
+    fontSize: 13,
+    padding: "2px 6px",
+    borderRadius: "var(--r-sm)",
   },
   userFooter: {
     padding: "14px 16px",

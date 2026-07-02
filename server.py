@@ -151,6 +151,27 @@ async def get_session(
     return doc
 
 
+class RenameSessionIn(BaseModel):
+    title: str
+
+
+@app.patch("/api/sessions/{session_id}")
+async def rename_session(
+    session_id: str,
+    body: RenameSessionIn,
+    current_user: User = Depends(get_current_user),
+    store: SessionStore = Depends(get_store),
+):
+    title = (body.title or "").strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
+    doc = store.get_session(session_id, current_user.email)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Session not found")
+    store.set_title(session_id, current_user.email, title)
+    return {"session_id": session_id, "title": title[:80]}
+
+
 @app.delete("/api/sessions/{session_id}", status_code=204)
 async def delete_session(
     session_id: str,

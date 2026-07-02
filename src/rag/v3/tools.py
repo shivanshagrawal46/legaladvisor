@@ -6,9 +6,10 @@ or around the Sprint-3 verifier. The agent invokes tools by calling
 Anthropic tool-use; we parse the input, execute against the v2 stack,
 and return a summarised result that:
 
-  1. Is small enough to fit in the next planner turn (we truncate
-     chunk bodies aggressively — the agent only needs enough context
-     to decide what to do next, NOT the full text).
+  1. Fits in the next planner turn with GENEROUS budgets — the planner
+     writes the final forensic analysis from what it reads here, so
+     tool results carry substantial chunk text (search briefs ~1,200
+     chars; fetch_full_document ships the full body up to 40K chars).
   2. Carries the [#N] indices so the planner can reference them in
      future tool calls and in the final answer.
   3. Records full chunks in the scratchpad so the verifier (and the
@@ -73,7 +74,7 @@ class ToolSpec:
 # Shared helpers
 # =====================================================================
 
-def _short_body(c: RetrievedChunk, max_chars: int = 320) -> str:
+def _short_body(c: RetrievedChunk, max_chars: int = 1600) -> str:
     """Trim chunk body for the planner-facing tool result."""
     body = (c.body or c.text or "").strip()
     body = re.sub(r"\s+", " ", body)
@@ -102,7 +103,7 @@ def _chunk_brief(c: RetrievedChunk, display_index: int) -> Dict[str, Any]:
         "title": title,
         "date": _date_str(c.date),
         "from": c.from_email or "",
-        "snippet": _short_body(c, 280),
+        "snippet": _short_body(c, 1200),
         "chunk_id": c.chunk_id,
         "sha256": getattr(c, "sha256", None),
     }
@@ -361,11 +362,13 @@ class ToolBox:
             )
         new_idx = self._pad.add_chunks(docs)
 
-        # Build full body
+        # Build full body. The planner NEEDS the actual document text to
+        # analyse it (this tool exists for depth) — ship up to 40K chars
+        # (~10K tokens); only truly enormous documents get clipped.
         full_text = " ".join((d.body or d.text or "") for d in docs)
         full_text = re.sub(r"\s+", " ", full_text).strip()
-        if len(full_text) > 1200:
-            full_text_preview = full_text[:1200] + "..."
+        if len(full_text) > 40000:
+            full_text_preview = full_text[:40000] + "... [truncated]"
         else:
             full_text_preview = full_text
 
@@ -453,8 +456,8 @@ class ToolBox:
             body = (c.body or c.text or "")
             m = re.search(pattern, body, re.IGNORECASE)
             if m:
-                s = max(0, m.start() - 80)
-                e = min(len(body), m.end() + 80)
+                s = max(0, m.start() - 400)
+                e = min(len(body), m.end() + 400)
                 ctx = body[s:e].replace("\n", " ")
                 ctx = re.sub(r"\s+", " ", ctx)
                 b["match_context"] = ("..." if s > 0 else "") + ctx + ("..." if e < len(body) else "")
@@ -532,7 +535,7 @@ class ToolBox:
                 "filename": c.filename,
                 "date": _date_str(c.latest_date or c.date),
                 "sha256": getattr(c, "sha256", None),
-                "snippet": _short_body(c, 200),
+                "snippet": _short_body(c, 600),
             })
 
         return ToolResult(
@@ -578,7 +581,7 @@ class ToolBox:
                 "filename": c.filename,
                 "date": _date_str(c.latest_date or c.date),
                 "from": c.from_email or "",
-                "body": _short_body(c, 800),
+                "body": _short_body(c, 4000),
             })
 
         return ToolResult(

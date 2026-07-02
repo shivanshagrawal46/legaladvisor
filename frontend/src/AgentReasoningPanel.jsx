@@ -219,6 +219,7 @@ export default function AgentReasoningPanel({
                     : done?.outcome === "VERIFIED_AFTER_RETRY" ? "var(--info)"
                     : done?.outcome === "KEPT_ORIGINAL" ? "var(--gold)"
                     : done?.outcome === "FALLBACK" ? "var(--red)"
+                    : done?.outcome === "DEGRADED" ? "var(--red)"
                     : "var(--river)";
 
   const statusText = useMemo(() => {
@@ -234,6 +235,7 @@ export default function AgentReasoningPanel({
         KEPT_ORIGINAL:        "Investigation complete · some facts unverified",
         FALLBACK:             "Investigation closed under budget pressure",
         NO_FACTS:             "Investigation complete · no corpus facts cited",
+        DEGRADED:             "Agent unavailable · answered via one-shot pipeline",
       };
       return labels[done.outcome] || "Investigation complete";
     }

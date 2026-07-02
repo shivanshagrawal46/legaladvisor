@@ -328,14 +328,17 @@ def _call_submit_answer(
     messages: List[Dict[str, Any]],
     max_tokens: int,
 ) -> StructuredAnswer:
-    response = client.messages.create(
+    # Streaming so max_tokens may exceed Anthropic's ~21k non-streaming
+    # ceiling (production caps are now 32k+ for full-length legal memos).
+    with client.messages.stream(
         model=model,
         max_tokens=max_tokens,
         system=system_prompt,
         tools=[SUBMIT_ANSWER_TOOL],
         tool_choice={"type": "tool", "name": "submit_answer"},
         messages=messages,
-    )
+    ) as stream:
+        response = stream.get_final_message()
     return parse_submit_answer(response)
 
 

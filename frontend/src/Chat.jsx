@@ -213,6 +213,19 @@ export default function Chat({ user }) {
       // Informational — we already show the "investigation closed
       // under budget pressure" status when the done frame arrives.
       // No state mutation needed.
+    } else if (data.type === "agent_degraded") {
+      // The deep-investigation agent failed and the backend degraded to
+      // the one-shot pipeline. Close the panel with an explicit status
+      // instead of leaving it frozen on "Investigating…".
+      const sid = streamingSidRef.current;
+      if (!sid) return;
+      patchSession(sid, cur => ({
+        ...cur,
+        agent: {
+          ...(cur.agent || { plan: null, steps: [], trace: null }),
+          done: { outcome: "DEGRADED", reason: data.reason || "" },
+        },
+      }));
     } else if (data.type === "agent_done") {
       const sid = streamingSidRef.current;
       if (!sid) return;
@@ -368,6 +381,12 @@ export default function Chat({ user }) {
     if (activeId === sid) setActiveId(null);
   }
 
+  function handleRenameSession(sid, title) {
+    setSessions(s => s.map(x =>
+      x.session_id === sid ? { ...x, title } : x
+    ));
+  }
+
   // ── Send question ──────────────────────────────────────────────────────────
   async function handleSend(text) {
     const q = (text || input).trim();
@@ -451,6 +470,7 @@ export default function Chat({ user }) {
           onSelect={handleSelectSession}
           onNew={handleNewChat}
           onDelete={handleDeleteSession}
+          onRename={handleRenameSession}
           userName={user.name}
         />
 

@@ -130,6 +130,7 @@ def _build_v2_pipeline_if_enabled():
         llm_reranker=s.rag_v2_llm_reranker,
         llm_reranker_model=s.rag_v2_llm_reranker_model,
         llm_reranker_top_n=s.rag_v2_llm_reranker_top_n,
+        llm_reranker_effort=s.rag_v2_llm_reranker_effort,
         # Option B targets — when v2 is enabled we point at the v2
         # chunks collection and its dedicated Atlas index.
         chunks_collection_name=s.rag_v2_chunks_collection,
@@ -275,6 +276,7 @@ def make_chat() -> LegalAdvisorChat:
         agent_max_wall_clock_s=s.rag_v3_agent_max_wall_clock_s,
         agent_model=s.rag_v3_agent_model,
         agent_max_tokens_per_call=s.rag_v3_agent_max_tokens_per_call,
+        agent_effort=s.rag_v3_agent_effort,
         agent_seed_with_initial_search=s.rag_v3_agent_seed_with_initial_search,
         agent_trace_log_db=agent_trace_log_db,
     )

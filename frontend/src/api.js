@@ -22,6 +22,8 @@ export const getSessions = () => api.get("/api/sessions");
 export const createSession = () => api.post("/api/sessions");
 export const getSession = (id) => api.get(`/api/sessions/${id}`);
 export const deleteSession = (id) => api.delete(`/api/sessions/${id}`);
+export const renameSession = (id, title) =>
+  api.patch(`/api/sessions/${id}`, { title });
 
 // ── Sprint 8: portfolio / findings / dashboard ──────────────────────────────
 export const getDashboard = () => api.get("/api/dashboard/stats");

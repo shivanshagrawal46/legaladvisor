@@ -130,6 +130,7 @@ class AgentRunner:
         max_tokens_per_call: int = 16384,
         fuzzy_threshold: float = DEFAULT_FUZZY_THRESHOLD,
         enforce_sufficiency: bool = True,
+        effort: Optional[str] = None,
     ) -> None:
         self.client = anthropic_client
         self.v2 = v2_pipeline
@@ -137,6 +138,13 @@ class AgentRunner:
         self.model = model
         self.max_tokens_per_call = max_tokens_per_call
         self.fuzzy_threshold = fuzzy_threshold
+        # Adaptive-thinking effort level ("low"|"medium"|"high"|...). Passed
+        # to the API via extra_body when set; on models/SDKs that reject the
+        # parameter we transparently retry without it (see _stream_planner).
+        self.effort = (effort or "").strip() or None
+        # Set to False after the first API rejection so we don't pay a
+        # failed-call round-trip on every planner iteration.
+        self._effort_supported = True
         # When True, the FIRST submit_final_answer is intercepted once with a
         # completeness self-check (recall guard) before being accepted. Bounded
         # to a single reflection pass so it can't loop or balloon cost.
@@ -278,6 +286,7 @@ class AgentRunner:
         terminal_payload: Optional[Dict[str, Any]] = None
         forced_reason: Optional[str] = None
         reflected = False  # sufficiency self-check fires at most once
+        no_tool_streak = 0  # consecutive text-only (reasoning) turns
 
         while True:
             # Pre-step budget check. When exhausted, we DON'T just fall
@@ -297,20 +306,23 @@ class AgentRunner:
                 )
                 break
 
-            # Ask Opus to pick a tool
+            # Ask the planner to think and pick a tool. tool_choice=auto so
+            # the model may interleave visible reasoning (and, on adaptive-
+            # thinking models, native thinking blocks) between tool calls —
+            # extended thinking is API-incompatible with forced tool_choice.
             try:
-                response = self.client.messages.create(
+                response = self._planner_call(
                     model=self.model,
                     max_tokens=self.max_tokens_per_call,
                     system=system_prompt,
                     tools=tool_descriptions,
-                    tool_choice={"type": "any"},  # force at least one tool use
+                    tool_choice={"type": "auto"},
                     messages=messages,
                 )
             except Exception as exc:  # noqa: BLE001
                 logger.error(f"agent planner call failed: {exc}")
                 forced_reason = f"planner_error: {exc}"
-                terminal_payload = self._force_finalize_payload(pad, reason=forced_reason)
+                terminal_payload = self._force_finalize_stub(pad, reason=forced_reason)
                 break
 
             # Token accounting
@@ -342,16 +354,50 @@ class AgentRunner:
                 elif btype == "text":
                     text = getattr(block, "text", "") or ""
                     assistant_blocks.append({"type": "text", "text": text})
+                elif btype in ("thinking", "redacted_thinking"):
+                    # Adaptive/extended-thinking models require thinking
+                    # blocks to be preserved verbatim in the replayed
+                    # assistant turns of a tool-use conversation.
+                    try:
+                        assistant_blocks.append(block.model_dump(exclude_none=True))
+                    except Exception:  # noqa: BLE001
+                        pass
 
             if not tool_uses:
-                # Opus produced no tool call — shouldn't happen with
-                # tool_choice=any, but defensively force finalize.
-                logger.warning(
-                    "agent planner returned no tool_use; forcing finalize"
-                )
-                forced_reason = "no_tool_use_returned"
-                terminal_payload = self._force_finalize_payload(pad, reason=forced_reason)
-                break
+                # With tool_choice=auto the model may spend a turn on pure
+                # reasoning (text/thinking, no tool call). That's healthy
+                # investigative behaviour — keep the reasoning in context
+                # and nudge it to act. Only a stuck streak forces finalize.
+                no_tool_streak += 1
+                if no_tool_streak >= 3:
+                    logger.warning(
+                        "agent planner produced 3 consecutive turns without "
+                        "a tool call; forcing finalize"
+                    )
+                    forced_reason = "no_tool_use_returned"
+                    terminal_payload = self._force_finalize_via_llm(
+                        pad=pad,
+                        messages=messages,
+                        system_prompt=system_prompt,
+                        tool_descriptions=tool_descriptions,
+                        tool_specs=tool_specs,
+                        reason=forced_reason,
+                    )
+                    break
+                if assistant_blocks:
+                    messages.append({"role": "assistant", "content": assistant_blocks})
+                    messages.append({
+                        "role": "user",
+                        "content": (
+                            "Understood. Continue the investigation: call the "
+                            "next tool now, or call submit_final_answer if "
+                            "your analysis is complete."
+                        ),
+                    })
+                # (empty response content: leave messages unchanged and
+                # retry — the streak counter bounds this at 3 attempts)
+                continue
+            no_tool_streak = 0
 
             # Append the assistant turn (must come BEFORE any tool_result)
             messages.append({"role": "assistant", "content": assistant_blocks})
@@ -524,19 +570,53 @@ class AgentRunner:
     # Helpers
     # ----------------------------------------------------------------
 
+    def _planner_call(self, **kwargs: Any) -> Any:
+        """
+        One planner LLM call. Uses the STREAMING API so `max_tokens` can
+        exceed Anthropic's ~21k non-streaming ceiling, and passes the
+        adaptive-thinking effort level via `output_config` when set.
+        If the model/SDK rejects the parameter we retry once without it
+        and remember the rejection for the rest of the run.
+        """
+        if self.effort and self._effort_supported:
+            try:
+                with self.client.messages.stream(
+                    **kwargs, output_config={"effort": self.effort}
+                ) as stream:
+                    return stream.get_final_message()
+            except TypeError:
+                # SDK too old for the output_config parameter.
+                self._effort_supported = False
+                logger.warning("output_config unsupported by SDK — effort disabled")
+            except Exception as exc:  # noqa: BLE001
+                msg = str(exc).lower()
+                if "effort" in msg or "output_config" in msg or "thinking" in msg:
+                    self._effort_supported = False
+                    logger.warning(
+                        f"effort={self.effort} rejected by API — proceeding without it"
+                    )
+                else:
+                    raise
+        with self.client.messages.stream(**kwargs) as stream:
+            return stream.get_final_message()
+
+    # Per-chunk and total character budgets for the seed evidence block.
+    # ~4,500 chars covers essentially the whole of a 1000-token chunk, so
+    # the planner reads FULL evidence — not previews. The total cap keeps
+    # a worst-case seed (170 chunks post-expansion) inside ~200K tokens
+    # of the model's 1M context. The block is prompt-cached, so the cost
+    # is paid once per query, then read at ~0.1x on every loop iteration.
+    SEED_CHUNK_CHAR_CAP = 4_500
+    SEED_TOTAL_CHAR_CAP = 800_000
+
     def _render_seed_chunks(self, pad: AgentScratchpad) -> str:
         """
-        Snippet-rich summary of ALL seed chunks so Opus has the full
-        breadth of the retrieved evidence pack upfront. We render every
-        chunk with a 500-char snippet — large enough to expose key
-        clauses / numbers, small enough that 80 chunks still fit in
-        ~12-15k tokens (well within the 200k Opus context, well within
-        our agent budget).
-
-        If Opus needs the FULL body of a specific chunk, it calls
-        `fetch_full_document(chunk_index=N)`. If it needs documents
-        outside this seed, it calls `search` / `search_by_filename` /
-        `search_timeframe` for a fresh retrieve.
+        Render ALL seed chunks with (effectively) FULL bodies so the
+        planner reasons over the complete evidence pack upfront — the
+        depth of the final analysis is bounded by what the planner can
+        actually read. A total budget guard keeps pathological seeds
+        bounded; if it trips, later chunks degrade to 600-char briefs
+        (the planner can still fetch_full_document them on demand).
         """
         import re as _re
 
@@ -544,6 +624,7 @@ class AgentRunner:
             return "(no seed chunks)"
 
         lines: List[str] = []
+        spent = 0
         for i, c in enumerate(pad.all_chunks):
             idx = i + 1
             if c.source_type == "attachment":
@@ -556,16 +637,25 @@ class AgentRunner:
                     date = c.date.strftime("%Y-%m-%d")
                 except Exception:
                     pass
+            meta = []
+            if getattr(c, "from_email", None):
+                meta.append(f"from {c.from_email}")
+            if getattr(c, "doc_source_type", None):
+                meta.append(str(c.doc_source_type))
+            meta_s = f" · {' · '.join(meta)}" if meta else ""
             body = c.body or c.text or ""
-            body = _re.sub(r"\s+", " ", body).strip()[:500]
-            lines.append(f"[#{idx}] {date} · {title}\n     {body}")
+            body = _re.sub(r"\s+", " ", body).strip()
+            cap = self.SEED_CHUNK_CHAR_CAP if spent < self.SEED_TOTAL_CHAR_CAP else 600
+            body = body[:cap]
+            spent += len(body)
+            lines.append(f"[#{idx}] {date} · {title}{meta_s}\n     {body}")
         return "\n".join(lines)
 
     def _render_tool_result(self, tool_name: str, result: ToolResult) -> str:
         """
-        Produce a textual tool_result content for the planner. We avoid
-        re-shipping full bodies — the planner only needs the briefs and
-        new [#N] indices to decide its next move.
+        Produce a textual tool_result content for the planner. Generous
+        cap (60K chars ≈ 15K tokens) so full-document fetches and rich
+        search results reach the planner intact instead of as stubs.
         """
         import json
         # Strip heavy fields before serialising.
@@ -575,7 +665,7 @@ class AgentRunner:
         if result.error:
             payload["_error"] = result.error
         try:
-            return json.dumps(payload, indent=2, default=str)[:6000]
+            return json.dumps(payload, indent=2, default=str)[:60000]
         except Exception:
             return result.summary
 
@@ -612,32 +702,24 @@ class AgentRunner:
             f"CRITICAL — submit_final_answer requires BOTH fields:\n"
             f"  1. `facts`: a structured array of every claim you can "
             f"support with a verbatim quote.\n"
-            f"  2. `answer`: a SYNTHESISED prose answer (300-800 words) "
-            f"that addresses the user's actual question, citing facts via "
-            f"[#N]. THIS MUST BE A NON-EMPTY STRING. Do NOT leave it "
-            f"blank — the user reads this prose, not the JSON.\n\n"
+            f"  2. `answer`: a SYNTHESISED prose answer that fully "
+            f"addresses the user's actual question, citing facts via "
+            f"[#N]. Do NOT artificially shorten it — a complex forensic "
+            f"question deserves a complete memo (often 800-2,500 words). "
+            f"THIS MUST BE A NON-EMPTY STRING. Do NOT leave it blank — "
+            f"the user reads this prose, not the JSON.\n\n"
             f"If the evidence is incomplete, say so honestly in the prose "
             f"and flag the gaps. Call submit_final_answer NOW."
         )
         force_messages = messages + [{"role": "user", "content": force_msg}]
 
-        # Output budget for the forced-finalize call. We deliberately
-        # set this generously high (32k) so the closing-out submission
-        # has room for:
-        #   • a structured facts[] array of 30+ entries on a complex
-        #     legal query (each fact ~150-300 tokens), AND
-        #   • a substantive prose answer (500-1200 words ≈ 1-2k tokens)
-        #
-        # Anthropic's API requires streaming for any request whose
-        # `max_tokens` implies >10 min generation (~21k for Opus 4.x).
-        # We use `messages.stream()` here so we can safely go higher
-        # without tripping that rule. Regular agent-loop calls use the
-        # smaller `self.max_tokens_per_call` (16k) which stays safely
-        # under the threshold and avoids the streaming overhead.
-        force_max_tokens = 32768
+        # Output budget for the forced-finalize call: 64K so a large
+        # facts[] array AND a full forensic memo both fit. Streaming is
+        # mandatory at this size (Anthropic requires it above ~21k) and
+        # note: extended/adaptive thinking is API-incompatible with a
+        # forced tool_choice, so no effort/thinking param on this call.
+        force_max_tokens = 64000
 
-        # Restrict tool_choice to submit_final_answer ONLY. Use the
-        # streaming API so the per-call max_tokens can exceed 21k.
         try:
             with self.client.messages.stream(
                 model=self.model,

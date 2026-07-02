@@ -111,10 +111,13 @@ class Retriever:
         self,
         query_vec: List[float],
         atlas_filter: Optional[Dict[str, Any]] = None,
+        *,
+        collection: Optional[Any] = None,
+        index_name: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         stage_vector: Dict[str, Any] = {
             "$vectorSearch": {
-                "index": self.vector_index_name,
+                "index": index_name or self.vector_index_name,
                 "path": "embedding",
                 "queryVector": query_vec,
                 "numCandidates": max(150, self.retrieval_top_k * 5),
@@ -154,7 +157,24 @@ class Retriever:
                 }
             },
         ]
-        return list(self.mongo.chunks.aggregate(pipeline))
+        col = collection if collection is not None else self.mongo.chunks
+        return list(col.aggregate(pipeline))
+
+    def _v2_timeline_target(self) -> Tuple[Optional[Any], Optional[str]]:
+        """When the v2 pipeline is active, return (collection, index_name)
+        pointing at the v2 corpus so date-sorted retrieval reads the SAME
+        enriched chunks as every other query path — not the legacy v1
+        collection."""
+        if self.v2_pipeline is not None and getattr(
+            self.v2_pipeline.settings, "enabled", False
+        ):
+            try:
+                col_name = self.v2_pipeline.settings.chunks_collection_name
+                idx = self.v2_pipeline.hybrid_searcher.vector_index_name
+                return self.mongo.db[col_name], idx
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"v2 timeline target unavailable, using v1: {exc}")
+        return None, None
 
     # ----- public API -----
 
@@ -172,7 +192,11 @@ class Retriever:
             return []
 
         # v2 routing — fail-safe: if v2 returns empty (or raises) we fall
-        # back to v1 below so production never breaks.
+        # back to v1 below so production never breaks. The degrade is
+        # recorded on `last_degraded` so the chat layer can SURFACE it —
+        # a silent v1 fallback produces dramatically thinner answers and
+        # previously looked like a model-quality problem.
+        self.last_degraded: Optional[str] = None
         if self.v2_pipeline is not None and getattr(
             self.v2_pipeline.settings, "enabled", False
         ):
@@ -180,8 +204,10 @@ class Retriever:
                 v2_chunks = self.v2_pipeline.retrieve(query, atlas_filter=atlas_filter)
                 if v2_chunks:
                     return v2_chunks
-                logger.info("v2 pipeline returned 0 chunks — falling back to v1")
+                self.last_degraded = "v2 returned 0 chunks"
+                logger.warning("v2 pipeline returned 0 chunks — falling back to v1")
             except Exception as exc:  # noqa: BLE001
+                self.last_degraded = f"v2 pipeline error: {str(exc)[:120]}"
                 logger.warning(f"v2 pipeline failed, falling back to v1: {exc}")
 
         # ---- v1 path (default behaviour) -------------------------------
@@ -236,11 +262,18 @@ class Retriever:
         logger.debug(f"Timeline retrieve: filter={merged}, top={max_chunks}")
         qvec = self.embedder.embed_query(query)
 
+        # Timeline queries must read the v2 corpus when v2 is live —
+        # previously this silently searched the stale v1 collection.
+        tl_col, tl_idx = self._v2_timeline_target()
+
         # Increase pull size for timeline mode.
         old_top_k = self.retrieval_top_k
         self.retrieval_top_k = max_chunks
         try:
-            candidates = self._vector_search(qvec, atlas_filter=merged or None)
+            candidates = self._vector_search(
+                qvec, atlas_filter=merged or None,
+                collection=tl_col, index_name=tl_idx,
+            )
         finally:
             self.retrieval_top_k = old_top_k
 

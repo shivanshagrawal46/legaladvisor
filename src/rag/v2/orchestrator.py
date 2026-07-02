@@ -121,6 +121,7 @@ class V2Settings:
     llm_reranker: bool = False
     llm_reranker_model: str = "claude-opus-4-8"
     llm_reranker_top_n: int = 50
+    llm_reranker_effort: str = "high"
 
     # Option B: name of the chunks collection. v1 → "email_chunks",
     # Option B v2 → "email_chunks_v2". Settable so we can A/B without
@@ -188,7 +189,8 @@ class V2Pipeline:
         if v2_settings.llm_reranker:
             from src.rag.v2.llm_reranker import LLMReranker
             llm_rr = LLMReranker(anthropic_client, model=v2_settings.llm_reranker_model,
-                                 top_n=v2_settings.llm_reranker_top_n)
+                                 top_n=v2_settings.llm_reranker_top_n,
+                                 effort=v2_settings.llm_reranker_effort)
         return cls(
             mongo=mongo,
             embedder=embedder,
