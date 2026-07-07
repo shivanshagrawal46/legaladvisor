@@ -1,0 +1,22 @@
+[Unit]
+Description=Mango Tree - Gmail real-time push ingest worker (Boris Lawsuit)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/mango_tree/legaladvisor
+User=root
+# Uses the SAME .env the pipeline/API already use (settings.py loads it with
+# override=True, so it is the single source of truth). It must also contain the
+# real-time keys: GMAIL_CLIENT_SECRET, GMAIL_TOKEN_PATH,
+# GOOGLE_APPLICATION_CREDENTIALS, PUBSUB_SUBSCRIPTION, GMAIL_PUBSUB_TOPIC
+EnvironmentFile=/root/mango_tree/legaladvisor/.env
+ExecStart=/root/mango_tree/legaladvisor/venv/bin/python -m scripts.gmail_push_worker --label "__....Boris Lawsuit"
+Restart=always
+RestartSec=10
+# Never let a stuck run wedge the box; systemd restarts it.
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

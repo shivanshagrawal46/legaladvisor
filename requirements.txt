@@ -71,6 +71,8 @@ tenacity>=8.3
 google-api-python-client>=2.100
 google-auth>=2.23
 google-auth-oauthlib>=1.1
+# Real-time push ingestion: Gmail watch() -> Cloud Pub/Sub -> pull worker.
+google-cloud-pubsub>=2.18
 # Pin cryptography to a version with working prebuilt Windows wheels for
 # Python 3.9. The 42.x/43.x line ships a _rust binding that fails to load on
 # this box ("DLL load failed while importing _rust"); 41.0.7 is the last fully

@@ -349,5 +349,67 @@ class GmailClient:
             "parts": parts_out,
         }
 
+    # ------------------------------------------------------------------
+    # push notifications (watch) + incremental history
+    # ------------------------------------------------------------------
+    def watch(
+        self,
+        *,
+        topic_name: str,
+        label_ids: Optional[Sequence[str]] = None,
+        label_filter_action: str = "include",
+    ) -> Dict[str, Any]:
+        """Arm Gmail push notifications to a Cloud Pub/Sub topic.
+
+        Gmail will publish a small message ({emailAddress, historyId}) to
+        `topic_name` whenever the mailbox changes for the given labels. Must
+        be re-called before it expires (~7 days). Covered by gmail.readonly.
+
+        `topic_name` is the FULL resource name:
+            projects/<project-id>/topics/<topic-id>
+        Returns {historyId, expiration(ms epoch)}.
+        """
+        body: Dict[str, Any] = {"topicName": topic_name}
+        if label_ids:
+            body["labelIds"] = list(label_ids)
+            body["labelFilterAction"] = label_filter_action
+        resp = self._execute(self.service.users().watch(userId="me", body=body))
+        return resp
+
+    def stop_watch(self) -> None:
+        """Disable all push notifications for this mailbox."""
+        self._execute(self.service.users().stop(userId="me"))
+
+    def list_history(
+        self,
+        *,
+        start_history_id: str,
+        label_id: Optional[str] = None,
+        history_types: Optional[Sequence[str]] = None,
+    ) -> Iterator[Dict[str, Any]]:
+        """Yield history records since `start_history_id` (paginated).
+
+        Each record may contain messagesAdded / labelsAdded / etc. The caller
+        extracts the message ids it cares about. `label_id` restricts to a
+        single label (the Boris folder); `history_types` defaults to
+        ['messageAdded', 'labelAdded'] so we catch both newly-arrived mail
+        and mail that just got the label (e.g. sent mail labeled by a filter)."""
+        types = list(history_types or ["messageAdded", "labelAdded"])
+        page_token = None
+        while True:
+            resp = self._execute(self.service.users().history().list(
+                userId="me",
+                startHistoryId=start_history_id,
+                labelId=label_id,
+                historyTypes=types,
+                pageToken=page_token,
+                maxResults=500,
+            ))
+            for h in resp.get("history", []) or []:
+                yield h
+            page_token = resp.get("nextPageToken")
+            if not page_token:
+                break
+
 
 __all__ = ["GmailClient", "GMAIL_SCOPES"]

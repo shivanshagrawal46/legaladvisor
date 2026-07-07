@@ -1,0 +1,10 @@
+[Unit]
+Description=Renew Gmail watch() daily (watch expires ~7 days; daily keeps a wide safety margin)
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

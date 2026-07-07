@@ -1,0 +1,11 @@
+[Unit]
+Description=Mango Tree - renew Gmail watch() for Boris Lawsuit (must run < every 7 days)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/mango_tree/legaladvisor
+User=root
+EnvironmentFile=/root/mango_tree/legaladvisor/.env
+ExecStart=/root/mango_tree/legaladvisor/venv/bin/python -m scripts.gmail_watch --label "__....Boris Lawsuit"

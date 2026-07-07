@@ -14,3 +14,12 @@ data/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Secrets / credentials — never commit
+.env.realtime
+client_secret.json
+gmail_token.json
+mango-500409-*.json
+*-service-account*.json
+gcp-*.json
+pubsub-sa.json
