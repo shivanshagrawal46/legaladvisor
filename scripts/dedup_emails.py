@@ -52,14 +52,34 @@ def _group_emails(mongo: MongoClientWrapper, key_field: str) -> dict:
     return {k: v for k, v in groups.items() if len(v) > 1}
 
 
+def _ingested_rank(d: dict) -> float:
+    """Rank component for 'earliest ingested wins'. Returns a value where
+    HIGHER = better (so it composes with max()). Earlier timestamps score
+    higher; a missing/invalid ingested_at ranks WORST (never beats a real
+    date). Robust against Windows .timestamp() OverflowError on edge dates."""
+    val = d.get("ingested_at")
+    if not isinstance(val, datetime):
+        return float("-inf")
+    try:
+        # Normalise to an absolute epoch regardless of tz-awareness so
+        # naive/aware mixes compare consistently.
+        if val.tzinfo is None:
+            val = val.replace(tzinfo=timezone.utc)
+        return -val.timestamp()  # earlier (smaller) -> higher score
+    except (OverflowError, OSError, ValueError):
+        return float("-inf")
+
+
 def _pick_keeper(group: list[dict]) -> dict:
-    """Choose the email to KEEP among duplicates."""
+    """Choose the email to KEEP among duplicates.
+
+    Order of preference: (1) more attachments, (2) earliest ingested_at,
+    (3) lowest _id as a stable tie-breaker."""
     def score(d):
         return (
-            int(d.get("attachment_count") or 0),                # more attachments better
-            -(d.get("ingested_at") or datetime.max).timestamp() # earlier ingested better
-            if isinstance(d.get("ingested_at"), datetime) else 0,
-            -int(str(d["_id"]), 16),                            # tie-breaker
+            int(d.get("attachment_count") or 0),   # more attachments better
+            _ingested_rank(d),                      # earlier ingested better
+            -int(str(d["_id"]), 16),                # deterministic tie-breaker
         )
     return max(group, key=score)
 

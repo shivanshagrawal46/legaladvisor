@@ -4,7 +4,31 @@ import jsPDF from "jspdf";
 // then a numbered "References & Sources" section at the end mapping every
 // [#N] citation to its source document + verbatim quote — the way a legal
 // brief lists its authorities/exhibits.
+// jsPDF's built-in fonts are Latin-1 (WinAnsi) only: characters outside that
+// range (em/en dashes, curly quotes, arrows, ✓, ⚠, bullets, non-breaking
+// spaces) render as garbage or trigger letter-spacing artifacts. Transliterate
+// the common ones to ASCII and drop anything else non-printable so exhibits
+// read cleanly. Also decode any leftover RFC 2047 encoded-word titles.
+function sanitizePdfText(s) {
+  if (s == null) return "";
+  let out = String(s)
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F\u00AB\u00BB]/g, '"')
+    .replace(/[\u2013\u2014\u2212]/g, "-")
+    .replace(/[\u2192\u21D2]/g, "->")
+    .replace(/[\u2190\u21D0]/g, "<-")
+    .replace(/\u2022/g, "-")
+    .replace(/[\u2713\u2714]/g, "[x]")
+    .replace(/[\u26A0\uFE0F]/g, "!")
+    .replace(/[\u00A0\u2009\u200A\u202F\u200B]/g, " ")
+    .replace(/\u2026/g, "...");
+  // Drop any remaining non-Latin1 characters (keep tab/newline).
+  out = out.replace(/[^\x09\x0A\x0D\x20-\xFF]/g, "");
+  return out;
+}
+
 export function exportAnswerPdf({ question, answer, sources }) {
+  answer = sanitizePdfText(answer);
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const M = 48;
   const W = doc.internal.pageSize.getWidth() - M * 2;
@@ -16,7 +40,7 @@ export function exportAnswerPdf({ question, answer, sources }) {
     doc.setFont(font, bold ? "bold" : "normal");
     doc.setFontSize(size);
     doc.setTextColor(color[0], color[1], color[2]);
-    doc.splitTextToSize(String(text ?? ""), W - indent).forEach((l) => {
+    doc.splitTextToSize(sanitizePdfText(text), W - indent).forEach((l) => {
       ensure(size + gap); doc.text(l, M + indent, y); y += size + gap;
     });
   };

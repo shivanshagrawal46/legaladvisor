@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-07-11T04:12:24",
+  "all_passed": true,
+  "n_suites": 8,
+  "n_passed": 8,
+  "suites": [
+    {
+      "name": "verifier_mutations",
+      "path": "tests/test_verifier_mutations.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "5/5 test functions passed",
+      "elapsed_s": 0.9,
+      "stderr_tail": "\u001b[32m2026-07-11 04:12:19.710\u001b[0m | \u001b[34m\u001b[1mDEBUG   \u001b[0m | \u001b[36msrc.rag.v2.verifier\u001b[0m:\u001b[36mverify_facts\u001b[0m:\u001b[36m438\u001b[0m - \u001b[34m\u001b[1mcitation verifier: 1/1 failed (threshold=85.0)\u001b[0m"
+    },
+    {
+      "name": "quoted_text_buckets",
+      "path": "tests/test_quoted_text.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "6/6 test functions passed",
+      "elapsed_s": 0.36,
+      "stderr_tail": ""
+    },
+    {
+      "name": "header_encoding",
+      "path": "tests/test_headers.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "6/6 test functions passed",
+      "elapsed_s": 0.35,
+      "stderr_tail": ""
+    },
+    {
+      "name": "answer_coverage",
+      "path": "tests/test_coverage.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "5/5 test functions passed",
+      "elapsed_s": 0.84,
+      "stderr_tail": ""
+    },
+    {
+      "name": "injection_guard",
+      "path": "tests/test_injection_guard.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "4/4 test functions passed",
+      "elapsed_s": 1.83,
+      "stderr_tail": ""
+    },
+    {
+      "name": "deadline_radar",
+      "path": "tests/test_deadline_radar.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "5/5 test functions passed",
+      "elapsed_s": 0.1,
+      "stderr_tail": ""
+    },
+    {
+      "name": "entailment_judge",
+      "path": "tests/test_entailment.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "6/6 test functions passed",
+      "elapsed_s": 0.09,
+      "stderr_tail": ""
+    },
+    {
+      "name": "verifier_money",
+      "path": "tests/test_verifier_money.py",
+      "exit_code": 0,
+      "passed": true,
+      "summary": "5/5 passed",
+      "elapsed_s": 0.84,
+      "stderr_tail": ""
+    }
+  ]
+}

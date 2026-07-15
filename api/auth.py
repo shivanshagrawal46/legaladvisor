@@ -7,6 +7,7 @@ Single hardcoded user (no DB needed for authentication):
 """
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -17,18 +18,25 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 # ── secrets ──────────────────────────────────────────────────────────────────
-SECRET_KEY = "mango-tree-legal-advisor-jwt-secret-2026-xK9pL2mN"
+# Env-configurable so secrets live OUTSIDE source. Defaults preserve the
+# existing single-user login so nothing breaks if the env vars are unset;
+# set JWT_SECRET_KEY / AUTH_EMAIL / AUTH_PASSWORD in .env to harden.
+SECRET_KEY = os.getenv("JWT_SECRET_KEY") or "mango-tree-legal-advisor-jwt-secret-2026-xK9pL2mN"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8   # 8-hour session
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_SESSION_MINUTES", str(60 * 8)))
 
-# ── single authorised user ────────────────────────────────────────────────────
+# ── authorised user(s) ────────────────────────────────────────────────────────
 _pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+_AUTH_EMAIL = os.getenv("AUTH_EMAIL", "rakeshsir@mtreh.com")
+_AUTH_PASSWORD = os.getenv("AUTH_PASSWORD", "MangoTree@12345")
+_AUTH_NAME = os.getenv("AUTH_NAME", "Rakesh Sir")
+
 _USERS = {
-    "rakeshsir@mtreh.com": {
-        "email": "rakeshsir@mtreh.com",
-        "name": "Rakesh Sir",
-        "hashed_password": _pwd_ctx.hash("MangoTree@12345"),
+    _AUTH_EMAIL: {
+        "email": _AUTH_EMAIL,
+        "name": _AUTH_NAME,
+        "hashed_password": _pwd_ctx.hash(_AUTH_PASSWORD),
     }
 }
 

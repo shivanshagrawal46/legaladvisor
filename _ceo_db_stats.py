@@ -75,11 +75,11 @@ print(f"  money_records................... {c('money_records'):,}")
 print(f"  events.......................... {c('events'):,}")
 print(f"  property_dossier................ {c('property_dossier'):,}")
 print(f"  findings........................ {c('findings'):,}")
-# money sum
+# money sum — use amount_value (the numeric field); `amount` is a display string.
 try:
     amt = 0.0
-    for r in db["money_records"].find({}, {"amount": 1}):
-        a = r.get("amount")
+    for r in db["money_records"].find({}, {"amount_value": 1}):
+        a = r.get("amount_value")
         if isinstance(a, (int, float)):
             amt += a
     print(f"  money_records total amount...... ${amt:,.2f}")

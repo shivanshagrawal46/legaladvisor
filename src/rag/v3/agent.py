@@ -855,6 +855,49 @@ class AgentRunner:
         except Exception as exc:  # noqa: BLE001
             logger.warning(f"Sprint-8 hardening skipped: {str(exc)[:120]}")
 
+        # ----- Cross-family critique -> revise loop (flag-gated, default OFF)
+        # Fable wrote the answer; GPT-5.5 critiques it for gaps vs the question
+        # & case; Fable then writes the FINAL answer addressing those gaps
+        # (re-verified). Enable with RAG_CROSS_CRITIC_ENABLED=true.
+        try:
+            import os
+            if (os.getenv("RAG_CROSS_CRITIC_ENABLED", "false").lower() in ("1", "true", "yes")
+                    and result.facts and result.answer):
+                from src.rag.v3.cross_critic import run_cross_critique
+                pad.emit("agent_cross_critique_start", {})
+                cc = run_cross_critique(
+                    anthropic_client=self.client, model=self.model,
+                    question=getattr(pad, "query", ""), answer=result.answer,
+                    facts=result.facts, chunks=chunks,
+                )
+                hardening_report["cross_critique"] = {
+                    "revised": cc.get("revised"),
+                    "critique": cc.get("critique"),
+                }
+                if cc.get("revised"):
+                    result.answer = cc["answer"]
+                    result.facts = cc["facts"]
+                    if cc.get("fact_verdicts"):
+                        result.fact_verdicts = cc["fact_verdicts"]
+                    result.outcome = OUTCOME_VERIFIED_AFTER_RETRY
+                pad.emit("agent_cross_critique_done", {"revised": bool(cc.get("revised"))})
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"cross-critique skipped: {str(exc)[:120]}")
+
+        # ----- Verification augmentation (entailment / coverage / injection)
+        # Flag-gated, DEFAULT OFF — zero behavior change until enabled via
+        # RAG_ENTAILMENT_ENABLED / RAG_COVERAGE_ENABLED / RAG_INJECTION_SCAN_ENABLED.
+        try:
+            from src.rag.v2.verification_augment import augment_answer
+            aug = augment_answer(
+                answer=result.answer or "", facts=result.facts or [],
+                fact_verdicts=result.fact_verdicts or [], chunks=chunks)
+            result.answer = aug["answer"]
+            if aug.get("report"):
+                hardening_report["verification_augment"] = aug["report"]
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"verification augmentation skipped: {str(exc)[:120]}")
+
         # ----- Common bookkeeping -------------------------------------
         result.chunks = chunks
         result.elapsed_ms = int((time.time() - started_at) * 1000)

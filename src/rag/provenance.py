@@ -59,15 +59,24 @@ def provenance_footer(chunks: Sequence[Any], *, mode: str = "analysis",
     try:
         ds = sorted(d for d in dates if hasattr(d, "strftime"))
         if ds:
-            span = f"{ds[0].strftime('%Y-%m-%d')} → {ds[-1].strftime('%Y-%m-%d')}"
+            span = f"{ds[0].strftime('%Y-%m-%d')} to {ds[-1].strftime('%Y-%m-%d')}"
     except Exception:  # noqa: BLE001
         pass
-    text = (f"— Provenance: {len(list(chunks))} sources across {sources} "
-            f"| corpora {corpora} | mode={mode}"
+
+    # Human-readable formatting — NEVER interpolate raw dicts (they land in
+    # court-facing exports). Render as "key: n, key: n" and keep ASCII so
+    # downstream PDF fonts don't garble it.
+    def _fmt(d: Dict[str, int]) -> str:
+        return ", ".join(f"{k}: {v}" for k, v in
+                         sorted(d.items(), key=lambda kv: -kv[1])) or "none"
+
+    n_sources = len(list(chunks))
+    text = (f"Provenance: {n_sources} sources ({_fmt(sources)}) "
+            f"| corpora: {_fmt(corpora)} | mode={mode}"
             + (f" | privileged sources used: {privileged_n}" if privileged_n else "")
             + (f" | date span {span}" if span else "")
             + (f" | facts verified {verified}/{verified+unverified}" if (verified+unverified) else "")
-            + (f" | ⚠ {low_ocr} low-OCR-confidence sources" if low_ocr else ""))
+            + (f" | {low_ocr} low-OCR-confidence sources" if low_ocr else ""))
     return {"mode": mode, "n_sources": len(list(chunks)), "corpora": corpora,
             "source_types": sources, "privileged_sources": privileged_n,
             "date_span": span, "verified": verified, "unverified": unverified,

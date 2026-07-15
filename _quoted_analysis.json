@@ -1,0 +1,148 @@
+{
+  "emails_scanned": 8920,
+  "emails_with_quoted_tail": 5474,
+  "quoted_segments_total": 18832,
+  "unique_segments": 8568,
+  "buckets_over_all_occurrences": {
+    "duplicate": 3531,
+    "edited": 809,
+    "novel": 7101,
+    "fragment": 5512,
+    "boilerplate": 1879
+  },
+  "thresholds": {
+    "duplicate_at": 97,
+    "edited_at": 88
+  },
+  "novel_samples": [
+    {
+      "email_id": "6a082bb09a4a41f30e351109",
+      "text": "Hi Phil,\n\nI will check with Rakesh Ji and mail a check directly to the vendor.\n\nThanks\n\nJP"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e351106",
+      "text": "Bill\n\nPlease share your cell number with me\n\nAlso\n\nWhen can we call you this morning?\n\nThanks\n\n_Rakesh_"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e351107",
+      "text": "Dear William:\n\nIt was nice seeing you today.\n\nGREAT job in court today.\n\nWe are hopeful that Kevin Nash will keep his promises and perform as he said he would.\n\nStill want to BE PREPARED for the worst as we discussed...\n\nRegards,\n\nJohn"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e351107",
+      "text": "Rakesh \u2013 thank you. I\u2019m glad we had a chance to catch up this morning. Se you there/then."
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e351107",
+      "text": "Dear Bill\nHere is an updated interest and legal fee schedule\nSee you at 2:30 in the cafeteria\nThanks\n_Rakesh_"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e351103",
+      "text": "Hi Phil and William\n\nThank you again for all your hard work on this. I wanted to lay out, in one place, the key updates and what I see as our priorities going into tomorrow.\n\n1. **Fort Hill sale \u2013 timing & mechanics**\n\n\u00b7 My understanding is that the **sale order has been entered "
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e35110b",
+      "text": "Attached please find the revised plan and disclosure statement in clean versions and black lined against the versions we filed earlier this week. I am also attaching the transcript of the hearing."
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e35110e",
+      "text": "____\n\nTo All: ____\n____\nSince the timing of this is very important I wanted to take a **quick look at it tonight....**____\n____\nHere are some of my **quick thoughts:**____\n____\n1) Please verify the numbers if they are correct.____\n____\n2) The debtors plan should **EXPIRE on 12/31"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e35110e",
+      "text": "____\n\nAttached please find the revised plan and disclosure statement in clean versions and black lined against the versions we filed earlier this week. I am also attaching the transcript of the hearing.____\n ____\n|  |  <image003.png> ____"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e35110d",
+      "text": "To All:\n\nSince the timing of this is very important I wanted to take a **quick look at it tonight....**\n\nHere are some of my **quick thoughts:**\n\n1) Please verify the numbers if they are correct.\n\n2) The debtors plan should **EXPIRE on 12/31/25** if the closing does **NOT** take "
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e35110f",
+      "text": "Attached please find the second amended plan and disclosure statement, with all exhibits and versions black lined against the versions filed on December 2. I am also attaching the proposed approval and scheduling order. All of these papers have been filed on the ECF docket or upl"
+    },
+    {
+      "email_id": "6a082bb09a4a41f30e35111b",
+      "text": "Todd\n\nI am in receipt of your email to Bill and Phil that was forwarded to me - 31FO - FROM BH AT HOME\n\nI am grateful to you for your support and please review the attached excel file as we have done similar work in detail\n\nThanks\n\n_Rakesh_"
+    }
+  ],
+  "tamper_samples": [
+    {
+      "email_id": "6a082c009a4a41f30e35136f",
+      "similarity": 93.6,
+      "matched_original_id": "6a22f7a94ffeec2b96e00bdb",
+      "text": "From: **Heidi Velovic** <[HVelovic@ipellc.net](<mailto:HVelovic@ipellc.net>)>\n Date: Mon, Jan 15, 2024 at 7:36 PM\n Subject: FW: 47 Wilson Ave - Expense ledger as of Jan 11, 2024\n To: Rakesh Bhargava <[rakesh.bhargava@gmail.com](<mailto:rakesh.bhargava@gmail.com>)>, Jaspreet Pahwa"
+    },
+    {
+      "email_id": "6a082c009a4a41f30e35136f",
+      "similarity": 90.3,
+      "matched_original_id": "6a22f7ac4ffeec2b96e00bdf",
+      "text": "**From:** Jaspreet Pahwa <[jp@mtreh.com](<mailto:jp@mtreh.com>)>\n **Sent:** Friday, January 12, 2024 10:23 AM\n **To:** Heidi Velovic <[HVelovic@ipellc.net](<mailto:HVelovic@ipellc.net>)>\n **Cc:** Reshma Lalwani <[Reshma@mtreh.com](<mailto:Reshma@mtreh.com>)>; Rakesh Bhargava <[ra"
+    },
+    {
+      "email_id": "6a082c289a4a41f30e351490",
+      "similarity": 90.8,
+      "matched_original_id": "6a082c289a4a41f30e35148e",
+      "text": "**From:** Phil Campisi <[pcampisi@westermanllp.com](<mailto:pcampisi@westermanllp.com>)>\n **Sent:** Friday, February 13, 2026 2:27 PM\n **To:** Rakesh Bhargava <[rakesh.bhargava@gmail.com](<mailto:rakesh.bhargava@gmail.com>)>; the roc <[rocthe75@gmail.com](<mailto:rocthe75@gmail.c"
+    },
+    {
+      "email_id": "6a082c289a4a41f30e35149b",
+      "similarity": 90.4,
+      "matched_original_id": "6a082c289a4a41f30e351499",
+      "text": "**From:** Rakesh Bhargava <[rakesh.bhargava@gmail.com](<mailto:rakesh.bhargava@gmail.com>)>\n **Sent:** Wednesday, March 4, 2026 10:57 AM\n **To:** Phil Campisi <[pcampisi@westermanllp.com](<mailto:pcampisi@westermanllp.com>)>\n **Cc:** the roc <[rocthe75@gmail.com](<mailto:rocthe75"
+    },
+    {
+      "email_id": "6a082c289a4a41f30e3514a4",
+      "similarity": 95.2,
+      "matched_original_id": "6a3bca85f5d9bb9081b2ce2b",
+      "text": "**From:** Rakesh Bhargava <[rakesh.bhargava@gmail.com](<mailto:rakesh.bhargava@gmail.com>)>\n**Sent:** Friday, March 13, 2026 2:01 PM\n**To:** Phil Campisi <[pcampisi@westermanllp.com](<mailto:pcampisi@westermanllp.com>)>\n**Cc:** William C. Heuer <[wheuer@westermanllp.com](<mailto:"
+    },
+    {
+      "email_id": "6a082c4a9a4a41f30e3515b2",
+      "similarity": 95.9,
+      "matched_original_id": "6a3bca7ef5d9bb9081b2ce28",
+      "text": "**From:** [eCourtAppearances@nyeb.uscourts.gov](<mailto:eCourtAppearances@nyeb.uscourts.gov>) <[eCourtAppearances@nyeb.uscourts.gov](<mailto:eCourtAppearances@nyeb.uscourts.gov>)>\n **Sent:** Saturday, March 28, 2026 6:00 AM\n **To:** William C. Heuer <[wheuer@westermanllp.com](<ma"
+    },
+    {
+      "email_id": "6a082c9b9a4a41f30e3517af",
+      "similarity": 89.7,
+      "matched_original_id": "6a3bccb2f5d9bb9081b2cfe7",
+      "text": "**From:** Boris Peyzner\n **Sent:** Monday, November 22, 2021 3:38 PM\n **To:** 'Hon. Ira B. Warshawsky' <[iwarshawsky@msek.com](<mailto:iwarshawsky@msek.com>)>\n **Cc:** 'Edward M. Ross' <[ed@rcblaw.com](<mailto:ed@rcblaw.com>)>; Lawrence C. Weiner <[LWeiner@lawfirm.ms](<mailto:LWe"
+    },
+    {
+      "email_id": "6a082c699a4a41f30e351692",
+      "similarity": 96.6,
+      "matched_original_id": "6a3bca6af5d9bb9081b2ce20",
+      "text": "**From:** William C. Heuer <wheuer@westermanllp.com>\n**Sent:** Thursday, April 23, 2026 3:14 PM\n**To:** Rakesh Bhargava <rakesh.bhargava@gmail.com>\n**Cc:** Phil Campisi <pcampisi@westermanllp.com>\n**Subject:** IPA/31FO\n\nRakesh \u2013 I took your points and put them into the attached W"
+    },
+    {
+      "email_id": "6a082c9b9a4a41f30e3517ac",
+      "similarity": 94.2,
+      "matched_original_id": "6a22f64b4ffeec2b96e008bf",
+      "text": "**From:** Lynn Giordano <LGiordano@ipellc.net>\n**Sent:** Monday, December 13, 2021 12:30 PM\n**To:** Jaspreet Pahwa <jp@mtreh.com>\n**Cc:** Rakesh Bhargava (rakesh.bhargava@gmail.com) <rakesh.bhargava@gmail.com>; Boris Peyzner <bpeyzner@lawfirm.ms>\n**Subject:** RE: 294 Leaf Ave, Ce"
+    },
+    {
+      "email_id": "6a082cfa9a4a41f30e351921",
+      "similarity": 96.5,
+      "matched_original_id": "6a3bcd84f5d9bb9081b2d0de",
+      "text": "**From:** Boris Peyzner <[bpeyzner@lawfirm.ms](<mailto:bpeyzner@lawfirm.ms>)>\n **Sent:** Tuesday, October 12, 2021 3:59 PM\n **To:** Hon. Ira B. Warshawsky <[iwarshawsky@msek.com](<mailto:iwarshawsky@msek.com>)>\n **Cc:** Edward M. Ross <[ed@rcblaw.com](<mailto:ed@rcblaw.com>)>; La"
+    },
+    {
+      "email_id": "6a082cfa9a4a41f30e351926",
+      "similarity": 93.7,
+      "matched_original_id": "6a22f6604ffeec2b96e00908",
+      "text": "**From:** Lynn Giordano <LGiordano@ipellc.net>\n**Sent:** Thursday, December 16, 2021 4:55 PM\n**To:** Jaspreet Pahwa <jp@mtreh.com>\n**Cc:** Rakesh Bhargava (rakesh.bhargava@gmail.com) <rakesh.bhargava@gmail.com>; Fred Aaron <Fred@bwasset.com>; Boris Peyzner <bpeyzner@lawfirm.ms>\n*"
+    },
+    {
+      "email_id": "6a082cfa9a4a41f30e35192d",
+      "similarity": 92.7,
+      "matched_original_id": "6a22f6554ffeec2b96e008f3",
+      "text": "**From:** Lynn Giordano <LGiordano@ipellc.net>\n**Sent:** Monday, December 20, 2021 5:34 PM\n**To:** jp@mtreh.com\n**Cc:** Rakesh Bhargava (rakesh.bhargava@gmail.com) <rakesh.bhargava@gmail.com>; Boris Peyzner <bpeyzner@lawfirm.ms>; Shannon McKinley <SMcKinley@ipellc.net>\n**Subject:"
+    }
+  ],
+  "buckets_unique_passages": {
+    "duplicate": 1616,
+    "edited": 502,
+    "novel": 4230,
+    "fragment": 1078,
+    "boilerplate": 1142
+  }
+}

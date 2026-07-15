@@ -640,13 +640,34 @@ def _cap_by_tokens(
     """
     if max_tokens <= 0 or not docs:
         return list(docs)
-    out: List[Dict[str, Any]] = []
-    spent = 0
-    for doc in docs:
+    docs = list(docs)
+    n = len(docs)
+
+    def _toks(doc: Dict[str, Any]) -> int:
         body = doc.get("body") or doc.get("text") or ""
-        t = max(1, len(body) // 4)
-        if spent + t > max_tokens and out:
+        return max(1, len(body) // 4)
+
+    # Accept from the FRONT and BACK inward, alternating, so if we must
+    # drop we drop from the MIDDLE (the low-attention "lost in the middle"
+    # zone) — NOT the tail. After interleaving, the tail holds the
+    # second-best chunks, so the previous tail-truncation silently dropped
+    # high-value evidence on overflow.
+    keep = [False] * n
+    spent = 0
+    lo, hi = 0, n - 1
+    take_front = True
+    while lo <= hi:
+        idx = lo if take_front else hi
+        t = _toks(docs[idx])
+        if spent + t > max_tokens and any(keep):
             break
-        out.append(doc)
+        keep[idx] = True
         spent += t
-    return out
+        if lo == hi:
+            break
+        if take_front:
+            lo += 1
+        else:
+            hi -= 1
+        take_front = not take_front
+    return [d for d, k in zip(docs, keep) if k]

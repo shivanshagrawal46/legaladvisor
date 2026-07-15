@@ -1,0 +1,87 @@
+[
+  {
+    "label": "chunks total",
+    "value": "61,953",
+    "status": "PASS"
+  },
+  {
+    "label": "  embedding coverage",
+    "value": "100.0%",
+    "status": "PASS"
+  },
+  {
+    "label": "  context coverage",
+    "value": "100.0%",
+    "status": "PASS"
+  },
+  {
+    "label": "  entity-linked",
+    "value": "80.1% (49,625)",
+    "status": "PASS"
+  },
+  {
+    "label": "quoted-recovery chunks",
+    "value": "4,393",
+    "status": "PASS"
+  },
+  {
+    "label": "  entity-linked",
+    "value": "43.0% (1,890)",
+    "status": "PASS"
+  },
+  {
+    "label": "  original-dated",
+    "value": "88.5% (3,890)",
+    "status": "PASS"
+  },
+  {
+    "label": "findings total",
+    "value": "97  (pending 96 / confirmed 0)",
+    "status": "PASS"
+  },
+  {
+    "label": "  voidable_transfer",
+    "value": "80",
+    "status": "PASS"
+  },
+  {
+    "label": "  quoted_alteration",
+    "value": "13",
+    "status": "PASS"
+  },
+  {
+    "label": "  anachronism",
+    "value": "2",
+    "status": "PASS"
+  },
+  {
+    "label": "  contradiction",
+    "value": "2",
+    "status": "PASS"
+  },
+  {
+    "label": "money_records",
+    "value": "12,640  ($1,507,385,846.54 across 12,555)",
+    "status": "PASS"
+  },
+  {
+    "label": "encoded subjects in chunks (target 0)",
+    "value": "121",
+    "status": "WARN"
+  },
+  {
+    "label": "privileged chunks",
+    "value": "34,454 (55.6%)",
+    "status": "PASS"
+  },
+  {
+    "label": "entities / relationships",
+    "value": "567 / 1,014",
+    "status": "PASS"
+  },
+  {
+    "label": "events / property_dossier",
+    "value": "2,498 / 198",
+    "status": "PASS"
+  }
+]

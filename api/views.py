@@ -355,6 +355,20 @@ async def list_findings(
                        "by_status": facet("status")}}
 
 
+# ── daily brief (Insight Engine) ──────────────────────────────────────────────
+@router.get("/brief")
+async def daily_brief(
+    _: User = Depends(get_current_user),
+    arrival_days: int = Query(7, ge=1, le=60),
+    deadline_days: int = Query(21, ge=1, le=120),
+):
+    """Structured Daily Brief: approaching deadlines, open loops, recent
+    arrivals, pending-findings summary, and prioritized questions."""
+    from scripts.daily_brief import build_brief
+    return build_brief(get_mongo().db, arrival_days=arrival_days,
+                       deadline_days=deadline_days)
+
+
 # ── 8.8 ad-hoc grid cell (cached scoped extraction, NOT the live agent) ───────
 class CellQuery(BaseModel):
     property_id: str

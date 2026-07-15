@@ -231,6 +231,9 @@ def main() -> int:
     p.add_argument("--force-vision", action="store_true",
                    help="Send EVERY page to Claude Sonnet 4.6 Vision (no "
                         "born-digital text layer). Fallback: GPT-5 vision -> RapidOCR.")
+    p.add_argument("--sha-file", default=None,
+                   help="Only OCR the sha256s listed in this file (one per line). "
+                        "Used to scope OCR to a specific case/label's attachments.")
     args = p.parse_args()
 
     settings = Settings.load()
@@ -265,6 +268,15 @@ def main() -> int:
             {"$sort": {"size": 1}},
         ]
         groups = list(mongo.attachments.aggregate(pipeline, allowDiskUse=True))
+
+        # Optional scope — restrict to a specific set of sha256s (e.g. one case).
+        if args.sha_file:
+            wanted = {ln.strip() for ln in Path(args.sha_file).read_text(
+                encoding="utf-8").splitlines() if ln.strip()}
+            before = len(groups)
+            groups = [g for g in groups if g["_id"] in wanted]
+            logger.info(f"sha-file scope: kept {len(groups):,} of {before:,} "
+                        f"(from {len(wanted):,} requested sha256s)")
 
         # Resume — skip sha256s already in v2 (unless --force).
         if not args.force:

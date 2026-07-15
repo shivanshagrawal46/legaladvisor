@@ -494,9 +494,10 @@ class LegalAdvisorChat:
             from src.rag.provenance import provenance_footer
             foot = provenance_footer(turn.chunks or chunks, mode=mode,
                                      fact_verdicts=turn.fact_verdicts)
+            # Keep provenance as STRUCTURED metadata only (turn.provenance);
+            # do NOT append it to the answer prose — the UI renders it from
+            # turn.provenance, and users don't want it inline in the message.
             turn.provenance = foot
-            if foot.get("text") and turn.answer:
-                turn.answer = f"{turn.answer}\n\n{foot['text']}"
             # 5.6 cache/memory isolation: a Clean-mode turn must never become
             # context for a later (possibly shareable) turn, and vice-versa —
             # so Clean turns are NOT appended to the reusable analysis history.

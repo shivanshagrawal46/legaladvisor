@@ -4,7 +4,9 @@ Unified facade for attachment text extraction.
 Routes by extension:
   .pdf                 -> src.extractor.pdf  (text-layer + OCR fallback)
   .docx                -> src.extractor.docx
-  .doc                 -> [skipped, legacy binary, not common in our corpus]
+  .doc                 -> skipped (legacy binary; handled via word_com in v2)
+  .xls                 -> xlrd (if installed)
+  .msg                 -> extract_msg (if installed)
   .txt / .csv / .log   -> direct decode
   .png/.jpg/.jpeg/etc. -> src.extractor.image (PaddleOCR)
   .xlsx / .xls         -> openpyxl (.xlsx) / skipped (.xls)
@@ -72,6 +74,60 @@ def _extract_xlsx(data: bytes) -> str:
             if cells:
                 parts.append(" | ".join(cells))
     return "\n".join(parts).strip()
+
+
+def _extract_xls(data: bytes) -> Optional[str]:
+    """Legacy .xls via xlrd. Returns None if xlrd isn't installed (so the
+    caller can mark a clear 'lib missing' reason rather than crash)."""
+    try:
+        import xlrd  # type: ignore
+    except ImportError:
+        return None
+    try:
+        book = xlrd.open_workbook(file_contents=data)
+    except Exception:
+        return ""
+    parts: List[str] = []
+    for sheet in book.sheets():
+        parts.append(f"# Sheet: {sheet.name}")
+        for r in range(sheet.nrows):
+            cells = [str(sheet.cell_value(r, c)) for c in range(sheet.ncols)]
+            cells = [c for c in cells if c.strip()]
+            if cells:
+                parts.append(" | ".join(cells))
+    return "\n".join(parts).strip()
+
+
+def _extract_msg(data: bytes) -> Optional[str]:
+    """Outlook .msg via extract_msg. Returns None if the lib isn't installed."""
+    try:
+        import extract_msg  # type: ignore
+    except ImportError:
+        return None
+    import os
+    import tempfile
+    path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".msg", delete=False) as tf:
+            tf.write(data)
+            path = tf.name
+        msg = extract_msg.Message(path)
+        parts: List[str] = []
+        for fld in ("subject", "sender", "to", "date"):
+            v = getattr(msg, fld, None)
+            if v:
+                parts.append(f"{fld}: {v}")
+        if getattr(msg, "body", None):
+            parts.append(str(msg.body))
+        return "\n".join(parts).strip()
+    except Exception:
+        return ""
+    finally:
+        if path:
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
 
 
 def extract_from_bytes(
@@ -182,6 +238,33 @@ def extract_from_bytes(
             pages=[PageResult(1, text, "xlsx")],
             char_count=len(text),
         )
+
+    if ext == ".xls":
+        text = _extract_xls(data)
+        if text is None:
+            return ExtractionResult(text="", method="skipped", skipped_reason="xls_lib_missing")
+        text = text.strip()
+        if not text:
+            return ExtractionResult(text="", method="skipped", skipped_reason="xls_empty")
+        return ExtractionResult(text=text, method="xls",
+                                pages=[PageResult(1, text, "xls")], char_count=len(text))
+
+    if ext == ".msg":
+        text = _extract_msg(data)
+        if text is None:
+            return ExtractionResult(text="", method="skipped", skipped_reason="msg_lib_missing")
+        text = text.strip()
+        if not text:
+            return ExtractionResult(text="", method="skipped", skipped_reason="msg_empty")
+        return ExtractionResult(text=text, method="msg",
+                                pages=[PageResult(1, text, "msg")], char_count=len(text))
+
+    if ext == ".doc":
+        # Legacy binary Word. Clean extraction needs Word COM / LibreOffice;
+        # the v2 pipeline already handles these via word_com. We do NOT do a
+        # raw byte-scrape here (it injects garbage into evidence).
+        return ExtractionResult(text="", method="skipped",
+                                skipped_reason="legacy_doc_needs_word_com")
 
     return ExtractionResult(
         text="",

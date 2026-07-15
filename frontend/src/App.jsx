@@ -5,6 +5,7 @@ import Login from "./Login";
 import Chat from "./Chat";
 import PortfolioGrid from "./PortfolioGrid";
 import FindingsDashboard from "./FindingsDashboard";
+import BriefDashboard from "./BriefDashboard";
 import PropertyDetail from "./PropertyDetail";
 import HowToAsk from "./HowToAsk";
 import { getMe } from "./api";
@@ -70,6 +71,7 @@ export default function App() {
           {/* Investigation workspace pages share the top-nav shell */}
           <Route element={<Shell user={user} />}>
             <Route path="/portfolio" element={<PortfolioGrid />} />
+            <Route path="/brief" element={<BriefDashboard />} />
             <Route path="/findings" element={<FindingsDashboard />} />
             <Route path="/how-to-ask" element={<HowToAsk />} />
             <Route path="/properties/:propertyId" element={<PropertyDetail />} />
@@ -101,6 +103,7 @@ function Shell({ user }) {
         </div>
         <nav style={{ display: "flex", gap: 6, marginLeft: 12 }}>
           <NavLink to="/portfolio" style={navItem}>Portfolio</NavLink>
+          <NavLink to="/brief" style={navItem}>Daily Brief</NavLink>
           <NavLink to="/findings" style={navItem}>Findings</NavLink>
           <NavLink to="/chat" style={navItem}>Investigate (Chat)</NavLink>
           <NavLink to="/how-to-ask" style={navItem}>How to Ask</NavLink>

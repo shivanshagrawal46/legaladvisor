@@ -7,6 +7,12 @@ const SEV_COLOR = { critical: "red", high: "volcano", medium: "gold", info: "def
 const TYPE_LABEL = {
   voidable_transfer: "Voidable transfer", anachronism: "Backdating",
   contradiction: "Contradiction", omission: "Omission", encumbrance: "Encumbrance",
+  money_conflict: "Money conflict", open_loop: "Open loop (awaiting us)",
+  quoted_alteration: "Altered quoted copy",
+  llc_timing: "Shell-timing (LLC vs transfer)",
+  insurance_cancellation: "Insurance cancelled",
+  insurance_insured_change: "Insured changed (MangoTree?)",
+  insurance_insurer_change: "Insurer changed",
 };
 
 export default function FindingsDashboard() {

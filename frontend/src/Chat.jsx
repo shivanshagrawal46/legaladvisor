@@ -162,6 +162,9 @@ export default function Chat({ user }) {
   const active = activeId ? (sessionStates[activeId] || EMPTY_SESSION) : EMPTY_SESSION;
 
   const [input, setInput] = useState("");
+  // Clean mode: when ON, the backend excludes privileged content from
+  // retrieval so the answer is safe to share outside the privilege circle.
+  const [cleanMode, setCleanMode] = useState(false);
   const [wsReady, setWsReady] = useState(false);
   const bottomRef = useRef(null);
 
@@ -194,7 +197,7 @@ export default function Chat({ user }) {
         mode: data.mode || "normal",
       });
     } else if (data.type === "agent_plan") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       const { type: _t, ...plan } = data;
       patchSession(sid, cur => ({
@@ -202,7 +205,7 @@ export default function Chat({ user }) {
         agent: { ...(cur.agent || { steps: [], done: null, trace: null }), plan },
       }));
     } else if (data.type === "agent_step") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       const { type: _t, ...step } = data;
       patchSession(sid, cur => {
@@ -217,7 +220,7 @@ export default function Chat({ user }) {
       // The deep-investigation agent failed and the backend degraded to
       // the one-shot pipeline. Close the panel with an explicit status
       // instead of leaving it frozen on "Investigating…".
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       patchSession(sid, cur => ({
         ...cur,
@@ -227,7 +230,7 @@ export default function Chat({ user }) {
         },
       }));
     } else if (data.type === "agent_done") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       const { type: _t, ...done } = data;
       patchSession(sid, cur => ({
@@ -235,24 +238,24 @@ export default function Chat({ user }) {
         agent: { ...(cur.agent || { plan: null, steps: [], trace: null }), done },
       }));
     } else if (data.type === "agent_trace") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       patchSession(sid, cur => ({
         ...cur,
         agent: { ...(cur.agent || { plan: null, steps: [], done: null }), trace: data.trace },
       }));
     } else if (data.type === "token") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       patchSession(sid, cur => ({ ...cur, buffer: cur.buffer + data.text }));
     } else if (data.type === "sources") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       patchSession(sid, { sources: data.items });
     } else if (data.type === "verification") {
       // Sprint-3-finish: capture the verifier outcome so the bubble can
       // render the green/amber banner + citation chips with verdicts.
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (!sid) return;
       const { type: _ignore, ...payload } = data;
       patchSession(sid, { verification: payload });
@@ -284,7 +287,7 @@ export default function Chat({ user }) {
       streamingSidRef.current = null;
       loadSessions();   // refresh sidebar (title might have changed)
     } else if (data.type === "error") {
-      const sid = streamingSidRef.current;
+      const sid = data.session_id || streamingSidRef.current;
       if (sid) {
         patchSession(sid, cur => ({
           ...cur,
@@ -423,7 +426,8 @@ export default function Chat({ user }) {
       mode: "normal",
     }));
 
-    send({ type: "question", text: q, session_id: sid });
+    send({ type: "question", text: q, session_id: sid,
+           mode: cleanMode ? "clean" : "analysis" });
   }
 
   // Sprint-4: send an out-of-band interrupt frame. The backend sets
@@ -588,6 +592,15 @@ export default function Chat({ user }) {
                 style={styles.textarea}
               />
               <div style={styles.inputFooter}>
+                <Tooltip title="When ON, privileged content is excluded from retrieval so the answer is safe to share outside the privilege circle.">
+                  <Tag
+                    color={cleanMode ? "green" : "default"}
+                    onClick={() => setCleanMode(v => !v)}
+                    style={{ cursor: "pointer", userSelect: "none", marginRight: 8 }}
+                  >
+                    {cleanMode ? "Clean mode: ON" : "Clean mode: off"}
+                  </Tag>
+                </Tooltip>
                 <Text style={styles.inputHint}>
                   {active.streaming
                     ? active.buffer

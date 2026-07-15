@@ -114,14 +114,19 @@ class Retriever:
         *,
         collection: Optional[Any] = None,
         index_name: Optional[str] = None,
+        limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
+        # `limit` is call-scoped so concurrent callers (e.g. timeline mode)
+        # never mutate shared instance state. Defaults to the configured
+        # retrieval_top_k when not overridden.
+        top_k = limit if limit is not None else self.retrieval_top_k
         stage_vector: Dict[str, Any] = {
             "$vectorSearch": {
                 "index": index_name or self.vector_index_name,
                 "path": "embedding",
                 "queryVector": query_vec,
-                "numCandidates": max(150, self.retrieval_top_k * 5),
-                "limit": self.retrieval_top_k,
+                "numCandidates": max(150, top_k * 5),
+                "limit": top_k,
             }
         }
         if atlas_filter:
@@ -266,16 +271,14 @@ class Retriever:
         # previously this silently searched the stale v1 collection.
         tl_col, tl_idx = self._v2_timeline_target()
 
-        # Increase pull size for timeline mode.
-        old_top_k = self.retrieval_top_k
-        self.retrieval_top_k = max_chunks
-        try:
-            candidates = self._vector_search(
-                qvec, atlas_filter=merged or None,
-                collection=tl_col, index_name=tl_idx,
-            )
-        finally:
-            self.retrieval_top_k = old_top_k
+        # Increase pull size for timeline mode via a call-scoped limit —
+        # never mutate self.retrieval_top_k (this retriever is a shared
+        # singleton and concurrent WS sessions would race on it).
+        candidates = self._vector_search(
+            qvec, atlas_filter=merged or None,
+            collection=tl_col, index_name=tl_idx,
+            limit=max_chunks,
+        )
 
         if not candidates:
             return []

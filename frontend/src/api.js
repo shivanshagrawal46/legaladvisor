@@ -37,6 +37,7 @@ export const getDocument = (id) => api.get(`/api/documents/${id}`);
 export const getDocumentFileBlob = (id) =>
   api.get(`/api/documents/${id}/file`, { responseType: "blob" });
 export const getFindings = (params = {}) => api.get("/api/findings", { params });
+export const getBrief = (params = {}) => api.get("/api/brief", { params });
 export const setFindingStatus = (id, status) =>
   api.patch(`/api/findings/${id}`, { status });
 export const portfolioCell = (property_id, question) =>
