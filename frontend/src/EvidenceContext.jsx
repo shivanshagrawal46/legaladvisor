@@ -43,7 +43,13 @@ export function EvidenceProvider({ sources, verification, children }) {
     // payload is the source of truth — both Sources and citation chips
     // consume it.
     const verdictsByIndex = new Map();
+    // fact-id -> source index, so a prose citation written as a FACT id
+    // ("[#f12]") can be resolved to the source number the chip system uses.
+    const factToSource = new Map();
     (verification?.verdicts || []).forEach(v => {
+      if (v.fact_id != null && typeof v.source_chunk_id === "number") {
+        factToSource.set(String(v.fact_id).toLowerCase(), v.source_chunk_id);
+      }
       if (typeof v.source_chunk_id !== "number") return;
       if (!verdictsByIndex.has(v.source_chunk_id)) {
         verdictsByIndex.set(v.source_chunk_id, []);
@@ -52,6 +58,12 @@ export function EvidenceProvider({ sources, verification, children }) {
     });
 
     const getSource = (idx) => byIndex.get(idx) || null;
+    const getSourceIndexForFact = (factId) => {
+      if (factId == null) return null;
+      const key = String(factId).toLowerCase();
+      // Accept "f12" or "12"; try as-is then with an "f" prefix.
+      return factToSource.get(key) ?? factToSource.get("f" + key.replace(/^f/, "")) ?? null;
+    };
     const getVerdictsFor = (idx) => verdictsByIndex.get(idx) || [];
     const getOverallVerdictFor = (idx) => {
       const vs = verdictsByIndex.get(idx);
@@ -72,6 +84,7 @@ export function EvidenceProvider({ sources, verification, children }) {
       openEvidence,
       closeEvidence,
       getSource,
+      getSourceIndexForFact,
       getVerdictsFor,
       getOverallVerdictFor,
     };
@@ -99,6 +112,7 @@ export function useEvidence() {
       openEvidence: () => {},
       closeEvidence: () => {},
       getSource: () => null,
+      getSourceIndexForFact: () => null,
       getVerdictsFor: () => [],
       getOverallVerdictFor: () => null,
     };

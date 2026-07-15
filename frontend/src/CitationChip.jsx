@@ -50,12 +50,18 @@ function shortQuote(q, max = 110) {
   return q.length > max ? q.slice(0, max) + "…" : q;
 }
 
-export default function CitationChip({ index }) {
-  const { openEvidence, getSource, getVerdictsFor, getOverallVerdictFor, verification } = useEvidence();
-  const src = getSource(index);
-  const verdicts = getVerdictsFor(index);
+export default function CitationChip({ index, factId }) {
+  const { openEvidence, getSource, getSourceIndexForFact, getVerdictsFor,
+          getOverallVerdictFor, verification } = useEvidence();
+  // A citation may be written as a source number ("[#12]") OR as a fact id
+  // ("[#f12]"). For a fact id, resolve to the source number the evidence
+  // panel is keyed by.
+  const resolved = (index != null) ? index : getSourceIndexForFact(factId);
+  const label = (resolved != null) ? `#${resolved}` : `#${factId}`;
+  const src = resolved != null ? getSource(resolved) : null;
+  const verdicts = resolved != null ? getVerdictsFor(resolved) : [];
   // If no verification ran at all on this message, render neutral.
-  const overall = verification ? (getOverallVerdictFor(index) || "NEUTRAL") : "NEUTRAL";
+  const overall = verification ? (getOverallVerdictFor(resolved) || "NEUTRAL") : "NEUTRAL";
   const style = STYLES[overall] || STYLES.NEUTRAL;
 
   // Build tooltip content — single verdict reads one row, multiple stack.
@@ -63,13 +69,13 @@ export default function CitationChip({ index }) {
     <div style={{ maxWidth: 360, fontSize: 12, lineHeight: 1.55, color: "var(--ink)" }}>
       {src ? (
         <div style={{ marginBottom: verdicts.length ? 8 : 0, fontWeight: 600, color: "var(--ink)", display: "flex", alignItems: "baseline", gap: 6 }}>
-          <span className="mono" style={{ color: "var(--brand)", fontSize: 11 }}>[#{index}]</span>
+          <span className="mono" style={{ color: "var(--brand)", fontSize: 11 }}>[{label}]</span>
           <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{src.title}</span>
           {src.date ? <span className="mono" style={{ marginLeft: "auto", color: "var(--muted-2)", fontWeight: 400, fontSize: 10.5, flexShrink: 0 }}>{src.date}</span> : null}
         </div>
       ) : (
         <div style={{ marginBottom: 4, fontWeight: 600, color: "var(--red)" }}>
-          [#{index}] — source not found
+          [{label}] — source not found
         </div>
       )}
       {verdicts.length === 0 && src ? (
@@ -132,7 +138,7 @@ export default function CitationChip({ index }) {
     >
       <button
         type="button"
-        onClick={() => openEvidence(index)}
+        onClick={() => openEvidence(resolved, factId)}
         className="citation-chip"
         style={{
           display: "inline-flex",
@@ -156,7 +162,7 @@ export default function CitationChip({ index }) {
         }}
       >
         {style.icon}
-        <span>#{index}</span>
+        <span>{label}</span>
       </button>
     </Tooltip>
   );
@@ -176,7 +182,8 @@ export function renderWithCitations(children) {
   const transformOne = (node, keyBase) => {
     if (typeof node !== "string") return node;
     const out = [];
-    const re = /\[#(\d+)\]/g;
+    // Match a source-number citation "[#12]" OR a fact-id citation "[#f12]".
+    const re = /\[#(f?\d+)\]/gi;
     let last = 0;
     let m;
     let i = 0;
@@ -184,7 +191,12 @@ export function renderWithCitations(children) {
       if (m.index > last) {
         out.push(node.slice(last, m.index));
       }
-      out.push(<CitationChip key={`${keyBase}-c${i++}`} index={parseInt(m[1], 10)} />);
+      const tok = m[1];
+      if (/^f/i.test(tok)) {
+        out.push(<CitationChip key={`${keyBase}-c${i++}`} factId={tok} />);
+      } else {
+        out.push(<CitationChip key={`${keyBase}-c${i++}`} index={parseInt(tok, 10)} />);
+      }
       last = m.index + m[0].length;
     }
     if (last < node.length) {

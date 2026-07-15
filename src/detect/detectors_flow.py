@@ -162,8 +162,15 @@ class OpenLoopJudge:
         return False, ""  # fail-open: if unclear, treat as NOT resolved (keep it)
 
 
-def detect_open_loops(m, *, write: bool = True, within_days: int = 90,
+def detect_open_loops(m, *, write: bool = True, within_days: Optional[int] = None,
                       judge_fn: Optional[Callable[[str, str, str], Any]] = None) -> List[Finding]:
+    # Only surface loops from the last few days of activity — keeps the list
+    # tight and relevant. Default 3 days; tune via OPEN_LOOP_WINDOW_DAYS.
+    if within_days is None:
+        try:
+            within_days = int(os.getenv("OPEN_LOOP_WINDOW_DAYS", "3"))
+        except ValueError:
+            within_days = 3
     emails, findings = m.db["emails"], m.db["findings"]
     threads: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     max_date = None

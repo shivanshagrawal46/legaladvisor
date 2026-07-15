@@ -487,6 +487,7 @@ export default function Chat({ user }) {
               {/* Jump to the investigation workspace pages */}
               <nav style={styles.topbarNav}>
                 <Link to="/portfolio" style={styles.navLink}>Portfolio</Link>
+                <Link to="/brief" style={styles.navLink}>Daily Brief</Link>
                 <Link to="/findings" style={styles.navLink}>Findings</Link>
                 <Link to="/how-to-ask" style={styles.navLink}>How to Ask</Link>
               </nav>
