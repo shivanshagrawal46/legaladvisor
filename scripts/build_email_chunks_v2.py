@@ -70,6 +70,7 @@ Usage:
   python scripts/build_email_chunks_v2.py --batch-size 64
   python scripts/build_email_chunks_v2.py --workers 16
   python scripts/build_email_chunks_v2.py --force                 # re-embed all
+  python scripts/build_email_chunks_v2.py --skip-occurrence-sync  # no Phase D
 """
 from __future__ import annotations
 
@@ -687,6 +688,11 @@ def main() -> int:
                    help="Disable contextual retrieval (ablation / fast mode)")
     p.add_argument("--no-embed", action="store_true",
                    help="Dry chunk + context only; no embedding, no DB writes")
+    p.add_argument("--skip-occurrence-sync", action="store_true",
+                   help="Skip Phase D. Safe only when the incoming emails carry "
+                        "genuinely new attachment content, since Phase D is what "
+                        "appends a new parent email to an existing sha256's "
+                        "occurrences[]. Costs one find_one per known sha256.")
     p.add_argument("--batch-size", type=int, default=64,
                    help="Embedding batch size (Voyage caps at 128)")
     p.add_argument("--workers", type=int, default=16,
@@ -925,7 +931,12 @@ def main() -> int:
         # written). Update their occurrences[] in place — no embedding,
         # no Claude, just a Mongo update with the freshly gathered Phase
         # A occurrence map.
-        if skipped_existing_shas and not args.no_embed:
+        if skipped_existing_shas and not args.no_embed and args.skip_occurrence_sync:
+            logger.info(
+                f"--- Phase D SKIPPED (--skip-occurrence-sync): "
+                f"{len(skipped_existing_shas)} existing sha256s left untouched ---"
+            )
+        elif skipped_existing_shas and not args.no_embed:
             logger.info(
                 f"--- Phase D: sync occurrences for "
                 f"{len(skipped_existing_shas)} existing sha256s ---"

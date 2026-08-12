@@ -38,7 +38,7 @@ from src.utils.logger import logger
 
 CHUNKS = "email_chunks_v2"
 TARGET_TYPES = ["title_report", "insurance", "equity_schedule",
-                "service_agreement", "litigation_update"]
+                "service_agreement", "litigation_update", "court_record"]
 
 
 def _fmt_date(d) -> str:
@@ -68,6 +68,12 @@ def header_for(doc: Dict[str, Any]) -> str:
         return "[Service Agreement — Mango Tree & Island Properties (David)]"
     if st == "litigation_update":
         return f"[Litigation Update — #{doc.get('sequence_no')} | {_fmt_date(doc.get('document_date'))}]"
+    if st == "court_record":
+        bits = [f"Docket #{doc.get('docket_no')}" if doc.get("docket_no") else "",
+                doc.get("document_title") or "",
+                f"{doc.get('case_title') or ''} {doc.get('case_number') or ''}".strip(),
+                _fmt_date(doc.get("document_date"))]
+        return "[Court Record — " + " | ".join(b for b in bits if b) + "]"
     return f"[{st}]"
 
 
