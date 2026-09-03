@@ -35,6 +35,8 @@ that chunk, but the corpus build never crashes.
 """
 from __future__ import annotations
 
+import os
+import re
 import threading
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
@@ -68,6 +70,31 @@ _MAX_DOC_TOKENS_FOR_CONTEXT = 150_000
 # for a short situating sentence; we set 200 as a hard cap.
 _MAX_CONTEXT_OUTPUT_TOKENS = 200
 
+# How many chunks to situate in a SINGLE Claude call.
+#
+# The naive contextual-retrieval loop sends the whole document once per chunk,
+# so a document costs  doc_tokens x n_chunks  in cache-read tokens. Asking for
+# several chunks' contexts in one call divides that by the batch size: a 60-
+# chunk document at batch 8 pays 8 cache reads instead of 59. Output tokens and
+# retrieval quality are unchanged (each chunk still gets its own context, and
+# the model additionally sees its neighbours).
+#
+# Default 1 preserves the historical one-call-per-chunk behaviour for every
+# existing caller; opt in per run via CONTEXT_BATCH_SIZE or batch_size=.
+_DEFAULT_BATCH_SIZE = max(1, int(os.environ.get("CONTEXT_BATCH_SIZE", "1") or 1))
+_MAX_BATCH_SIZE = 16
+
+# Output budget per chunk when batching. Measured: a "100-150 token" context
+# comes back at ~250 tokens in practice, and if the batch's max_tokens is sized
+# any tighter the reply is truncated mid-way, the trailing <ctx> blocks go
+# missing, and each one costs a full-document recovery call — which is exactly
+# the cache-read blowup batching exists to prevent. Budget generously; unused
+# output tokens are never billed.
+_BATCH_OUTPUT_TOKENS_PER_CHUNK = 340
+
+_CTX_RE = re.compile(r"<ctx\s+id=[\"']?(\d+)[\"']?\s*>(.*?)</ctx>",
+                     re.IGNORECASE | re.DOTALL)
+
 
 _SYSTEM_PROMPT = (
     "You write short, factual context summaries that help a retrieval "
@@ -87,6 +114,24 @@ _CHUNK_INSTRUCTION = (
     "specific chunk is about, and how it relates to the overall "
     "document. Plain prose, no markdown, no bullet points. Answer with "
     "only the context, nothing else."
+)
+
+_BATCH_INSTRUCTION = (
+    "Above is the full document. Below are {n} numbered chunks taken from "
+    "it.\n\n{chunk_blocks}\n\n"
+    "For EACH chunk, write a context of 100-150 tokens — never longer — that "
+    "situates that chunk "
+    "within the document. Include any of the following that are present and "
+    "relevant: document type (email, contract, settlement, court filing, "
+    "voicemail transcript, spreadsheet, etc.), date or time-period, key "
+    "parties / entities / addresses, what that specific chunk is about, and "
+    "how it relates to the overall document. Plain prose, no markdown, no "
+    "bullet points.\n\n"
+    "Treat every chunk independently: each context must stand alone and must "
+    "never refer to the other chunks or to their numbering.\n\n"
+    "Output EXACTLY {n} blocks, in order, in this format and nothing else:\n"
+    "<ctx id=\"1\">context for chunk 1</ctx>\n"
+    "<ctx id=\"2\">context for chunk 2</ctx>"
 )
 
 
@@ -124,6 +169,7 @@ class ContextualSummarizer:
         model: str = "claude-sonnet-4-6",
         *,
         max_output_tokens: int = _MAX_CONTEXT_OUTPUT_TOKENS,
+        batch_size: Optional[int] = None,
     ) -> None:
         if not api_key:
             raise RuntimeError(
@@ -137,6 +183,9 @@ class ContextualSummarizer:
         self.client = Anthropic(api_key=api_key, timeout=90.0, max_retries=0)
         self.model = model
         self.max_output_tokens = max_output_tokens
+        self.batch_size = max(1, min(
+            _MAX_BATCH_SIZE,
+            batch_size if batch_size is not None else _DEFAULT_BATCH_SIZE))
         self.total_usage = _Usage()
         self._usage_lock = threading.Lock()
 
@@ -204,6 +253,86 @@ class ContextualSummarizer:
         return self._extract_text(resp).strip()
 
     # -----------------------------------------------------------------
+    # Batched path — situate several chunks per call so the (cached)
+    # document is re-read once per BATCH instead of once per chunk.
+    # -----------------------------------------------------------------
+
+    @retry(
+        stop=stop_after_attempt(4),
+        wait=wait_exponential(multiplier=2, min=2, max=30),
+        retry=retry_if_exception_type(Exception),
+        reraise=True,
+    )
+    def _call_batch_raw(self, doc_text: str, chunk_texts: List[str],
+                        use_cache: bool) -> str:
+        blocks = "\n".join(
+            f'<chunk id="{i + 1}">\n{c}\n</chunk>'
+            for i, c in enumerate(chunk_texts)
+        )
+        instruction = _BATCH_INSTRUCTION.format(n=len(chunk_texts),
+                                                chunk_blocks=blocks)
+        doc_block: Dict[str, Any] = {
+            "type": "text",
+            "text": f"<document>\n{doc_text}\n</document>",
+        }
+        if use_cache:
+            doc_block["cache_control"] = {"type": "ephemeral"}
+        resp = self.client.messages.create(
+            model=self.model,
+            max_tokens=min(
+                16000,
+                _BATCH_OUTPUT_TOKENS_PER_CHUNK * len(chunk_texts) + 512),
+            system=_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": [doc_block,
+                                                   {"type": "text",
+                                                    "text": instruction}]}],
+        )
+        self._record_usage(resp.usage)
+        if getattr(resp, "stop_reason", None) == "max_tokens":
+            logger.warning(
+                f"  contextual summary batch of {len(chunk_texts)} hit the output "
+                f"cap — trailing contexts will be recovered individually"
+            )
+        return self._extract_text(resp)
+
+    def _summarize_batch(self, doc_text: str, chunk_texts: List[str],
+                         use_cache: bool) -> List[str]:
+        """Context for each chunk in one call. Any chunk the model fails to
+        return is retried individually, so a malformed reply degrades to the
+        old per-chunk path for the affected chunks only — never for the batch."""
+        n = len(chunk_texts)
+        parsed: Dict[int, str] = {}
+        try:
+            raw = self._call_batch_raw(doc_text, chunk_texts, use_cache)
+            for m in _CTX_RE.finditer(raw or ""):
+                idx = int(m.group(1)) - 1
+                if 0 <= idx < n:
+                    parsed[idx] = m.group(2).strip()
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                f"  contextual summary batch of {n} failed "
+                f"({type(exc).__name__}: {str(exc)[:120]}); falling back per-chunk"
+            )
+
+        missing = [i for i in range(n) if not parsed.get(i)]
+        if missing:
+            logger.info(
+                f"  batch returned {n - len(missing)}/{n} contexts; "
+                f"recovering {len(missing)} individually"
+            )
+        single = self._call_cached if use_cache else self._call_uncached
+        for i in missing:
+            try:
+                parsed[i] = single(doc_text, chunk_texts[i])
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    f"  contextual summary failed on chunk {i}: "
+                    f"{type(exc).__name__}: {str(exc)[:160]}"
+                )
+                parsed[i] = ""
+        return [parsed.get(i, "") for i in range(n)]
+
+    # -----------------------------------------------------------------
     # Public API
     # -----------------------------------------------------------------
 
@@ -235,9 +364,28 @@ class ContextualSummarizer:
             approx_tokens = _MAX_DOC_TOKENS_FOR_CONTEXT
 
         use_cache = approx_tokens >= _CACHE_MIN_TOKENS and len(chunk_texts) >= 2
+
+        if self.batch_size > 1 and len(chunk_texts) > 1:
+            out: List[str] = []
+            for start in range(0, len(chunk_texts), self.batch_size):
+                batch = chunk_texts[start:start + self.batch_size]
+                if len(batch) == 1:
+                    single = self._call_cached if use_cache else self._call_uncached
+                    try:
+                        out.append(single(doc_text, batch[0]))
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning(
+                            f"  contextual summary failed on chunk {start}: "
+                            f"{type(exc).__name__}: {str(exc)[:160]}"
+                        )
+                        out.append("")
+                else:
+                    out.extend(self._summarize_batch(doc_text, batch, use_cache))
+            return out
+
         call_fn = self._call_cached if use_cache else self._call_uncached
 
-        out: List[str] = []
+        out = []
         for i, ct in enumerate(chunk_texts):
             try:
                 summary = call_fn(doc_text, ct)

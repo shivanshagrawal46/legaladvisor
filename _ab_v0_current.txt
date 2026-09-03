@@ -1,0 +1,8 @@
+# A/B version 0 — BASELINE. Exactly what is in the current review video:
+# commas instead of pauses, pace 1.0.
+
+00:01 --> 00:10 हर packaging की एक कहानी होती है, हर carton के अंदर होता है, एक brand का भरोसा। Vimal Enterprises में, हम इसी भरोसे को packaging में बदलते हैं।
+
+00:10 --> 00:17 ये सफ़र शुरू होता है, customer को समझने से। Front Office team हर ज़रूरत सुनती है, communication simple, clear और seamless.
+
+00:17 --> 00:23 फिर हमारी Designing Team, आपकी requirement को एक professional और creative packaging design में बदलती है।

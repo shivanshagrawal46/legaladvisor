@@ -276,7 +276,7 @@ class ToolBox:
         """Date-bounded search."""
         try:
             sd = _parse_iso_date(start_date)
-            ed = _parse_iso_date(end_date)
+            ed = _parse_iso_date(end_date, end_of_day=True)
         except ValueError as exc:
             return ToolResult(
                 summary=f"search_timeframe: invalid date — {exc}",
@@ -857,17 +857,25 @@ class ToolBox:
 # Date helper
 # =====================================================================
 
-def _parse_iso_date(s: str) -> datetime:
+def _parse_iso_date(s: str, *, end_of_day: bool = False) -> datetime:
     """
     Accept 'YYYY-MM-DD' (most common) and 'YYYY-MM-DDTHH:MM:SS'. Returns
     a tz-aware UTC datetime. Raises ValueError on bad input.
+
+    `end_of_day=True` is for the END bound of a range: a bare 'YYYY-MM-DD'
+    is widened to 23:59:59.999999 so the whole day is included. Without
+    this, "through 2026-09-03" parsed to midnight at the START of the 3rd
+    and `$lte` silently excluded every email sent that day — the agent
+    then reported "no email later than 2 Sep" as negative evidence while
+    three newer ones sat in the corpus. An explicit time is left alone.
     """
     s = (s or "").strip()
     if not s:
         raise ValueError("empty date")
+    has_time = "T" in s or " " in s
     try:
         # Try the easy formats first.
-        if "T" in s or " " in s:
+        if has_time:
             d = datetime.fromisoformat(s.replace(" ", "T"))
         else:
             d = datetime.strptime(s, "%Y-%m-%d")
@@ -875,6 +883,8 @@ def _parse_iso_date(s: str) -> datetime:
         raise ValueError(f"unrecognised date format: {s!r}") from exc
     if d.tzinfo is None:
         d = d.replace(tzinfo=timezone.utc)
+    if end_of_day and not has_time:
+        d = d.replace(hour=23, minute=59, second=59, microsecond=999999)
     return d
 
 

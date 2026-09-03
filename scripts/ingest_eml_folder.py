@@ -81,6 +81,27 @@ _INLINE_IMAGE_NAME_RE = re.compile(
 _SIGNATURE_LOGO_MAX_BYTES = 50 * 1024
 
 
+def _decode_mime_header(value: Optional[str]) -> str:
+    """Decode an RFC2047-encoded header ('=?utf-8?B?...?=') to plain text.
+
+    `message_from_bytes` uses the compat32 policy, so `msg.get("Subject")`
+    returns the raw encoded form for any subject containing a non-ASCII
+    character — an em-dash is enough. Stored raw, the subject is base64
+    gibberish: BM25 cannot match it, `_normalize_subject` cannot strip the
+    "Re:" inside it, and the subject-derived thread_id fragments the thread.
+    Plain-ASCII subjects pass through unchanged.
+    """
+    from email.header import decode_header, make_header
+
+    raw = (value or "").strip()
+    if "=?" not in raw:
+        return raw
+    try:
+        return str(make_header(decode_header(raw))).strip()
+    except Exception:  # noqa: BLE001 — malformed encoding: keep what we have
+        return raw
+
+
 def _normalize_subject(subject: str) -> str:
     s = subject or ""
     prev = None
@@ -242,7 +263,7 @@ def parse_eml_file(path: Path, root: Path) -> Dict[str, Any]:
     raw = _strip_mbox_from_line(raw)
     msg = message_from_bytes(raw)
 
-    subject = (msg.get("Subject") or "").strip()
+    subject = _decode_mime_header(msg.get("Subject"))
     subject_norm = _normalize_subject(subject)
     sender = _addr(msg.get("From"))
     to = _addr_list(msg, "To")

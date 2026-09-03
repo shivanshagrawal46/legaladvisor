@@ -143,6 +143,7 @@ def extract_from_bytes(
     vision_min_pages: int = 3,
     vision_dpi: int = 180,
     vision_concurrency: int = 8,
+    allow_rapidocr: bool = True,
 ) -> ExtractionResult:
     """Extract text from a binary blob. Routes by file extension."""
     ext = _filename_ext(filename)
@@ -163,12 +164,14 @@ def extract_from_bytes(
             vision_min_pages=vision_min_pages,
             vision_dpi=vision_dpi,
             vision_concurrency=vision_concurrency,
+            allow_rapidocr=allow_rapidocr,
         )
         if not pages:
             return ExtractionResult(text="", method="skipped", skipped_reason="pdf_unreadable")
 
         n_text = sum(1 for p in pages if p.method == "text_layer" and p.text)
-        n_ocr = sum(1 for p in pages if p.method in ("ocr", "claude_vision") and p.text)
+        n_ocr = sum(1 for p in pages
+                    if p.method in ("ocr", "claude_vision", "openai_vision") and p.text)
         method = (
             "pdf_text" if n_ocr == 0
             else ("pdf_ocr" if n_text == 0 else "pdf_mixed")

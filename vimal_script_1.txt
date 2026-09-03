@@ -1,0 +1,51 @@
+# VIMAL ENTERPRISES — Voice-over Script v2 (17 sections, 139 sec)
+# Source: Vimal_Final_Voiceover_Script_v2.docx, "CLEAN SCRIPT" page.
+#
+# Two changes were needed to make this work well with Sarvam Bulbul v3:
+#
+# 1. Romanised Hindi converted to Devanagari. Sarvam's docs list romanised
+#    Indic input as the single biggest cause of bad output. English industry
+#    terms (carton, packaging, Corrugation, brand) stay in Latin script, which
+#    is exactly how the model expects Hinglish.
+#
+# 2. The script's "…" pause notation is mostly rendered as commas. In Bulbul,
+#    "…" means hesitation / trailing-off, and the docs warn that overusing it
+#    sounds choppy. A comma is the correct mark for the short natural pause
+#    this script intends. A few genuine trailing-off moments keep their "…".
+#
+# Section 1 starts at 0:01, per the direction note that the first second is
+# music-only over black.
+
+00:01 --> 00:10 हर packaging की एक कहानी होती है, हर carton के अंदर होता है, एक brand का भरोसा। Vimal Enterprises में, हम इसी भरोसे को packaging में बदलते हैं।
+
+00:10 --> 00:17 ये सफ़र शुरू होता है, customer को समझने से। Front Office team हर ज़रूरत सुनती है, communication simple, clear और seamless.
+
+00:17 --> 00:23 फिर हमारी Designing Team, आपकी requirement को एक professional और creative packaging design में बदलती है।
+
+00:23 --> 00:28 Back Office team, orders से dispatch तक पूरी coordination smooth रखती है।
+
+00:28 --> 00:37 सालों का अनुभव, cutting-edge technology, और एक ही vision, best quality और complete satisfaction. चलिए देखते हैं… ये perfection बनता कैसे है।
+
+00:37 --> 00:44 क्योंकि एक strong carton की कहानी, शुरू होती है सही raw material से। हर step systematic, हर process planned.
+
+00:44 --> 00:55 अब शुरू होता है manufacturing का core process, Corrugation. Dual-reel operation से paper को मिलता है required structure, ताकि carton strength में भी dependable हो।
+
+00:55 --> 01:03 हर design अलग होता है, इसलिए precision ज़रूरी है। Label Cutting में top labels exact specifications पर cut होते हैं।
+
+01:03 --> 01:12 उसके बाद, two-ply material को pasting के through एक strong three-ply structure में convert किया जाता है। यहीं से paper, एक carton की असली strength लेना शुरू करता है।
+
+01:12 --> 01:20 Rotary process में corner finishing और creasing की जाती है, जिससे हर carton को मिलता है accurate fold, proper shape और clean finishing.
+
+01:20 --> 01:30 लेकिन packaging सिर्फ़ protection नहीं होती, वो आपके brand की identity भी होती है। Printer-Slotter में high-quality printing के साथ accurate dimensions ensure की जाती हैं।
+
+01:30 --> 01:37 फिर आता है Gluing, जहाँ हर joint को strong bonding के साथ assemble किया जाता है, ताकि carton अपनी strength बनाए रखे।
+
+01:37 --> 01:43 जहाँ ज़रूरत हो, Stitching से carton को मिलती है additional strength और durability.
+
+01:43 --> 01:53 Manufacturing complete होने के बाद, cartons को systematically pack किया जाता है, ताकि handling से लेकर loading तक, हर stage safe और efficient रहे।
+
+01:53 --> 02:04 और यही process है, जिससे बनते हैं देश के trusted brands के cartons. हर industry के लिए, हर ज़रूरत के लिए, customized packaging solutions.
+
+02:04 --> 02:11 Ready cartons को carefully load करके dispatch किया जाता है। Smooth और safe delivery के लिए, हमारे पास अपने तीन vehicles हैं।
+
+02:11 --> 02:19 हमारे लिए carton बनाना सिर्फ़ production नहीं, एक responsibility है। आपके product की, आपके brand की, आपके promise की। Vimal Enterprises.

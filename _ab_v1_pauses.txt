@@ -1,0 +1,8 @@
+# A/B version 1 — pauses restored, ~15% of words trimmed to pay for them.
+# Your original three-beat structure in cue 1 is back as three beats.
+
+00:01 --> 00:10 हर packaging की… एक कहानी होती है। हर carton में… एक brand का भरोसा। Vimal Enterprises… इसी भरोसे को packaging में बदलता है।
+
+00:10 --> 00:17 शुरुआत होती है… customer को समझने से। Front Office हर ज़रूरत सुनती है… communication simple और clear.
+
+00:17 --> 00:23 फिर हमारी Designing Team… आपकी requirement को professional packaging design में बदलती है।

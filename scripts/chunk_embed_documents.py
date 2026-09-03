@@ -86,12 +86,23 @@ def main() -> int:
                     help="re-chunk/embed ONLY this document _id (scoped, cheap)")
     ap.add_argument("--shard", default=None,
                     help="k/N disjoint worker shard by hash(_id), e.g. 0/4")
+    ap.add_argument("--ctx-batch", type=int, default=None,
+                    help="chunks per contextual-summary call. >1 re-reads the "
+                         "cached document once per BATCH instead of once per "
+                         "chunk, cutting cache-read tokens by that factor.")
+    ap.add_argument("--source-type", default=None,
+                    help="restrict to one source_type (e.g. court_record)")
+    ap.add_argument("--instrument-subtype", default=None,
+                    help="restrict further to one instrument_subtype (e.g. "
+                         "nyscef_efiled). Use this to guarantee a run can only "
+                         "touch a specific batch of documents.")
     args = ap.parse_args()
     s = Settings.load()
     now = datetime.now(timezone.utc)
     size, overlap = s.chunk_size_tokens, s.chunk_overlap_tokens
 
-    summarizer = ContextualSummarizer(s.anthropic_api_key, model="claude-sonnet-4-6")
+    summarizer = ContextualSummarizer(s.anthropic_api_key, model="claude-sonnet-4-6",
+                                      batch_size=args.ctx_batch)
     embedder = VoyageEmbedder(s.voyage_api_key, model="voyage-4-large")
     m = MongoClientWrapper(s.mongo_uri, s.mongo_db_name)
     docs, chunks = m.db["documents"], m.db[CHUNKS]
@@ -104,7 +115,10 @@ def main() -> int:
         except Exception:  # noqa: BLE001
             pass
 
-    q: Dict[str, Any] = {"source_type": {"$in": TARGET_TYPES}}
+    target_types = [args.source_type] if args.source_type else TARGET_TYPES
+    q: Dict[str, Any] = {"source_type": {"$in": target_types}}
+    if args.instrument_subtype:
+        q["instrument_subtype"] = args.instrument_subtype
     if args.doc_id:
         q = {"_id": args.doc_id}            # scoped single-doc re-embed
         chunks.delete_many({"document_id": args.doc_id})  # drop stale chunks first
@@ -119,9 +133,13 @@ def main() -> int:
         logger.info(f"shard {sk}/{sn}: {len(pending)} docs in this worker")
     if args.limit:
         pending = pending[: args.limit]
-    total_docs = docs.count_documents({"source_type": {"$in": TARGET_TYPES}})
+    scope: Dict[str, Any] = {"source_type": {"$in": target_types}}
+    if args.instrument_subtype:
+        scope["instrument_subtype"] = args.instrument_subtype
+    total_docs = docs.count_documents(scope)
     logger.info(f"{len(pending)} documents to chunk/embed "
-                f"({total_docs - len(pending)} already done) | chunk {size}/{overlap}")
+                f"({total_docs - len(pending)} already done) | chunk {size}/{overlap} "
+                f"| ctx_batch={summarizer.batch_size}")
 
     done = total_chunks = 0
     for n, ref in enumerate(pending, 1):
@@ -146,9 +164,26 @@ def main() -> int:
         vectors = embedder.embed_documents(embed_texts)
 
         prop_ids = d.get("property_ids") or []
+        # Provenance carried ON the chunk, so a retrieved hit can be cited
+        # ("which file, which case, which docket entry?") without a second
+        # lookup into `documents`.
+        cust = d.get("custody") or {}
+        srcs = cust.get("source_files") or []
+        provenance = {
+            "source_filename": (srcs[0] if srcs else None),
+            "source_path": cust.get("source_path"),
+            "origin": cust.get("origin"),
+            "instrument_subtype": d.get("instrument_subtype"),
+            "case_number": d.get("case_number"),
+            "case_title": d.get("case_title"),
+            "court": d.get("court"),
+            "document_title": d.get("document_title"),
+            "docket_no": d.get("docket_no"),
+        }
         chunk_docs = []
         for i, body in enumerate(bodies):
             chunk_docs.append({
+                **provenance,
                 "_id": f"{d['_id']}::{i}", "source_type": d["source_type"],
                 "document_id": d["_id"], "sha256": (d.get("custody") or {}).get("sha256"),
                 "chunk_index": i, "total_chunks": len(bodies),
@@ -186,8 +221,9 @@ def main() -> int:
     logger.info("================ CHUNK+EMBED DONE (this run) ================")
     logger.info(f"docs processed={done}  chunks written={total_chunks}")
     logger.info(f"email_chunks_v2 now: {chunks.estimated_document_count()} total chunks; "
-                f"phase3 docs chunked={docs.count_documents({'source_type':{'$in':TARGET_TYPES},'chunked_at':{'$exists':True}})}"
+                f"in-scope docs chunked={docs.count_documents(dict(scope, **{'chunked_at':{'$exists':True}}))}"
                 f"/{total_docs}")
+    logger.info(f"contextual-summary usage: {summarizer.usage_summary}")
     m.close()
     return 0
 

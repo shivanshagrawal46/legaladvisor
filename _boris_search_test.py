@@ -13,9 +13,9 @@ from src.db.mongo import MongoClientWrapper
 from src.rag.embedder import VoyageEmbedder
 
 QUERIES = [
-    "CrossCountry counsel adjourning their motion and buying their debt",
-    "statute of limitations two year period from the 31FO bankruptcy filing",
-    "claim calculation for IPA due by the 31st",
+    "trustee application to retain Prager in the IPA case",
+    "motion to vacate abandonment of 8 Heron",
+    "MangoTree partner update August 2026",
 ]
 
 s = Settings.load()

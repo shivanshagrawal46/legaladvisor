@@ -57,7 +57,7 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pymongo import ASCENDING
+from pymongo import ASCENDING, ReplaceOne
 
 from config.settings import Settings
 from src.db.mongo import MongoClientWrapper
@@ -191,17 +191,16 @@ def _process_one(
         })
 
     if v2_docs:
-        # Insert with ordered=False so a single duplicate (re-run, partial
-        # prior run) doesn't abort the whole batch — pymongo skips dupes
-        # and processes the rest.
-        try:
-            v2_coll.insert_many(v2_docs, ordered=False)
-        except Exception as exc:
-            # BulkWriteError happens when some _ids already exist (resume
-            # mid-batch). That's expected and safe — log and continue.
-            msg = str(exc).lower()
-            if "duplicate key" not in msg and "e11000" not in msg:
-                raise
+        # ReplaceOne(upsert=True), NOT insert_many: a re-run must be able to
+        # OVERWRITE an existing row. insert_many raised a duplicate-key error
+        # on the reused _id and the handler swallowed it, so `--force` /
+        # `--force-vision` silently discarded the freshly OCR'd text and left
+        # the earlier (e.g. born-digital) extraction in place. Upsert makes
+        # a resume a no-op and a forced re-OCR actually land.
+        v2_coll.bulk_write(
+            [ReplaceOne({"_id": d["_id"]}, d, upsert=True) for d in v2_docs],
+            ordered=False,
+        )
 
     return {
         "sha256": sha256,

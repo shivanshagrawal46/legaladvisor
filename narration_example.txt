@@ -1,0 +1,36 @@
+# Hinglish narration script for the Vimal Enterprises documentary.
+#
+# FORMAT
+#   One cue per line, starting with the timestamp where it should begin:
+#       00:05 यहाँ से शुरू होती है कहानी।
+#   Optionally pin an explicit end to fit the cue into an exact slot:
+#       00:18 --> 00:26 Kraft paper के विशाल reels यहाँ पहुँचते हैं।
+#   Without an end time, a cue gets the room up to the next cue.
+#   Lines starting with # are ignored. A line with no timestamp continues
+#   the cue above it. Timestamps accept SS, MM:SS or HH:MM:SS. .srt works too.
+#
+# HINGLISH RULES (these matter — Sarvam degrades badly if you break them)
+#   - Hindi words in Devanagari, NEVER romanised.
+#       सही:  आपका order confirm हो गया है
+#       गलत:  Aapka order confirm ho gaya hai
+#   - English words stay in Latin script: machine, quality, plant, board.
+#   - End a Hindi sentence with । and an English sentence with a full stop.
+#   - Numbers over 4 digits need commas: 10,000 — otherwise they are read digit by digit.
+
+00:02 हर मज़बूत box की शुरुआत होती है एक ऐसी चीज़ से, जो खुद बेहद नाज़ुक है — कागज़ की एक अकेली sheet।
+
+00:11 ये है Vimal Enterprises, और आप देख रहे हैं manufacturing की सबसे satisfying processes में से एक।
+
+00:22 --> 00:31 Kraft paper यहाँ पहुँचता है एक टन से भी भारी reels में, और ये line कभी रुकती नहीं।
+
+00:34 Heat, pressure, और starch. बस यही है पूरा secret। Paper को steam किया जाता है, fluted rollers के बीच दबाया जाता है, और बाहर आता है लहरों जैसा एक rippled board।
+
+00:52 यही flutes असली engineering हैं। हर arch वज़न को उसी तरह उठाता है जैसे एक bridge उठाता है — इसीलिए कुछ सौ ग्राम का paper सौ किलो तक संभाल लेता है।
+
+01:12 Layer दर layer, board बनता है, glue होता है, और size में cut होता है — हर घंटे हज़ारों sheets, और हर एक one millimetre की accuracy के अंदर।
+
+01:32 फिर printing brand को ज़िंदगी देती है, और तैयार blanks stack होकर, strap होकर despatch के लिए रवाना हो जाते हैं।
+
+01:52 कच्चे paper के एक reel से लेकर shelf पर रखे box तक — सब कुछ एक ही continuous line में।
+
+02:08 Vimal Enterprises. Built to carry more.

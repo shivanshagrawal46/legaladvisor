@@ -825,6 +825,30 @@ def main() -> int:
         t0 = time.time()
         last_log = t0
 
+        # Per-worker accounting. The pool hands jobs out from one shared queue
+        # rather than pre-slicing them, because documents differ enormously in
+        # size — a 385-page PDF next to a 1-page letter. Fixed slices would
+        # leave most workers idle behind the slowest one. These counters make
+        # the actual distribution visible.
+        w_lock = threading.Lock()
+        w_now: Dict[str, Tuple[str, float]] = {}   # thread -> (label, started)
+        w_done: Dict[str, int] = {}                # thread -> docs finished
+        w_secs: Dict[str, float] = {}              # thread -> seconds busy
+
+        def _tracked(label: str, fn, *a, **kw):
+            """Run one job, recording which worker took it and for how long."""
+            tn = threading.current_thread().name
+            start = time.time()
+            with w_lock:
+                w_now[tn] = (label, start)
+            try:
+                return fn(*a, **kw)
+            finally:
+                with w_lock:
+                    w_now.pop(tn, None)
+                    w_done[tn] = w_done.get(tn, 0) + 1
+                    w_secs[tn] = w_secs.get(tn, 0.0) + (time.time() - start)
+
         def _log_progress() -> None:
             nonlocal last_log
             now = time.time()
@@ -839,21 +863,45 @@ def main() -> int:
                     f"ctx_cost=${u['approx_cost_usd']:.2f}  "
                     f"cache_read={u['cache_read_tokens']:,}"
                 )
+            with w_lock:
+                busy = sorted(w_now.items())
+                done_snapshot = dict(w_done)
             logger.info(
                 f"  [{n_jobs_done:>5}/{n_jobs_total}]  "
                 f"att={flusher.n_att_groups_written}  "
                 f"body={flusher.n_body_groups_written}  "
                 f"chunks={flusher.n_chunks_written}  "
-                f"rate={rate:.2f} doc/s  eta={eta_min:.1f}min" + ctx_str
+                f"rate={rate:.2f} doc/s  eta={eta_min:.1f}min"
+                f"  busy={len(busy)}/{args.workers}" + ctx_str
             )
+            for tn, (label, started) in busy:
+                logger.info(
+                    f"       {tn:<10} {now - started:>6.0f}s  "
+                    f"done={done_snapshot.get(tn, 0):<3} {label[:52]}"
+                )
             last_log = now
+
+        def _log_worker_summary(phase: str) -> None:
+            with w_lock:
+                done_snapshot = dict(w_done)
+                secs_snapshot = dict(w_secs)
+            if not done_snapshot:
+                return
+            logger.info(f"  --- {phase}: work distribution across "
+                        f"{len(done_snapshot)} workers ---")
+            for tn in sorted(done_snapshot):
+                logger.info(f"       {tn:<10} docs={done_snapshot[tn]:<4} "
+                            f"busy={secs_snapshot.get(tn, 0.0):>7.0f}s")
 
         # ---- Phase B: attachments by unique sha256 ----------------------
         if attachment_jobs:
             logger.info(f"--- Phase B: {len(attachment_jobs)} unique attachments ---")
-            with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            with ThreadPoolExecutor(max_workers=args.workers,
+                                    thread_name_prefix="w") as pool:
                 futs = {
                     pool.submit(
+                        _tracked,
+                        (occs[0].get("filename") or sha[:12]),
                         _process_one_sha256,
                         sha, occs,
                         extension=attachment_extension.get(sha),
@@ -886,13 +934,17 @@ def main() -> int:
 
             flusher.flush(force=True)
             _log_progress()
+            _log_worker_summary("Phase B")
 
         # ---- Phase C: email bodies --------------------------------------
         if body_jobs:
             logger.info(f"--- Phase C: {len(body_jobs)} email bodies ---")
-            with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            with ThreadPoolExecutor(max_workers=args.workers,
+                                    thread_name_prefix="w") as pool:
                 futs = {
                     pool.submit(
+                        _tracked,
+                        f"body {str(eid)[-8:]}",
                         _process_one_body,
                         eid,
                         emails_col=mongo.emails,
@@ -923,6 +975,7 @@ def main() -> int:
 
             flusher.flush(force=True)
             _log_progress()
+            _log_worker_summary("Phase C")
 
         # ---- Phase D: sync occurrences[] for already-existing sha256s --
         # Any sha256 we skipped in the idempotency filter may have NEW

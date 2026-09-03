@@ -129,6 +129,12 @@ def extract_pdf(
     # this, OCR only the first N and leave the rest empty. Prevents
     # RapidOCR from hanging worker threads on huge scanned filings.
     max_rapidocr_pages_per_doc: int = 12,
+    # When False the local engine is removed from the chain entirely: a page is
+    # transcribed by Claude or GPT-5 or not at all. For evidentiary corpora that
+    # is the right trade — a page marked `vision_failed` is visibly missing and
+    # can be re-run, whereas a silent drop to a weaker local engine buries
+    # low-quality text in the corpus where nothing flags it.
+    allow_rapidocr: bool = True,
 ) -> List[PdfPage]:
     """Extract per-page text from a PDF blob using the hybrid strategy."""
     pages: List[PdfPage] = []
@@ -199,7 +205,8 @@ def extract_pdf(
             except Exception as exc:
                 logger.warning(
                     f"  Claude vision batch failed entirely ({exc!r}); "
-                    f"falling back to RapidOCR sequentially"
+                    + ("falling back to RapidOCR sequentially" if allow_rapidocr
+                       else "RapidOCR is disabled — affected pages stay empty")
                 )
                 vision_results = []
 
@@ -226,6 +233,15 @@ def extract_pdf(
             consecutive_failures = 0
             for i in ocr_needed_idxs:
                 if i in handled_pages or text_layer_pages[i] is not None:
+                    continue
+                if not allow_rapidocr:
+                    logger.warning(
+                        f"  page {i + 1}: both Claude and GPT-5 vision failed; "
+                        f"RapidOCR disabled — leaving page empty for re-run"
+                    )
+                    text_layer_pages[i] = PdfPage(
+                        page_no=i + 1, text="", method="vision_failed"
+                    )
                     continue
                 ok, pg, primitive_err = _ocr_page_with_rapidocr(
                     doc[i], i + 1, ocr_lang=ocr_lang, ocr_dpi=ocr_dpi
@@ -264,6 +280,18 @@ def extract_pdf(
                     )
             else:
                 ocr_targets = ocr_needed_idxs
+
+            if not allow_rapidocr:
+                if ocr_targets:
+                    logger.warning(
+                        f"  {len(ocr_targets)} page(s) need OCR but vision is "
+                        f"unavailable and RapidOCR is disabled — left empty"
+                    )
+                for i in ocr_targets:
+                    text_layer_pages[i] = PdfPage(
+                        page_no=i + 1, text="", method="vision_unavailable"
+                    )
+                ocr_targets = []
 
             consecutive_failures = 0
             for i in ocr_targets:

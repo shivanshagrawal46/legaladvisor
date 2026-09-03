@@ -39,6 +39,7 @@ from src.utils.logger import logger
 from scripts.ingest_eml_folder import (
     _strip_mbox_from_line, _addr, _addr_list, _parse_date,
     _extract_bodies, _extract_attachments, _normalize_subject,
+    _decode_mime_header,
 )
 from src.cleaner import clean_email_body, html_to_text
 
@@ -57,7 +58,7 @@ def parse_raw_email(raw: bytes) -> Dict[str, Any]:
     raw = _strip_mbox_from_line(raw)
     msg = message_from_bytes(raw)
 
-    subject = (msg.get("Subject") or "").strip()
+    subject = _decode_mime_header(msg.get("Subject"))
     subject_norm = _normalize_subject(subject)
     sender = _addr(msg.get("From"))
     to = _addr_list(msg, "To")
